@@ -37,7 +37,6 @@ def main1():
 		output_file.close()
 
 
-
 def main2():
 	program = os.path.basename(sys.argv[0])
 	logger = logging.getLogger(program)
@@ -65,5 +64,33 @@ def main2():
 	inp.close()
 	logger.info("Finished removed words!")
 
+def my_write(begin_write, cur_line, output_name):
+		if begin_write:
+			out_file = open(output_name, 'a', encoding='utf-8')
+			out_file.write(cur_line)
+			out_file.close()
+
+def get_content():
+	inp = open('../data/raw/SemEval2010_train_raw.txt', 'r', encoding='utf-8')
+	begin_write = False
+	lines = inp.readlines()
+	for line in lines:
+		if 'ABSTRACT' in line:
+			begin_write = True
+			continue
+		if 'REFERENCES' in line:
+			begin_write = False
+			continue
+		my_write(begin_write, line, '../data/SE2010_content.txt')
+	inp.close()
+
+
 if __name__ == '__main__':
 	main2()
+	#get_content()
+	# f1 = open('../data/raw/SemEval2010_train_raw.txt', 'r', encoding='utf-8')
+	# f2 = open('../data/SE2010_content.txt', 'r', encoding='utf-8')
+	# print(len(f1.readlines()))
+	# print(len(f2.readlines()))
+	# f1.close()
+	# f2.close()

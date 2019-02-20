@@ -36,10 +36,13 @@ if __name__ == '__main__':
     inp, outp1, outp2 = sys.argv[1:4]
     train_file = inp
     train_corpus = list(read_corpus(train_file))
-    model = Doc2Vec(vector_size=100, min_count=1, window=2, workers=multiprocessing.cpu_count())
-    model.build_vocab(train_corpus)
-    model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
-    model.save(outp1)
+    for i in range(50):
+        print(train_corpus[i])
+    # model = Doc2Vec(vector_size=100, min_count=1, window=2, workers=multiprocessing.cpu_count())
+    # model.build_vocab(train_corpus)
+    # model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
+    # model.save(outp1)
+
     # model.wv.save(outp2, binary=False)
 # lee_train_file = '../data/raw/SemEval2010_train_raw.txt'
 # lee_test_file = '../data/SemEval2010/train/C-41.txt.final'
