@@ -106,38 +106,27 @@ def get_most_label(ind2vec, clusters):     # 获得测试文本中单词数最�
     print('本文中%d类包含的单词最多，单词数为：%d,占本文单词的%f%%' % (most_label, most_num, most_num * 100.0 / len(ind2vec)))
     return most_label
 
+def read_corpus(fname):
+    with open(fname, 'r', encoding='utf-8') as f:
+        content = f.read().split('.')
+    return content
 def main():
-    model = Doc2Vec.load('../data/model/sen2vec/SE2010_100.model')
-    sen2vec = np.load('../data/model/sen2vec/SE2010_100.model.docvecs.vectors_docs.npy')
-    print(sen2vec)
-    # embedding_file = open('../data/model/SE2010_200_SG.vector', 'r', encoding='utf-8', errors='surrogateescape')
-    # words, wordvecs = read(embedding_file, dtype=float)
-    # assert len(words) == wordvecs.shape[0]
-    # word2ind = {word: i for i, word in enumerate(words)}
-    # db_model = DBSCAN(eps=1.98, min_samples=3).fit(wordvecs)
-    # # db_model = KMeans(n_clusters=4, max_iter=500, random_state=0).fit(wordvecs)
-    # db_labels = db_model.labels_
-    # n_clusters = len(set(db_labels)) - (1 if -1 in db_labels else 0)
-    # print('聚类的类别数目(噪音类除外)：%d' % n_clusters)
-    # ratio = len(db_labels[db_labels[:] == -1]) / len(db_labels)
-    # print('噪音率:' + str(ratio))
-    # clusters = get_DBSCAN_clusters(wordvecs, db_labels)
-    # print('聚类结果为：')
-    # for label in clusters:
-    #     print(str(label) + ':' + str(clusters[label].shape[0]) )
-    # centers = get_centers(db_model, clusters, 'DBSCAN')
-    # ind2vec_test = get_index2vectors('../data/SemEval2010/train_removed/C-41.txt', word2ind, wordvecs)
-    # most_label = get_most_label(ind2vec_test, clusters)
-    # index_distance = distance_sort(ind2vec_test, centers[most_label], 'cos')
-    # top_k = 0
-    # for index in index_distance:
-    #     cur_word = words[index]
-    #     top_k += 1
-    #     print('%d、%s' % (top_k, cur_word))
-    #     print(index_distance[index])
-    #     if top_k >= 30 or top_k >= len(index_distance):
-    #         break
-    # embedding_file.close()
+    model = Doc2Vec.load('../data/model/sen2vec/SE2010_200.model')
+    content = read_corpus('../data/SE2010_content.txt')
+    vectors = np.load('../data/model/sen2vec/SE2010_200.model.docvecs.vectors_docs.npy')
+    db_model = DBSCAN(eps=1.98, min_samples=3).fit(vectors)
+    # vector = model.infer_vector('a challenging problem faced by researchers and developers'.split(' '))
+    # sims = model.docvecs.most_similar([vector], topn=20)
+    sims = model.docvecs.most_similar([vectors[0]], topn=20)
+    for count, sim in sims:
+        sentence = content[count]
+        print(count)
+        print(sentence)
+        print(sim)
+        print('--------------------------------------------------------')
+
+
+
 
 
 if __name__ == '__main__':
