@@ -1,5 +1,7 @@
 import numpy as np
 import operator
+import jieba
+import re
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.cluster import DBSCAN
@@ -61,20 +63,33 @@ def distance_sort(ind2vec, cur_center, method):     # 获得根据与中心点�
     sorted_index_distance = dict(sorted_distance)
     return sorted_index_distance
 
-def get_index2vectors(filename, word2ind, wordvecs):    # 获得测试文本中所有词的词向量
+def get_index2vectors(word2ind, wordvecs, filename=None, cur_str=None):    # 获得测试文本中所有词的词向量
     ind2vec = {}
-    test_file = open(filename, 'r', encoding='utf-8')
-    for line in test_file.readlines():
-        curline_words = line.split(' ')
-        for word in curline_words:
+    if filename:
+        test_file = open(filename, 'r', encoding='utf-8')
+        for line in test_file.readlines():
+            curline_words = line.split(' ')
+            for word in curline_words:
+                if word == '\n':
+                    continue
+                elif word in word2ind:
+                    cur_index = word2ind[word]
+                    cur_vec = wordvecs[cur_index]
+                    ind2vec[cur_index] = cur_vec
+        test_file.close()
+    elif cur_str:
+        rm_str = re.sub("[\s+\.\!\/_,;\[\]><•¿#&«»∗`{}=|1234567890¡?():$%^*(+\"\']+|[+！，。？；：、【】《》“”‘’~@#￥%……&*（）''""]+", " ", cur_str)
+        print(rm_str)
+        seg_list = jieba.cut(cur_str)
+        for word in seg_list:
             if word == '\n':
                 continue
             elif word in word2ind:
                 cur_index = word2ind[word]
                 cur_vec = wordvecs[cur_index]
                 ind2vec[cur_index] = cur_vec
-    test_file.close()
     return ind2vec
+
 
 def get_most_label(ind2vec, clusters):     # 获得测试文本中单词数最多的类别
     class_vector = {}
@@ -106,11 +121,11 @@ def get_most_label(ind2vec, clusters):     # 获得测试文本中单词数最�
     return most_label
 
 def main():
-    embedding_file = open('../data/model/SE2010_200_SG.vector', 'r', encoding='utf-8', errors='surrogateescape')
+    embedding_file = open('../data/model/word2vec/patent/bxk_100_SG.vector', 'r', encoding='utf-8', errors='surrogateescape')
     words, wordvecs = read(embedding_file, dtype=float)
     assert len(words) == wordvecs.shape[0]
     word2ind = {word: i for i, word in enumerate(words)}
-    db_model = DBSCAN(eps=1.98, min_samples=3).fit(wordvecs)
+    db_model = DBSCAN(eps=1.0, min_samples=3).fit(wordvecs)
     # db_model = KMeans(n_clusters=4, max_iter=500, random_state=0).fit(wordvecs)
     db_labels = db_model.labels_
     n_clusters = len(set(db_labels)) - (1 if -1 in db_labels else 0)
@@ -122,7 +137,8 @@ def main():
     for label in clusters:
         print(str(label) + ':' + str(clusters[label].shape[0]) )
     centers = get_centers(db_model, clusters, 'DBSCAN')
-    ind2vec_test = get_index2vectors('../data/SemEval2010/train_removed/C-41.txt', word2ind, wordvecs)
+    ind2vec_test = get_index2vectors(word2ind, wordvecs,cur_str='本发明公开一种具有语音交互功能的声控空调器，通过用户发出的语音指令信息直接对空调器进行控制，并在对空调进行语音控制过程中通过反馈语音指令信息给用户确认，实现用户与空调的语音交互。该技术方案能够完全摆脱遥控器实现对空调的控制，操作方便，同时，语音交互方式具有灵活性，能够满足不同用户个性化的要求，提高了用户的体验。')
+    # ind2vec_test = get_index2vectors(word2ind, wordvecs,filename='../data/SemEval2010/train_removed/C-41.txt')
     most_label = get_most_label(ind2vec_test, clusters)
     index_distance = distance_sort(ind2vec_test, centers[most_label], 'cos')
     top_k = 0
