@@ -79,8 +79,7 @@ def get_index2vectors(word2ind, wordvecs, filename=None, cur_str=None):    # 获
         test_file.close()
     elif cur_str:
         rm_str = re.sub("[\s+\.\!\/_,;\[\]><•¿#&«»∗`{}=|1234567890¡?():$%^*(+\"\']+|[+！，。？；：、【】《》“”‘’~@#￥%……&*（）''""]+", " ", cur_str)
-        print(rm_str)
-        seg_list = jieba.cut(cur_str)
+        seg_list = jieba.cut(rm_str)
         for word in seg_list:
             if word == '\n':
                 continue
@@ -91,13 +90,13 @@ def get_index2vectors(word2ind, wordvecs, filename=None, cur_str=None):    # 获
     return ind2vec
 
 
-def get_most_label(ind2vec, clusters):     # 获得测试文本中单词数最多的类别
+def get_most_label(ind2vec, clusters, dim):     # 获得测试文本中单词数最多的类别
     class_vector = {}
     for index in ind2vec:
         for label in clusters:
             if ind2vec[index] in clusters[label]:
                 if label not in class_vector:
-                    class_vector[label] = ind2vec[index]
+                    class_vector[label] = ind2vec[index].reshape(1, dim)
                 else:
                     class_vector[label] = np.row_stack((class_vector[label], ind2vec[index]))
                 break
@@ -137,9 +136,9 @@ def main():
     for label in clusters:
         print(str(label) + ':' + str(clusters[label].shape[0]) )
     centers = get_centers(db_model, clusters, 'DBSCAN')
-    ind2vec_test = get_index2vectors(word2ind, wordvecs,cur_str='本发明公开一种具有语音交互功能的声控空调器，通过用户发出的语音指令信息直接对空调器进行控制，并在对空调进行语音控制过程中通过反馈语音指令信息给用户确认，实现用户与空调的语音交互。该技术方案能够完全摆脱遥控器实现对空调的控制，操作方便，同时，语音交互方式具有灵活性，能够满足不同用户个性化的要求，提高了用户的体验。')
+    ind2vec_test = get_index2vectors(word2ind, wordvecs,cur_str='本发明提供了一种水箱及包括该水箱的除湿机。水箱包括水箱本体和具有浮子的浮子组件，水箱本体上设置有浮子组件安装部，浮子组件枢接于浮子组件安装部，水箱还包括：浮子保护罩，罩设于浮子组件的上方。根据本发明，可以避免因用户的误操作而引起的浮子组件失效的问题。')
     # ind2vec_test = get_index2vectors(word2ind, wordvecs,filename='../data/SemEval2010/train_removed/C-41.txt')
-    most_label = get_most_label(ind2vec_test, clusters)
+    most_label = get_most_label(ind2vec_test, clusters, wordvecs.shape[1])
     index_distance = distance_sort(ind2vec_test, centers[most_label], 'cos')
     top_k = 0
     for index in index_distance:
