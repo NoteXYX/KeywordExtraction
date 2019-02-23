@@ -1,7 +1,6 @@
 import gensim
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
-import collections
-import smart_open
+import jieba
 import random
 import logging
 import os
@@ -20,9 +19,11 @@ def read_corpus(fname, tokens_only=False):
     #         else:
     #             # For training data, add tags
     #             yield TaggedDocument(gensim.utils.simple_preprocess(line), [i])
-    with open(fname, 'r') as f:
-        content = f.read().split('.')
+    with open(fname, 'r', encoding='utf-8') as f:
+        content = f.read().split('。')
+        # print(content)
         for i in range(len(content)):
+            content[i] = ' '.join(jieba.cut(content[i])).split()
             yield TaggedDocument(gensim.utils.simple_preprocess(content[i]), [i])
 
 if __name__ == '__main__':
@@ -34,15 +35,19 @@ if __name__ == '__main__':
     logger.info("running %s" % ' '.join(sys.argv))
 
     # check and process input arguments
-    if len(sys.argv) < 4:
-        # print(globals()['__doc__'] % locals())
+    if len(sys.argv) < 3:
+        print(globals()['__doc__'] % locals())
         sys.exit(1)
-    inp, outp1, outp2 = sys.argv[1:4]
+    inp, outp1 = sys.argv[1:3]
     train_file = inp
     train_corpus = list(read_corpus(train_file))
-    model = Doc2Vec(train_corpus, vector_size=300, min_count=1, window=2, workers=multiprocessing.cpu_count())
-    model.save(outp1)
-    #model.sav(outp2, binary=False)
+    print(train_corpus)
+    # model = Doc2Vec(vector_size=200, window=2, min_count=1, dm=1, workers=multiprocessing.cpu_count())
+    # model.build_vocab(train_corpus)
+    # model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
+    # model = Doc2Vec(train_corpus, vector_size=200, window=2, min_count=1, dm=1, workers=multiprocessing.cpu_count())
+    # model.save(outp1)
+    # python train_sec2vec_ZH.py ..\data\patent_abstract\_bxk_abstract.txt ..\data\model\sen2vec\bxk_200_dm.model
 # lee_train_file = '../data/raw/SemEval2010_train_raw.txt'
 # lee_test_file = '../data/SemEval2010/train/C-41.txt.final'
 #
