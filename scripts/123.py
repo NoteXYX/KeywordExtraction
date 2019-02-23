@@ -21,6 +21,15 @@ def plot_with_labels(low_dim_embs, colors, labels, filename):
                      va='bottom')
 
     plt.savefig(filename)
+
+def get_class_num(labels):
+    class_num = {}
+    for label in labels:
+        if label not in class_num:
+            class_num[label] = 1
+        else:
+            class_num[label] += 1
+    return class_num
 # X1, y1=datasets.make_circles(n_samples=5000, factor=.6,
 #                                       noise=.05)
 # X2, y2 = datasets.make_blobs(n_samples=1000, n_features=2, centers=[[1.2,1.2]], cluster_std=[[.1]],
@@ -41,30 +50,36 @@ def plot_with_labels(low_dim_embs, colors, labels, filename):
 
 
 if __name__ == '__main__':
-    embedding_file = open('../data/model/SE2010.vector', 'r', encoding='utf-8', errors='surrogateescape')
+    embedding_file = open(r'..\data\model\word2vec\patent\bxk_200_SG.vector', 'r', encoding='utf-8', errors='surrogateescape')
     words, vectors = read(embedding_file, dtype=float)
     plot_only = 5000
-    log_file = open('../data/log_file.txt', 'a', encoding='utf-8')
-    myeps = 2.00
+    log_file = open('../data/patent_log.txt', 'a', encoding='utf-8')
+    myeps = 0.01
     while myeps <= 2.0:
         for my_min_samples in range(3, 11):
             db_labels = DBSCAN(eps=myeps, min_samples=my_min_samples).fit_predict(vectors)
+            class_num = get_class_num(db_labels)
             print('eps=%f, min_samples=%d' % (myeps, my_min_samples))
             n_clusters_ = len(set(db_labels)) - (1 if -1 in db_labels else 0)
-            print('聚类的类别数目：%d' % (n_clusters_))
+            print('聚类的类别数目(除噪音外)：%d' % (n_clusters_))
             ratio = len(db_labels[db_labels[:] == -1]) / len(db_labels)
             print('噪音率:' + str(ratio))
-            print('-----------------------------------------------------')
-            # log_file.write('eps = %f ,min_samples = %d \n聚类的类别数目：%d , 噪音率: %f' % (myeps, my_min_samples, n_clusters_, ratio))
-            # log_file.write('\n------------------------------------------------------------------\n')
+            log_file.write('eps = %f ,min_samples = %d \n聚类的类别数目（除噪音外）：%d , 噪音率: %f\n' % (myeps, my_min_samples, n_clusters_, ratio))
+            print('聚类结果为：')
+            log_file.write('聚类结果为：\n')
+            for label in class_num:
+                print(str(label) + ':' + str(class_num[label]))
+                log_file.write(str(label) + ':' + str(class_num[label]) + '\t;\t')
+            print('----------------------------------------------------------------')
+            log_file.write('\n------------------------------------------------------------------\n')
         myeps = myeps + 0.01
 
-    '''
-    tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000, method='exact')
-    low_dim_embs = tsne.fit_transform(vectors[:plot_only, :])
-    print(low_dim_embs.shape)
-    labels = [words[i] for i in range(plot_only)]
-    plot_with_labels(low_dim_embs, colors, labels, '../data/DBSCAN_SE2010.png')
-    '''
+
+    # tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000, method='exact')
+    # low_dim_embs = tsne.fit_transform(vectors[:plot_only, :])
+    # print(low_dim_embs.shape)
+    # labels = [words[i] for i in range(plot_only)]
+    # plot_with_labels(low_dim_embs, colors, labels, '../data/DBSCAN_SE2010.png')
+
     embedding_file.close()
     log_file.close()
