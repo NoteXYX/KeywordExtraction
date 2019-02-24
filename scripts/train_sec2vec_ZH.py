@@ -1,17 +1,13 @@
-import gensim
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 import jieba
-import random
+import numpy as np
 import logging
 import os
 import sys
 import multiprocessing
 
-# Set file names for train and test data
-# test_data_dir = '{}'.format(os.sep).join([gensim.__path__[0], 'test', 'test_data'])
-# lee_train_file = test_data_dir + os.sep + 'lee_background.cor'
-# lee_test_file = test_data_dir + os.sep + 'lee.cor'
-def read_corpus(fname, tokens_only=False):
+
+def read_corpus(fname):
     # with smart_open.smart_open(fname, encoding="utf-8") as f:
     #     for i, line in enumerate(f):
     #         if tokens_only:
@@ -38,18 +34,34 @@ if __name__ == '__main__':
     logger.info("running %s" % ' '.join(sys.argv))
 
     # check and process input arguments
-    if len(sys.argv) < 3:
+    if len(sys.argv) < 4:
         print(globals()['__doc__'] % locals())
         sys.exit(1)
-    inp, outp1 = sys.argv[1:3]
+    inp, outp1, outp2 = sys.argv[1:4]
     train_file = inp
     train_corpus = list(read_corpus(train_file))
-    model = Doc2Vec(vector_size=200, window=2, min_count=1, dm=1, workers=multiprocessing.cpu_count())
+    # print(train_corpus[0])
+    dim = 50    # 句向量的维度
+    model = Doc2Vec(vector_size=dim, window=2, min_count=1, dm=1, workers=multiprocessing.cpu_count())
     model.build_vocab(train_corpus)
-    model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
+    # model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
+    model.train(train_corpus, total_examples=model.corpus_count, epochs=20)
     # model = Doc2Vec(train_corpus, vector_size=200, window=2, min_count=1, dm=1, workers=multiprocessing.cpu_count())
     model.save(outp1)
+    vector_dict = model.docvecs
+    # print(len(vector_dict))
+    vectors = np.zeros((1, dim))
+    for num in range(0, len(vector_dict)):
+        if num == 0:
+            vectors[num] = vector_dict[num].reshape(1, dim)
+        else:
+            row = vector_dict[num].reshape(1, dim)
+            vectors = np.row_stack((vectors, row))
+    np.save(outp2, vectors)
+    # print(vectors.shape)
+
     # python train_sec2vec_ZH.py ..\data\patent_abstract\_bxk_abstract.txt ..\data\model\sen2vec\bxk_200_dm.model
+    # python3 train_sec2vec_ZH.py ../data/patent_abstract/_bxk_abstract.txt ../data/model/sen2vec/patent/bxk_50_dm.model ../data/model/sen2vec/patent/bxk_50_dm.npy
 # lee_train_file = '../data/raw/SemEval2010_train_raw.txt'
 # lee_test_file = '../data/SemEval2010/train/C-41.txt.final'
 #

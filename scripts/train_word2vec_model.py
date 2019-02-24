@@ -19,7 +19,7 @@ if __name__ == '__main__':
         sys.exit(1)
     inp, outp1, outp2 = sys.argv[1:4]
 
-    model = Word2Vec(LineSentence(inp), size=200, window=5, min_count=1, sg=1, hs=1,
+    model = Word2Vec(LineSentence(inp), size=50, window=5, min_count=1, sg=1, hs=1,
                      workers=multiprocessing.cpu_count())
     # window:skip-gram通常在10附近，CBOW通常在5附近
     # hs: 如果为1则会采用hierarchica softmax技巧。如果设置为0（defaut），则negative sampling会被使用。
@@ -27,4 +27,5 @@ if __name__ == '__main__':
     # model.init_sims(replace=True)
     model.save(outp1)
     model.wv.save_word2vec_format(outp2, binary=False)
+    # python3 train_word2vec_model.py ../data/patent_abstract/bxk_fc_abstract.txt ../data/model/word2vec/patent/bxk_50_SG.model ../data/model/word2vec/patent/bxk_50_SG.vector
     # python3 train_word2vec_model.py ../data/SE2010_train.txt ../data/model/SE2010_100.model ../data/model/SE2010_100.vector

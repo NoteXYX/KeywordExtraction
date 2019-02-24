@@ -111,10 +111,10 @@ def read_corpus(fname):
         content = f.read().split('.')
     return content
 def main():
-    model = Doc2Vec.load('../data/model/sen2vec/SE2010_200.model')
+    model = Doc2Vec.load('../data/model/sen2vec/SE2010/SE2010_200.model')
     content = read_corpus('../data/SE2010_content.txt')
-    vectors = np.load('../data/model/sen2vec/SE2010_200.model.docvecs.vectors_docs.npy')
-    db_model = DBSCAN(eps=1.98, min_samples=3).fit(vectors)
+    vectors = np.load('../data/model/sen2vec/SE2010/SE2010_200.model.docvecs.vectors_docs.npy')
+    # db_model = DBSCAN(eps=1.98, min_samples=3).fit(vectors)
     # vector = model.infer_vector('a challenging problem faced by researchers and developers'.split(' '))
     # sims = model.docvecs.most_similar([vector], topn=20)
     sims = model.docvecs.most_similar([vectors[0]], topn=20)
