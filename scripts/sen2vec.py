@@ -65,15 +65,14 @@ def distance_sort(ind2vec, cur_center, method):     # 获得根据与中心点�
     sorted_index_distance = dict(sorted_distance)
     return sorted_index_distance
 
-def get_vectors(abstract, sent2ind, sentvecs,  sen2vec_model, dim):    # 获得测试文本中所有句子的预测向量
+def get_vectors(abstract, sen2vec_model, dim):    # 获得测试文本中所有句子的预测向量
     cur_sens = abstract.strip('\n').split('。')
     vectors = np.empty([len(cur_sens), dim])
     for i in range(len(cur_sens)):
         word_list = list(jieba.cut(cur_sens[i]))
         cur_vec = sen2vec_model.infer_vector(word_list)
         vectors[i] = cur_vec
-
-    return ind2vec
+    return vectors
 
 def get_most_label(ind2vec, clusters):     # 获得测试文本中单词数最多的类别
     class_vector = {}
@@ -136,7 +135,8 @@ def main():
         print(str(label) + ':' + str(clusters[label].shape[0]))
     centers = get_centers(db_model, clusters, 'DBSCAN')
     cur_abstract = '本发明提供了一种水箱及包括该水箱的除湿机。水箱包括水箱本体和具有浮子的浮子组件，水箱本体上设置有浮子组件安装部，浮子组件枢接于浮子组件安装部，水箱还包括：浮子保护罩，罩设于浮子组件的上方。根据本发明，可以避免因用户的误操作而引起的浮子组件失效的问题。'
-    ind2vec_test = get_vectors(cur_abstract, sent2ind, sentvecs, model, sentvecs.shape[1])
+    vecs_test = get_vectors(cur_abstract, model, sentvecs.shape[1])
+
     # vector = model.infer_vector('a challenging problem faced by researchers and developers'.split(' '))
     # sims = model.docvecs.most_similar([vector], topn=20)
     # sims = model.docvecs.most_similar([vectors[0]], topn=20)
