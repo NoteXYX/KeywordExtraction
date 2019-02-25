@@ -1,6 +1,8 @@
 import numpy as np
 import operator
 from gensim.models.doc2vec import Doc2Vec
+import re
+import jieba
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.cluster import DBSCAN
@@ -19,6 +21,7 @@ def get_DBSCAN_clusters(vectors,labels):    # 根据DBSCAN聚类后的标签labe
             cur_vec = vectors[i]
             cur_cluster = clusters[labels[i]]
             clusters[labels[i]] = np.row_stack((cur_cluster, cur_vec))
+    clusters = dict(sorted(clusters.items(), key=operator.itemgetter(0)))
     return clusters
 
 def get_centers(model, clusters, method):  # 获得各个类的中心点(噪音类除外)
@@ -62,19 +65,14 @@ def distance_sort(ind2vec, cur_center, method):     # 获得根据与中心点�
     sorted_index_distance = dict(sorted_distance)
     return sorted_index_distance
 
-def get_index2vectors(filename, word2ind, wordvecs):    # 获得测试文本中所有词的词向量
-    ind2vec = {}
-    test_file = open(filename, 'r', encoding='utf-8')
-    for line in test_file.readlines():
-        curline_words = line.split(' ')
-        for word in curline_words:
-            if word == '\n':
-                continue
-            elif word in word2ind:
-                cur_index = word2ind[word]
-                cur_vec = wordvecs[cur_index]
-                ind2vec[cur_index] = cur_vec
-    test_file.close()
+def get_vectors(abstract, sent2ind, sentvecs,  sen2vec_model, dim):    # 获得测试文本中所有句子的预测向量
+    cur_sens = abstract.strip('\n').split('。')
+    vectors = np.empty([len(cur_sens), dim])
+    for i in range(len(cur_sens)):
+        word_list = list(jieba.cut(cur_sens[i]))
+        cur_vec = sen2vec_model.infer_vector(word_list)
+        vectors[i] = cur_vec
+
     return ind2vec
 
 def get_most_label(ind2vec, clusters):     # 获得测试文本中单词数最多的类别
@@ -106,24 +104,48 @@ def get_most_label(ind2vec, clusters):     # 获得测试文本中单词数最�
     print('本文中%d类包含的单词最多，单词数为：%d,占本文单词的%f%%' % (most_label, most_num, most_num * 100.0 / len(ind2vec)))
     return most_label
 
-def read_corpus(fname):
-    with open(fname, 'r', encoding='utf-8') as f:
-        content = f.read().split('.')
-    return content
+def read_corpus(fname, lang):
+    if lang == 'EN':
+        with open(fname, 'r', encoding='utf-8') as f:
+            sentences = f.read().split('.')
+        return sentences
+    elif lang == 'ZH':
+        with open(fname, 'r', encoding='utf-8') as f:
+            content = re.sub('\n', '', f.read())
+            sentences = content.split('。')
+        return sentences
+
 def main():
-    model = Doc2Vec.load('../data/model/sen2vec/SE2010/SE2010_200.model')
-    content = read_corpus('../data/SE2010_content.txt')
-    vectors = np.load('../data/model/sen2vec/SE2010/SE2010_200.model.docvecs.vectors_docs.npy')
-    # db_model = DBSCAN(eps=1.98, min_samples=3).fit(vectors)
+    # model = Doc2Vec.load('../data/model/sen2vec/SE2010/SE2010_200.model')
+    # content = read_corpus('../data/SE2010_content.txt')
+    # vectors = np.load('../data/model/sen2vec/SE2010/SE2010_200.model.docvecs.vectors_docs.npy')
+    model = Doc2Vec.load(r'..\data\model\sen2vec\patent\bxk_50_dm_20.model')
+    sentvecs = np.load(r'..\data\model\sen2vec\patent\bxk_50_dm_20.npy')
+    sentences = read_corpus(r'..\data\patent_abstract\_bxk_abstract.txt', 'ZH')
+    sent2ind = {sen: i for i, sen in enumerate(sentences)}
+    # print(sentvecs.shape)
+    db_model = DBSCAN(eps=1.98, min_samples=3).fit(sentvecs)
+    db_labels = db_model.labels_
+    n_clusters = len(set(db_labels)) - (1 if -1 in db_labels else 0)
+    print('聚类的类别数目(噪音类除外)：%d' % n_clusters)
+    ratio = len(db_labels[db_labels[:] == -1]) / len(db_labels)
+    print('噪音率:' + str(ratio))
+    clusters = get_DBSCAN_clusters(sentvecs, db_labels)
+    print('聚类结果为：')
+    for label in clusters:
+        print(str(label) + ':' + str(clusters[label].shape[0]))
+    centers = get_centers(db_model, clusters, 'DBSCAN')
+    cur_abstract = '本发明提供了一种水箱及包括该水箱的除湿机。水箱包括水箱本体和具有浮子的浮子组件，水箱本体上设置有浮子组件安装部，浮子组件枢接于浮子组件安装部，水箱还包括：浮子保护罩，罩设于浮子组件的上方。根据本发明，可以避免因用户的误操作而引起的浮子组件失效的问题。'
+    ind2vec_test = get_vectors(cur_abstract, sent2ind, sentvecs, model, sentvecs.shape[1])
     # vector = model.infer_vector('a challenging problem faced by researchers and developers'.split(' '))
     # sims = model.docvecs.most_similar([vector], topn=20)
-    sims = model.docvecs.most_similar([vectors[0]], topn=20)
-    for count, sim in sims:
-        sentence = content[count]
-        print(count)
-        print(sentence)
-        print(sim)
-        print('--------------------------------------------------------')
+    # sims = model.docvecs.most_similar([vectors[0]], topn=20)
+    # for count, sim in sims:
+    #     sentence = content[count]
+    #     print(count)
+    #     print(sentence)
+    #     print(sim)
+    #     print('--------------------------------------------------------')
 
 
 

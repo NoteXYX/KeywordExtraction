@@ -1,4 +1,5 @@
 import numpy as np
+import operator
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.cluster import DBSCAN
@@ -29,6 +30,7 @@ def get_class_num(labels):
             class_num[label] = 1
         else:
             class_num[label] += 1
+    class_num = dict(sorted(class_num.items(), key=operator.itemgetter(0)))
     return class_num
 # X1, y1=datasets.make_circles(n_samples=5000, factor=.6,
 #                                       noise=.05)

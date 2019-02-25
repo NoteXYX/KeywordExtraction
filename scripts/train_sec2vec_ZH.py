@@ -4,6 +4,7 @@ import numpy as np
 import logging
 import os
 import sys
+import re
 import multiprocessing
 
 
@@ -16,14 +17,13 @@ def read_corpus(fname):
     #             # For training data, add tags
     #             yield TaggedDocument(gensim.utils.simple_preprocess(line), [i])
     with open(fname, 'r', encoding='utf-8') as f:
-        content = f.read().split('。')
-        # print(content)
-        for i in range(len(content)):
-            each_cut = jieba.cut(content[i])
-            word_list = ' '.join(each_cut).split()
-            # print(content[i])
+        content = re.sub('，', '', f.read())
+        sens = content.split('。')
+        for i in range(len(sens)):
+            cur_sen = sens[i].strip('\n')
+            each_cut = list(jieba.cut(cur_sen))
             # yield TaggedDocument(gensim.utils.simple_preprocess(content[i]), [i])
-            yield TaggedDocument(word_list, [i])
+            yield TaggedDocument(each_cut, [i])
 
 if __name__ == '__main__':
     program = os.path.basename(sys.argv[0])
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     model = Doc2Vec(vector_size=dim, window=2, min_count=1, dm=1, workers=multiprocessing.cpu_count())
     model.build_vocab(train_corpus)
     # model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
-    model.train(train_corpus, total_examples=model.corpus_count, epochs=20)
+    model.train(train_corpus, total_examples=model.corpus_count, epochs=5)
     # model = Doc2Vec(train_corpus, vector_size=200, window=2, min_count=1, dm=1, workers=multiprocessing.cpu_count())
     model.save(outp1)
     vector_dict = model.docvecs
@@ -58,10 +58,11 @@ if __name__ == '__main__':
             row = vector_dict[num].reshape(1, dim)
             vectors = np.row_stack((vectors, row))
     np.save(outp2, vectors)
+
     # print(vectors.shape)
 
-    # python train_sec2vec_ZH.py ..\data\patent_abstract\_bxk_abstract.txt ..\data\model\sen2vec\bxk_200_dm.model
-    # python3 train_sec2vec_ZH.py ../data/patent_abstract/_bxk_abstract.txt ../data/model/sen2vec/patent/bxk_50_dm.model ../data/model/sen2vec/patent/bxk_50_dm.npy
+    # python train_sec2vec_ZH.py ..\data\patent_abstract\_bxk_abstract.txt ..\data\model\sen2vec\patent\bxk_100_dm_40.model ..\data\model\sen2vec\patent\bxk_100_dm_40.npy
+    # python3 train_sec2vec_ZH.py ../data/patent_abstract/_bxk_abstract.txt ../data/model/sen2vec/patent/bxk_50_dm_20.model ../data/model/sen2vec/patent/bxk_50_dm_20.npy
 # lee_train_file = '../data/raw/SemEval2010_train_raw.txt'
 # lee_test_file = '../data/SemEval2010/train/C-41.txt.final'
 #
