@@ -136,6 +136,8 @@ def main():
     centers = get_centers(db_model, clusters, 'DBSCAN')
     cur_abstract = '本发明提供了一种水箱及包括该水箱的除湿机。水箱包括水箱本体和具有浮子的浮子组件，水箱本体上设置有浮子组件安装部，浮子组件枢接于浮子组件安装部，水箱还包括：浮子保护罩，罩设于浮子组件的上方。根据本发明，可以避免因用户的误操作而引起的浮子组件失效的问题。'
     vecs_test = get_vectors(cur_abstract, model, sentvecs.shape[1])
+    predict_vecs = np.empty_like(vecs_test)
+    for i in range(vecs_test.shape[0]):
 
     # vector = model.infer_vector('a challenging problem faced by researchers and developers'.split(' '))
     # sims = model.docvecs.most_similar([vector], topn=20)
