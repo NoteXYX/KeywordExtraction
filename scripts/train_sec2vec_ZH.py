@@ -54,24 +54,24 @@ if __name__ == '__main__':
     inp, outp1, outp2 = sys.argv[1:4]
     train_file = inp
     train_corpus = list(read_corpus(train_file))
-    print(len(train_corpus))
-    # dim = 50    # 句向量的维度
-    # model = Doc2Vec(vector_size=dim, window=2, min_count=1, dm=1, workers=multiprocessing.cpu_count())
-    # model.build_vocab(train_corpus)
-    # # model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
-    # model.train(train_corpus, total_examples=model.corpus_count, epochs=5)
-    # # model = Doc2Vec(train_corpus, vector_size=200, window=2, min_count=1, dm=1, workers=multiprocessing.cpu_count())
-    # model.save(outp1)
-    # vector_dict = model.docvecs
-    # # print(len(vector_dict))
-    # vectors = np.zeros((1, dim))
-    # for num in range(0, len(vector_dict)):
-    #     if num == 0:
-    #         vectors[num] = vector_dict[num].reshape(1, dim)
-    #     else:
-    #         row = vector_dict[num].reshape(1, dim)
-    #         vectors = np.row_stack((vectors, row))
-    # np.save(outp2, vectors)
+    # print(len(train_corpus))
+    dim = 50    # 句向量的维度
+    model = Doc2Vec(vector_size=dim, window=2, min_count=1, dm=1, workers=multiprocessing.cpu_count())
+    model.build_vocab(train_corpus)
+    # model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
+    model.train(train_corpus, total_examples=model.corpus_count, epochs=40)
+    # model = Doc2Vec(train_corpus, vector_size=200, window=2, min_count=1, dm=1, workers=multiprocessing.cpu_count())
+    model.save(outp1)
+    vector_dict = model.docvecs
+    # print(len(vector_dict))
+    vectors = np.zeros((1, dim))
+    for num in range(0, len(vector_dict)):
+        if num == 0:
+            vectors[num] = vector_dict[num].reshape(1, dim)
+        else:
+            row = vector_dict[num].reshape(1, dim)
+            vectors = np.row_stack((vectors, row))
+    np.save(outp2, vectors)
 
     # print(vectors.shape)
 

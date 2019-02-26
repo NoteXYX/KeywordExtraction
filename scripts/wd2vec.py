@@ -101,7 +101,7 @@ def get_most_label(ind2vec, clusters, dim):     # 获得测试文本中单词数
                 break
     assert len(class_vector) > 0
     class_vector = dict(sorted(class_vector.items(), key=operator.itemgetter(0)))
-    if len(class_vector) == 1:
+    if class_vector.keys() == [-1]:
         most_label = -1
         print('所有词向量均为噪音！')
         return most_label
@@ -123,7 +123,7 @@ def main():
     words, wordvecs = read(embedding_file, dtype=float)
     assert len(words) == wordvecs.shape[0]
     word2ind = {word: i for i, word in enumerate(words)}
-    db_model = DBSCAN(eps=1.0, min_samples=10).fit(wordvecs)
+    db_model = DBSCAN(eps=1.5, min_samples=3).fit(wordvecs)
     # db_model = KMeans(n_clusters=4, max_iter=500, random_state=0).fit(wordvecs)
     db_labels = db_model.labels_
     n_clusters = len(set(db_labels)) - (1 if -1 in db_labels else 0)
@@ -135,7 +135,9 @@ def main():
     for label in clusters:
         print(str(label) + ':' + str(clusters[label].shape[0]) )
     centers = get_centers(db_model, clusters, 'DBSCAN')
-    ind2vec_test = get_index2vectors(word2ind, wordvecs, cur_str='本发明提供了一种水箱及包括该水箱的除湿机。水箱包括水箱本体和具有浮子的浮子组件，水箱本体上设置有浮子组件安装部，浮子组件枢接于浮子组件安装部，水箱还包括：浮子保护罩，罩设于浮子组件的上方。根据本发明，可以避免因用户的误操作而引起的浮子组件失效的问题。')
+    # centers = get_centers(db_model, clusters, 'Kmeans')
+    abstract = '本发明公开一种具有语音交互功能的声控空调器，通过用户发出的语音指令信息直接对空调器进行控制，并在对空调进行语音控制过程中通过反馈语音指令信息给用户确认，实现用户与空调的语音交互。该技术方案能够完全摆脱遥控器实现对空调的控制，操作方便，同时，语音交互方式具有灵活性，能够满足不同用户个性化的要求，提高了用户的体验。'
+    ind2vec_test = get_index2vectors(word2ind, wordvecs, cur_str=abstract)
     # ind2vec_test = get_index2vectors(word2ind, wordvecs,filename='../data/SemEval2010/train_removed/C-41.txt')
     most_label = get_most_label(ind2vec_test, clusters, wordvecs.shape[1])
     index_distance = distance_sort(ind2vec_test, centers[most_label], 'cos')
