@@ -22,6 +22,7 @@ def plot_with_labels(low_dim_embs, colors, labels, filename):   # 绘制词向�
     plt.savefig(filename)
 
 def read(file, threshold=0, dtype='float'):
+    print('读取词向量文件中......')
     header = file.readline().split(' ')
     count = int(header[0]) if threshold <= 0 else min(threshold, int(header[0]))
     dim = int(header[1])

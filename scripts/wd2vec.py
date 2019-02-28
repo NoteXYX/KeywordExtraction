@@ -2,6 +2,9 @@ import numpy as np
 import operator
 import jieba
 import re
+import logging
+import os
+import sys
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.cluster import DBSCAN
@@ -119,11 +122,11 @@ def get_most_label(ind2vec, clusters, dim):     # 获得测试文本中单词数
     return most_label
 
 def main():
-    embedding_file = open('../data/model/word2vec/patent/bxk_50_SG.vector', 'r', encoding='utf-8', errors='surrogateescape')
+    embedding_file = open('../data/model/word2vec/patent/all_200_SG.vector', 'r', encoding='utf-8', errors='surrogateescape')
     words, wordvecs = read(embedding_file, dtype=float)
     assert len(words) == wordvecs.shape[0]
     word2ind = {word: i for i, word in enumerate(words)}
-    db_model = DBSCAN(eps=1.5, min_samples=3).fit(wordvecs)
+    db_model = DBSCAN(eps=0.5, min_samples=5, algorithm='ball_tree', n_jobs=-1).fit(wordvecs)
     # db_model = KMeans(n_clusters=4, max_iter=500, random_state=0).fit(wordvecs)
     db_labels = db_model.labels_
     n_clusters = len(set(db_labels)) - (1 if -1 in db_labels else 0)
@@ -153,5 +156,11 @@ def main():
 
 
 if __name__ == '__main__':
+    program = os.path.basename(sys.argv[0])
+    logger = logging.getLogger(program)
+
+    logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s')
+    logging.root.setLevel(level=logging.INFO)
+    logger.info("running %s" % ' '.join(sys.argv))
     main()
 

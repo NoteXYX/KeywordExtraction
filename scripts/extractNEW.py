@@ -33,7 +33,7 @@ if __name__ == '__main__':
         results = cursor.fetchall()
         i = 0
         for row in results:
-            print(row[0] + "\n")
+            print(row[0])
             log_file.write('%s\n' % (row[0]))
             # log_file.write('-------keyword-------\n')
             # tr4w = TextRank4Keyword(stop_words_file = '../textrank4zh/stopwords.txt')
@@ -44,8 +44,8 @@ if __name__ == '__main__':
             # for phrase in tr4w.get_keyphrases(keywords_num=20, min_occur_num=0):
             #     log_file.write('%s\n' % (phrase))
             i+=1
-            print("第%d条专利成功写入文档！\n" % i)
-
+            print("第%d条专利成功写入文档!" % i)
+            print('************************************************************************')
         db.commit()
     except IndexError as e:
         # 如果发生错误则回滚
