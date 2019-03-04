@@ -1,3 +1,6 @@
+import logging
+import os
+import sys
 import numpy as np
 import operator
 import matplotlib.pyplot as plt
@@ -6,7 +9,6 @@ from sklearn.cluster import DBSCAN
 from sklearn import datasets
 from embeddings import read
 from sklearn.manifold import TSNE
-
 
 def plot_with_labels(low_dim_embs, colors, labels, filename):
     assert low_dim_embs.shape[0] >= len(labels), 'More labels than embeddings'
@@ -52,13 +54,22 @@ def get_class_num(labels):
 
 
 if __name__ == '__main__':
-    embedding_file = open(r'..\data\model\word2vec\patent\bxk_200_SG.vector', 'r', encoding='utf-8', errors='surrogateescape')
+    program = os.path.basename(sys.argv[0])
+    logger = logging.getLogger(program)
+    logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s')
+    logging.root.setLevel(level=logging.INFO)
+    logger.info("running %s" % ' '.join(sys.argv))
+
+    embedding_file = open(r'D:\PycharmProjects\Dataset\keywordEX\wikiZH_100_SG.vector', 'r', encoding='utf-8', errors='surrogateescape')
     words, vectors = read(embedding_file, dtype=float)
+    print(vectors.shape)
     plot_only = 5000
-    log_file = open('../data/patent_log.txt', 'a', encoding='utf-8')
-    myeps = 0.01
-    while myeps <= 2.0:
-        for my_min_samples in range(3, 11):
+    log_file = open('../data/wikiZH_log.txt', 'a', encoding='utf-8')
+    myeps = 1
+    while myeps <= 1.5:
+        for my_min_samples in range(5,10):
+            print('DBSCAN聚类中......')
+            # db_labels = DBSCAN(eps=myeps, min_samples=my_min_samples, algorithm='kd_tree', n_jobs=-1 ).fit_predict(vectors)
             db_labels = DBSCAN(eps=myeps, min_samples=my_min_samples).fit_predict(vectors)
             class_num = get_class_num(db_labels)
             print('eps=%f, min_samples=%d' % (myeps, my_min_samples))
@@ -74,7 +85,7 @@ if __name__ == '__main__':
                 log_file.write(str(label) + ':' + str(class_num[label]) + '\t;\t')
             print('----------------------------------------------------------------')
             log_file.write('\n------------------------------------------------------------------\n')
-        myeps = myeps + 0.01
+        myeps = myeps + 0.1
 
 
     # tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000, method='exact')

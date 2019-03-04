@@ -122,11 +122,12 @@ def get_most_label(ind2vec, clusters, dim):     # 获得测试文本中单词数
     return most_label
 
 def main():
-    embedding_file = open('../data/model/word2vec/patent/all_200_SG.vector', 'r', encoding='utf-8', errors='surrogateescape')
+    embedding_file = open(r'D:\PycharmProjects\Dataset\keywordEX\wikiZH_100_SG.vector', 'r', encoding='utf-8', errors='surrogateescape')
     words, wordvecs = read(embedding_file, dtype=float)
     assert len(words) == wordvecs.shape[0]
     word2ind = {word: i for i, word in enumerate(words)}
-    db_model = DBSCAN(eps=0.5, min_samples=5, algorithm='ball_tree', n_jobs=-1).fit(wordvecs)
+    print('DBSCAN聚类中......')
+    db_model = DBSCAN(eps=1, min_samples=5, algorithm='kd_tree', n_jobs=-1).fit(wordvecs)
     # db_model = KMeans(n_clusters=4, max_iter=500, random_state=0).fit(wordvecs)
     db_labels = db_model.labels_
     n_clusters = len(set(db_labels)) - (1 if -1 in db_labels else 0)
