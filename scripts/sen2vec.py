@@ -4,7 +4,6 @@ from gensim.models.doc2vec import Doc2Vec
 import re
 import jieba
 import matplotlib.pyplot as plt
-from sklearn.cluster import KMeans
 from sklearn.cluster import DBSCAN
 from sklearn import datasets
 from sklearn import metrics

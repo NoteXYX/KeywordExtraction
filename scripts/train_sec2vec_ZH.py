@@ -27,16 +27,24 @@ def read_corpus(fname):
     with open(fname, 'r', encoding='utf-8') as f:
         lines = f.readlines()
     tag = 0
+    # for line in lines:
+    #     content = re.sub('，', '', line)
+    #     sent_list = content.split('。')
+    #     l = len(sent_list)
+    #     if '\n' in sent_list[l-1]:
+    #         sent_list.pop(l-1)
+    #     for sen in sent_list:
+    #         each_cut = list(jieba.cut(sen))
+    #         yield TaggedDocument(each_cut, [tag])
+    #         tag += 1
     for line in lines:
-        content = re.sub('，', '', line)
-        sent_list = content.split('。')
-        l = len(sent_list)
-        if '\n' in sent_list[l-1]:
-            sent_list.pop(l-1)
-        for sen in sent_list:
-            each_cut = list(jieba.cut(sen))
-            yield TaggedDocument(each_cut, [tag])
-            tag += 1
+        print('处理第%d个专利摘要......' % (tag+1))
+        content = re.sub('[，。；、]+', '', line)
+        content = content.strip()
+        each_cut = list(jieba.cut(content))
+        # print(each_cut)
+        yield TaggedDocument(each_cut, [tag])
+        tag += 1
 
 
 if __name__ == '__main__':
@@ -54,12 +62,12 @@ if __name__ == '__main__':
     inp, outp1, outp2 = sys.argv[1:4]
     train_file = inp
     train_corpus = list(read_corpus(train_file))
-    # print(len(train_corpus))
-    dim = 50    # 句向量的维度
+    print(len(train_corpus))
+    dim = 100    # 句向量的维度
     model = Doc2Vec(vector_size=dim, window=2, min_count=1, dm=1, workers=multiprocessing.cpu_count())
     model.build_vocab(train_corpus)
     # model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
-    model.train(train_corpus, total_examples=model.corpus_count, epochs=40)
+    model.train(train_corpus, total_examples=model.corpus_count, epochs=10)
     # model = Doc2Vec(train_corpus, vector_size=200, window=2, min_count=1, dm=1, workers=multiprocessing.cpu_count())
     model.save(outp1)
     vector_dict = model.docvecs
@@ -73,9 +81,9 @@ if __name__ == '__main__':
             vectors = np.row_stack((vectors, row))
     np.save(outp2, vectors)
 
-    # print(vectors.shape)
+    print(vectors.shape)
 
-    # python train_sec2vec_ZH.py ..\data\patent_abstract\_bxk_abstract.txt ..\data\model\sen2vec\patent\bxk_100_dm_40.model ..\data\model\sen2vec\patent\bxk_100_dm_40.npy
+    # python train_sec2vec_ZH.py D:\PycharmProjects\Dataset\keywordEX\patent\_all_abstract.txt ..\data\model\sen2vec\patent\all_100_dm_10.model ..\data\model\sen2vec\patent\all_100_dm_10.npy
     # python3 train_sec2vec_ZH.py ../data/patent_abstract/_bxk_abstract.txt ../data/model/sen2vec/patent/bxk_50_dm_20.model ../data/model/sen2vec/patent/bxk_50_dm_20.npy
 # lee_train_file = '../data/raw/SemEval2010_train_raw.txt'
 # lee_test_file = '../data/SemEval2010/train/C-41.txt.final'
