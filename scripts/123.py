@@ -8,7 +8,11 @@ from sklearn.cluster import KMeans
 from sklearn.cluster import DBSCAN
 from sklearn import datasets
 from embeddings import read
+from sklearn.cluster import MeanShift, estimate_bandwidth
+from sklearn.cluster import AgglomerativeClustering
+import scipy.cluster.hierarchy as sch
 from sklearn.manifold import TSNE
+from sklearn.cluster import Birch
 
 def plot_with_labels(low_dim_embs, colors, labels, filename):
     assert low_dim_embs.shape[0] >= len(labels), 'More labels than embeddings'
@@ -54,45 +58,107 @@ def get_class_num(labels):
 
 
 if __name__ == '__main__':
-    program = os.path.basename(sys.argv[0])
-    logger = logging.getLogger(program)
-    logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s')
-    logging.root.setLevel(level=logging.INFO)
-    logger.info("running %s" % ' '.join(sys.argv))
-
-    embedding_file = open(r'D:\PycharmProjects\Dataset\keywordEX\wikiZH_100_SG.vector', 'r', encoding='utf-8', errors='surrogateescape')
+    embedding_file = open(r'D:\PycharmProjects\Dataset\keywordEX\old\all_50_SG.vector', 'r', encoding='utf-8', errors='surrogateescape')
+    # embedding_file = open(r'D:\PycharmProjects\KeywordExtraction\data\model\word2vec\patent\bxk_50_SG.vector', 'r', encoding='utf-8', errors='surrogateescape')
     words, vectors = read(embedding_file, dtype=float)
     print(vectors.shape)
-    plot_only = 5000
-    log_file = open('../data/wikiZH_log.txt', 'a', encoding='utf-8')
-    myeps = 1
-    while myeps <= 1.5:
-        for my_min_samples in range(5,10):
-            print('DBSCAN聚类中......')
-            # db_labels = DBSCAN(eps=myeps, min_samples=my_min_samples, algorithm='kd_tree', n_jobs=-1 ).fit_predict(vectors)
-            db_labels = DBSCAN(eps=myeps, min_samples=my_min_samples).fit_predict(vectors)
-            class_num = get_class_num(db_labels)
-            print('eps=%f, min_samples=%d' % (myeps, my_min_samples))
-            n_clusters_ = len(set(db_labels)) - (1 if -1 in db_labels else 0)
-            print('聚类的类别数目(除噪音外)：%d' % (n_clusters_))
-            ratio = len(db_labels[db_labels[:] == -1]) / len(db_labels)
-            print('噪音率:' + str(ratio))
-            log_file.write('eps = %f ,min_samples = %d \n聚类的类别数目（除噪音外）：%d , 噪音率: %f\n' % (myeps, my_min_samples, n_clusters_, ratio))
-            print('聚类结果为：')
-            log_file.write('聚类结果为：\n')
-            for label in class_num:
-                print(str(label) + ':' + str(class_num[label]))
-                log_file.write(str(label) + ':' + str(class_num[label]) + '\t;\t')
-            print('----------------------------------------------------------------')
-            log_file.write('\n------------------------------------------------------------------\n')
-        myeps = myeps + 0.1
+    # plot_only = 5000
+    # log_file = open('../data/allpatent_log.txt', 'a', encoding='utf-8')
+    # myeps = 2
+    # while myeps <= 2.5:
+    #     for my_min_samples in range(5,7):
+    #         print('DBSCAN聚类中......')
+    #         db_labels = DBSCAN(eps=myeps, min_samples=my_min_samples, n_jobs=-1 ).fit_predict(vectors)
+    #         # db_labels = DBSCAN(eps=myeps, min_samples=my_min_samples, algorithm='ball_tree').fit_predict(vectors)
+    #         class_num = get_class_num(db_labels)
+    #         print('eps=%f, min_samples=%d' % (myeps, my_min_samples))
+    #         n_clusters_ = len(set(db_labels)) - (1 if -1 in db_labels else 0)
+    #         print('聚类的类别数目(除噪音外)：%d' % (n_clusters_))
+    #         ratio = len(db_labels[db_labels[:] == -1]) / len(db_labels)
+    #         print('噪音率:' + str(ratio))
+    #         log_file.write('eps = %f ,min_samples = %d \n聚类的类别数目（除噪音外）：%d , 噪音率: %f\n' % (myeps, my_min_samples, n_clusters_, ratio))
+    #         print('聚类结果为：')
+    #         log_file.write('聚类结果为：\n')
+    #         for label in class_num:
+    #             print(str(label) + ':' + str(class_num[label]))
+    #             log_file.write(str(label) + ':' + str(class_num[label]) + '\t;\t')
+    #         print('----------------------------------------------------------------')
+    #         log_file.write('\n------------------------------------------------------------------\n')
+    #     myeps = myeps + 0.1
 
+    # # 1. 层次聚类
+    # # 生成点与点之间的距离矩阵,这里用的欧氏距离:
+    # disMat = sch.distance.pdist(vectors, 'cosine')
+    # Z = sch.linkage(disMat, method='average')
+    # # 将层级聚类结果以树状图表示出来并保存为plot_dendrogram.png
+    # P=sch.dendrogram(Z)
+    # plt.savefig('plot_dendrogram.png')
+    # # 根据linkage matrix Z得到聚类结果:
+    # cluster = sch.fcluster(Z, 0.5, 'distance', depth=2)
+    # P=sch.dendrogram(Z)
+    # plt.savefig('plot_dendrogram.png')
+    # ac = AgglomerativeClustering(n_clusters=2, affinity='euclidean', linkage='complete')
+    # cluster = ac.fit_predict(vectors)
+    # labels_unique = np.unique(cluster)
+    # n_clusters_ = len(labels_unique)
+    # print('聚类的类别数目：%d' % n_clusters_)
 
+    # #2.MeanShift
+    # bandwidth = estimate_bandwidth(vectors, quantile=10, n_samples=10)
+    # ##设置均值偏移函数
+    # ms = MeanShift(bandwidth=bandwidth, bin_seeding=True)
+    # ##训练数据
+    # ms.fit(vectors)
+    # ##每个点的标签
+    # labels = ms.labels_
+    # ##总共的标签分类
+    # labels_unique = np.unique(labels)
+    # ##聚簇的个数，即分类的个数
+    # n_clusters_ = len(labels_unique)
+    # print('聚类的类别数目：%d' % n_clusters_)
+    # print('聚类结果为：')
+    # class_num = get_class_num(labels)
+    # for label in class_num:
+    #     print(str(label) + ':' + str(class_num[label]))
+    # print('----------------------------------------------------------------')
+
+    # #3.Kmeans
+    # for n_clusters_ in range(3,11):
+    #     print('Kmeans聚类中......')
+    #     db_labels = KMeans(n_clusters=n_clusters_, random_state=9).fit_predict(vectors)
+    #     class_num = get_class_num(db_labels)
+    #     print('聚类的类别数目=%d' % n_clusters_)
+    #     print('聚类结果为：')
+    #     for label in class_num:
+    #         print(str(label) + ':' + str(class_num[label]))
+    #     print('----------------------------------------------------------------')
     # tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000, method='exact')
     # low_dim_embs = tsne.fit_transform(vectors[:plot_only, :])
     # print(low_dim_embs.shape)
     # labels = [words[i] for i in range(plot_only)]
     # plot_with_labels(low_dim_embs, colors, labels, '../data/DBSCAN_SE2010.png')
 
+    # # 4.BIRCH
+    # my_threshold = 0.5
+    # while my_threshold <= 1.0:
+    #     for my_branching in range(50,80,10):
+    #         print('BIRCH聚类中......')
+    #         birch_labels = Birch(n_clusters = None, threshold = my_threshold, branching_factor = my_branching).fit_predict(vectors)
+    #         class_num = get_class_num(birch_labels)
+    #         labels_unique = np.unique(birch_labels)
+    #         n_clusters_ = len(labels_unique)
+    #         print('聚类的类别数目=%d' % n_clusters_)
+    #         print('聚类结果为：')
+    #         for label in class_num:
+    #             print(str(label) + ':' + str(class_num[label]))
+    #         print('----------------------------------------------------------------')
+    birch_labels = Birch(n_clusters=4, threshold=0.5, branching_factor=50).fit_predict(vectors)
+    class_num = get_class_num(birch_labels)
+    labels_unique = np.unique(birch_labels)
+    n_clusters_ = len(labels_unique)
+    print('聚类的类别数目=%d' % n_clusters_)
+    print('聚类结果为：')
+    for label in class_num:
+        print(str(label) + ':' + str(class_num[label]))
     embedding_file.close()
-    log_file.close()
+    # log_file.close()
