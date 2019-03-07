@@ -1,5 +1,6 @@
 import numpy as np
 import re
+import os
 from gensim.models.doc2vec import Doc2Vec
 import jieba
 import operator
@@ -16,23 +17,48 @@ from sklearn.cluster import MeanShift, estimate_bandwidth
 from sklearn.cluster import AgglomerativeClustering
 from scipy.spatial import distance
 from sklearn.datasets.samples_generator import make_blobs
-from extractTrain import myfile,search
+from extractTrain import myfile
 
-folder = r"D:\PycharmProjects\KeywordExtraction\data\SemEval2010\test"
+def search(folder, filters, allfile):
+    folders = os.listdir(folder)
+    for name in folders:
+        curname = os.path.join(folder, name)
+        isfile = os.path.isfile(curname)
+        if isfile:
+            for filter in filters:
+                if name.startswith(filter):
+                    cur = myfile()
+                    cur.name = name
+                    allfile.append(cur.name)
+                    break
+        else:
+            search(curname, filters, allfile)
+    return allfile
+
+folder = r"D:\PycharmProjects\KeywordExtraction\data\SemEval2010\mine"
 filters = ['C','H','I','J']
 # filters = ['J']
 allfile = []
 allfile = search(folder, filters, allfile)
 file_len = len(allfile)
 print('共查找到%d个摘要文件' %(file_len))
-train_file = open('../data/SemEval2010/line_doc.txt', 'a', encoding='utf-8')
+train_file = open('../data/SemEval2010/new_line_doc.txt', 'w', encoding='utf-8')
+i = 0
+truth = {'I':[], 'J':[], 'H':[], 'C':[]}
 for f in allfile:
-    with open(f, 'r', encoding='utf-8') as curf:
-        for line in curf.readlines():
-            train_file.write(re.sub('\n', ' ', line))
-    train_file.write('\n')
+    for name_start in truth:
+        if f.startswith(name_start):
+            with open(os.path.join(folder, f), 'r', encoding='utf-8') as curf:
+                for line in curf.readlines():
+                    train_file.write(re.sub('\n', ' ', line))
+            train_file.write('\n')
+            truth[name_start].append(i)
+            i += 1
+            break
 train_file.close()
-
+print(truth)
+for label in truth:
+    print(label + ':' + str(len(truth[label])))
 # X1, y1 = datasets.make_blobs(n_samples=100, n_features=2, centers=[[0.5,0.5]], cluster_std=[[.1]],
 #                random_state=9)
 # X2, y2 = datasets.make_blobs(n_samples=100, n_features=2, centers=[[1.2,1.2]], cluster_std=[[.1]],
@@ -116,7 +142,8 @@ train_file.close()
 # from sklearn import metrics
 # print ("Calinski-Harabasz Score", metrics.calinski_harabaz_score(X, y_pred))
 
-# model = Doc2Vec.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\doc2vec\all_100_dm_10.model')
+# # 验证
+# model = Doc2Vec.load(r'D:\PycharmProjects\KeywordExtraction\data\model\sen2vec\patent\bxkdoc_50_dm_40.model')
 #
 # word_list = list(jieba.cut('该技术方案能够完全摆脱遥控器实现对空调的控制，操作方便，同时，语音交互方式具有灵活性，能够满足不同用户个性化的要求，提高了用户的体验'))
 # print(word_list)
