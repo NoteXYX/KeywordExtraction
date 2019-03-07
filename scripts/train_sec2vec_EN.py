@@ -56,6 +56,7 @@ if __name__ == '__main__':
             row = vector_dict[num].reshape(1, dim)
             vectors = np.row_stack((vectors, row))
     np.save(outp2, vectors)
+    # python3 train_sec2vec_EN.py ../data/SemEval2010/new_line_doc.txt ../data/model/sen2vec/SE2010/SEdoc_50_dm_40.model ../data/model/sen2vec/SE2010/SEdoc_50_dm_40.vector
     # python train_sec2vec_EN.py ..\data\SemEval2010\line_doc.txt ..\data\model\sen2vec\SE2010\SEdoc_50_dm_40.model ..\data\model\sen2vec\SE2010\SEdoc_50_dm_40.vector
 # lee_train_file = '../data/raw/SemEval2010_train_raw.txt'
 # lee_test_file = '../data/SemEval2010/train/C-41.txt.final'

@@ -35,13 +35,12 @@ def search(folder, filters, allfile):
             search(curname, filters, allfile)
     return allfile
 
-folder = r"D:\PycharmProjects\KeywordExtraction\data\SemEval2010\mine"
+folder = r"../data/SemEval2010/mine"
 filters = ['C','H','I','J']
-# filters = ['J']
-allfile = []
-allfile = search(folder, filters, allfile)
-file_len = len(allfile)
-print('共查找到%d个摘要文件' %(file_len))
+# allfile = []
+# allfile = search(folder, filters, allfile)
+# file_len = len(allfile)
+# print('共查找到%d个摘要文件' %(file_len))
 # train_file = open('../data/SemEval2010/new_line_doc.txt', 'w', encoding='utf-8')
 # i = 0
 # truth = {'I':[], 'J':[], 'H':[], 'C':[]}
@@ -60,7 +59,23 @@ print('共查找到%d个摘要文件' %(file_len))
 # for label in truth:
 #     print(label + ':' + str(len(truth[label])))
 # print(allfile.sort())
-print(allfile[59])
+truth = {'C':[], 'H':[], 'I':[], 'J':[]}
+num = 0
+# train_file = open('../data/SemEval2010/new_line_doc.txt', 'w', encoding='utf-8')
+for name_start in filters:
+    for i in range(100):
+        cur_name = name_start + '-' + str(i) + '.txt.final'
+        abs_name = os.path.join(folder, cur_name)
+        isfile = os.path.isfile(abs_name)
+        if isfile:
+            # with open(abs_name, 'r', encoding='utf-8') as curf:
+                # for line in curf.readlines():
+                    # train_file.write(re.sub('\n', ' ', line))
+            # train_file.write('\n')
+            truth[name_start].append(num)
+            num += 1
+# train_file.close()
+print(truth)
 
 # X1, y1 = datasets.make_blobs(n_samples=100, n_features=2, centers=[[0.5,0.5]], cluster_std=[[.1]],
 #                random_state=9)
