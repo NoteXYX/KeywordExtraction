@@ -58,10 +58,10 @@ def get_class_num(labels):
 
 
 if __name__ == '__main__':
-    embedding_file = open(r'D:\PycharmProjects\Dataset\keywordEX\old\all_50_SG.vector', 'r', encoding='utf-8', errors='surrogateescape')
+    # embedding_file = open(r'D:\PycharmProjects\Dataset\keywordEX\old\all_50_SG.vector', 'r', encoding='utf-8', errors='surrogateescape')
+    # model = Doc2Vec.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\doc2vec\all_100_dm_10.model')
     # embedding_file = open(r'D:\PycharmProjects\KeywordExtraction\data\model\word2vec\patent\bxk_50_SG.vector', 'r', encoding='utf-8', errors='surrogateescape')
-    words, vectors = read(embedding_file, dtype=float)
-    print(vectors.shape)
+    # words, vectors = read(embedding_file, dtype=float)
     # plot_only = 5000
     # log_file = open('../data/allpatent_log.txt', 'a', encoding='utf-8')
     # myeps = 2
@@ -152,13 +152,58 @@ if __name__ == '__main__':
     #         for label in class_num:
     #             print(str(label) + ':' + str(class_num[label]))
     #         print('----------------------------------------------------------------')
-    birch_labels = Birch(n_clusters=4, threshold=0.5, branching_factor=50).fit_predict(vectors)
-    class_num = get_class_num(birch_labels)
-    labels_unique = np.unique(birch_labels)
-    n_clusters_ = len(labels_unique)
-    print('聚类的类别数目=%d' % n_clusters_)
-    print('聚类结果为：')
-    for label in class_num:
-        print(str(label) + ':' + str(class_num[label]))
-    embedding_file.close()
+    # birch_labels = Birch(n_clusters=4, threshold=0.5, branching_factor=50).fit_predict(vectors)
+    # class_num = get_class_num(birch_labels)
+    # labels_unique = np.unique(birch_labels)
+    # n_clusters_ = len(labels_unique)
+    # print('聚类的类别数目=%d' % n_clusters_)
+    # print('聚类结果为：')
+    # for label in class_num:
+    #     print(str(label) + ':' + str(class_num[label]))
+    # embedding_file.close()
+
+    # # 5.Doc2vec
+    # sentvecs = np.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\doc2vec\all_100_dm_10.model.docvecs.vectors_docs.npy')
+    # print(sentvecs.shape)
+    # log_file = open('../data/all_Doc2vec_log.txt', 'a', encoding='utf-8')
+    # myeps = 2
+    # while myeps <= 2.5:
+    #     for my_min_samples in range(5,7):
+    #         print('DBSCAN聚类中......')
+    #         # db_labels = DBSCAN(eps=myeps, min_samples=my_min_samples, n_jobs=-1 ).fit_predict(sentvecs)
+    #         db_labels = DBSCAN(eps=myeps, min_samples=my_min_samples, algorithm='ball_tree').fit_predict(sentvecs)
+    #         class_num = get_class_num(db_labels)
+    #         print('eps=%f, min_samples=%d' % (myeps, my_min_samples))
+    #         n_clusters_ = len(set(db_labels)) - (1 if -1 in db_labels else 0)
+    #         print('聚类的类别数目(除噪音外)：%d' % (n_clusters_))
+    #         ratio = len(db_labels[db_labels[:] == -1]) / len(db_labels)
+    #         print('噪音率:' + str(ratio))
+    #         log_file.write('eps = %f ,min_samples = %d \n聚类的类别数目（除噪音外）：%d , 噪音率: %f\n' % (myeps, my_min_samples, n_clusters_, ratio))
+    #         print('聚类结果为：')
+    #         log_file.write('聚类结果为：\n')
+    #         for label in class_num:
+    #             print(str(label) + ':' + str(class_num[label]))
+    #             log_file.write(str(label) + ':' + str(class_num[label]) + '\t;\t')
+    #         print('----------------------------------------------------------------')
+    #         log_file.write('\n------------------------------------------------------------------\n')
+    #     myeps = myeps + 0.1
     # log_file.close()
+    sentvecs = np.load(r'D:\PycharmProjects\KeywordExtraction\data\model\sen2vec\patent\bxkdoc_100_dm_20.vector.npy')
+    print(sentvecs.shape)
+    myeps = 2
+    while myeps <= 2.5:
+        for my_min_samples in range(3,6):
+            print('DBSCAN聚类中......')
+            # db_labels = DBSCAN(eps=myeps, min_samples=my_min_samples, n_jobs=-1 ).fit_predict(sentvecs)
+            db_labels = DBSCAN(eps=myeps, min_samples=my_min_samples).fit_predict(sentvecs)
+            class_num = get_class_num(db_labels)
+            print('eps=%f, min_samples=%d' % (myeps, my_min_samples))
+            n_clusters_ = len(set(db_labels)) - (1 if -1 in db_labels else 0)
+            print('聚类的类别数目(除噪音外)：%d' % (n_clusters_))
+            ratio = len(db_labels[db_labels[:] == -1]) / len(db_labels)
+            print('噪音率:' + str(ratio))
+            print('聚类结果为：')
+            for label in class_num:
+                print(str(label) + ':' + str(class_num[label]))
+            print('----------------------------------------------------------------')
+        myeps = myeps + 0.1

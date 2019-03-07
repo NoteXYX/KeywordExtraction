@@ -63,11 +63,11 @@ if __name__ == '__main__':
     train_file = inp
     train_corpus = list(read_corpus(train_file))
     print(len(train_corpus))
-    dim = 100    # 句向量的维度
-    model = Doc2Vec(vector_size=dim, window=2, min_count=1, dm=1, workers=multiprocessing.cpu_count())
+    dim = 50    # 句向量的维度
+    model = Doc2Vec(vector_size=dim, window=2, min_count=1, dm=1, epochs=40, workers=multiprocessing.cpu_count())
     model.build_vocab(train_corpus)
     # model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
-    model.train(train_corpus, total_examples=model.corpus_count, epochs=10)
+    model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
     # model = Doc2Vec(train_corpus, vector_size=200, window=2, min_count=1, dm=1, workers=multiprocessing.cpu_count())
     model.save(outp1)
     vector_dict = model.docvecs
@@ -85,6 +85,7 @@ if __name__ == '__main__':
 
     # python train_sec2vec_ZH.py D:\PycharmProjects\Dataset\keywordEX\patent\_all_abstract.txt ..\data\model\sen2vec\patent\all_100_dm_10.model ..\data\model\sen2vec\patent\all_100_dm_10.npy
     # python3 train_sec2vec_ZH.py ../data/patent_abstract/_bxk_abstract.txt ../data/model/sen2vec/patent/bxk_50_dm_20.model ../data/model/sen2vec/patent/bxk_50_dm_20.npy
+    # pythontrain_sec2vec_ZH.py..\data\patent_abstract / _bxk_abstract.txt..\data\model\sen2vec\patent\bxk_100_dm_10.model..\data\model\sen2vec\patent\bxk_100_dm_10.vector
 # lee_train_file = '../data/raw/SemEval2010_train_raw.txt'
 # lee_test_file = '../data/SemEval2010/train/C-41.txt.final'
 #

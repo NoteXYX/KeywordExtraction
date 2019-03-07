@@ -110,18 +110,24 @@ def read_corpus(fname, lang):
         return sentences
     elif lang == 'ZH':
         with open(fname, 'r', encoding='utf-8') as f:
-            content = re.sub('\n', '', f.read())
-            sentences = content.split('。')
-        return sentences
+            lines = f.readlines()
+        # tag = 0
+        # for line in lines:
+        #     print('读入第%d个专利摘要......' % (tag + 1))
+        #     content = re.sub('[，。；、]+', '', line)
+        #     content = content.strip()
+        #     each_cut = list(jieba.cut(content))
+        #     tag += 1
+        return lines
 
 def main():
     # model = Doc2Vec.load('../data/model/sen2vec/SE2010/SE2010_200.model')
     # content = read_corpus('../data/SE2010_content.txt')
     # vectors = np.load('../data/model/sen2vec/SE2010/SE2010_200.model.docvecs.vectors_docs.npy')
-    model = Doc2Vec.load(r'..\data\model\sen2vec\patent\bxk_50_dm_20.model')
-    sentvecs = np.load(r'..\data\model\sen2vec\patent\bxk_50_dm_20.npy')
-    sentences = read_corpus(r'..\data\patent_abstract\_bxk_abstract.txt', 'ZH')
-    sent2ind = {sen: i for i, sen in enumerate(sentences)}
+    model = Doc2Vec.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\doc2vec\all_100_dm_10.model')
+    sentvecs = np.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\doc2vec\all_100_dm_10.model.docvecs.vectors_docs.npy')
+    # sentences = read_corpus(r'..\data\patent_abstract\_bxk_abstract.txt', 'ZH')
+    # sent2ind = {sen: i for i, sen in enumerate(sentences)}
     # print(sentvecs.shape)
     db_model = DBSCAN(eps=1.98, min_samples=3).fit(sentvecs)
     db_labels = db_model.labels_
