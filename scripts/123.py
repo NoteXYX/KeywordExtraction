@@ -98,15 +98,18 @@ if __name__ == '__main__':
 
     # # 1. 层次聚类
     # # 生成点与点之间的距离矩阵,这里用的欧氏距离:
-    sentvecs = np.load('../data/model/sen2vec/SE2010/SEdoc_50_dm_40.npy')
+    sentvecs = np.load('../data/model/sen2vec/SE2010/SEdoc_200_dm_50.npy')
+    # myeps = 2
+    # my_min_samples = 3
+    # cluster = DBSCAN(eps=myeps, min_samples=my_min_samples, n_jobs=-1).fit_predict(sentvecs)
     # sentvecs = np.load(r'D:\PycharmProjects\KeywordExtraction\data\model\sen2vec\SE2010\new_SEdoc_50_dm_40.vector.npy')
     disMat = sch.distance.pdist(sentvecs, 'cosine')
     Z = sch.linkage(disMat, method='average')
     # 将层级聚类结果以树状图表示出来并保存为plot_dendrogram.png
     # P=sch.dendrogram(Z)
-    # plt.savefig('plot_dendrogram.png')
+    # plt.savefig('200_50.png')
     # 根据linkage matrix Z得到聚类结果:
-    cluster = sch.fcluster(Z, 0.7, 'distance', depth=2)
+    cluster = sch.fcluster(Z, 0.77, 'distance', depth=2)
     # ac = AgglomerativeClustering(n_clusters=2, affinity='euclidean', linkage='complete')
     # cluster = ac.fit_predict(sentvecs)
     labels_unique = np.unique(cluster)

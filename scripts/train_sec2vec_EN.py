@@ -40,8 +40,8 @@ if __name__ == '__main__':
     train_file = inp
     train_corpus = list(read_corpus(train_file))
     # print(train_corpus[:2])
-    dim = 50
-    model = Doc2Vec(vector_size=dim, window=2, min_count=1, dm=1, epochs=40, workers=multiprocessing.cpu_count())
+    dim = 200
+    model = Doc2Vec(vector_size=dim, window=2, min_count=1, dm=1, epochs=50, workers=multiprocessing.cpu_count())
     model.build_vocab(train_corpus)
     model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
     # model = Doc2Vec(train_corpus, vector_size=200, window=2, min_count=1, dm=1, workers=multiprocessing.cpu_count())
