@@ -22,6 +22,12 @@ class file_EN:
         self.doc_num = doc_num
         self.docvec = None
 
+class patent_ZH:
+    def __init__(self, content, doc_num):
+        self.label = -1
+        self.doc_num = doc_num
+        self.docvec = None
+        self.content = content
 def get_label(file_list,cluster):
     f_num = 0
     for label in cluster:
@@ -37,6 +43,17 @@ def get_result(file_list):
             my_dict[f.label] = [f.name]
         else:
             my_dict[f.label].append(f.name)
+    my_dict = dict(sorted(my_dict.items(), key=operator.itemgetter(0)))
+    return my_dict
+
+def get_patent_result(patent_list):
+    my_dict = {}
+    for patent in patent_list:
+        if patent.label not in my_dict:
+            my_dict[patent.label] = [patent.content]
+        else:
+            my_dict[patent.label].append(patent.content)
+    my_dict = dict(sorted(my_dict.items(), key=operator.itemgetter(0)))
     return my_dict
 
 def plot_with_labels(low_dim_embs, colors, labels, filename):
@@ -93,28 +110,30 @@ def get_class_title(labels):
 
 
 if __name__ == '__main__':
-    folder = r"../data/SemEval2010/mine"
-    filters = ['C', 'H', 'I', 'J']
+    # folder = r"../data/SemEval2010/mine"
+    # filters = ['C', 'H', 'I', 'J']
     # truth = {'C': [], 'H': [], 'I': [], 'J': []}
-    num = 0
-    file_list = []
+    # num = 0
+    # file_list = []
     # train_file = open('../data/SemEval2010/new_line_doc.txt', 'w', encoding='utf-8')
-    for name_start in filters:
-        for i in range(100):
-            cur_name = name_start + '-' + str(i) + '.txt.final'
-            abs_name = os.path.join(folder, cur_name)
-            isfile = os.path.isfile(abs_name)
-            if isfile:
+    # for name_start in filters:
+    #     for i in range(100):
+    #         cur_name = name_start + '-' + str(i) + '.txt.final'
+    #         abs_name = os.path.join(folder, cur_name)
+    #         isfile = os.path.isfile(abs_name)
+    #         if isfile:
                 # with open(abs_name, 'r', encoding='utf-8') as curf:
                 # for line in curf.readlines():
                 # train_file.write(re.sub('\n', ' ', line))
                 # train_file.write('\n')
-                cur_file = file_EN(cur_name, num)
-                file_list.append(cur_file)
+                # cur_file = file_EN(cur_name, num)
+                # file_list.append(cur_file)
                 # truth[name_start].append(num)
-                num += 1
+                # num += 1
     # train_file.close()
     # print(truth)
+
+
     # embedding_file = open(r'D:\PycharmProjects\Dataset\keywordEX\old\all_50_SG.vector', 'r', encoding='utf-8', errors='surrogateescape')
     # model = Doc2Vec.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\doc2vec\all_100_dm_10.model')
     # embedding_file = open(r'D:\PycharmProjects\KeywordExtraction\data\model\word2vec\patent\bxk_50_SG.vector', 'r', encoding='utf-8', errors='surrogateescape')
@@ -143,9 +162,19 @@ if __name__ == '__main__':
     #         log_file.write('\n------------------------------------------------------------------\n')
     #     myeps = myeps + 0.1
 
+    patent_list = []
+    num = 0
+    with open('../data/patent_abstract/_bxk_abstract.txt', 'r', encoding='utf-8') as curf:
+        for line in curf.readlines():
+            line = line.strip()
+            cur_patent = patent_ZH(line, num)
+            patent_list.append(cur_patent)
+            num += 1
+
+
     # # 1. 层次聚类
     # # 生成点与点之间的距离矩阵,这里用的欧氏距离:
-    sentvecs = np.load('../data/model/sen2vec/SE2010/SEdoc_50_dm_40.npy')
+    sentvecs = np.load('../data/model/sen2vec/patent/bxkdoc_100_dm_40_2.npy')
     # myeps = 2
     # my_min_samples = 3
     # cluster = DBSCAN(eps=myeps, min_samples=my_min_samples, n_jobs=-1).fit_predict(sentvecs)
@@ -153,64 +182,50 @@ if __name__ == '__main__':
     disMat = sch.distance.pdist(sentvecs, 'cosine')
     Z = sch.linkage(disMat, method='average')
     # 将层级聚类结果以树状图表示出来并保存为plot_dendrogram.png
+    # plt.figure(num='层次聚类结果', figsize=(8, 8))
     # P=sch.dendrogram(Z)
-    # plt.savefig('200_50.png')
+    # plt.savefig('bxk100_40_5.png')
     # 根据linkage matrix Z得到聚类结果:
-    cluster = sch.fcluster(Z, 0.7, 'distance', depth=2)
+    cluster = sch.fcluster(Z, 0.8, 'distance', depth=2)
     # ac = AgglomerativeClustering(n_clusters=2, affinity='euclidean', linkage='complete')
     # cluster = ac.fit_predict(sentvecs)
     # cluster = KMeans(n_clusters=4, random_state=9).fit_predict(sentvecs)
-    file_list = get_label(file_list, cluster)
-    my_result = get_result(file_list)
+    # file_list = get_label(file_list, cluster)
+    patent_list = get_label(patent_list, cluster)
+    # my_result = get_result(file_list)
+    my_result = get_patent_result(patent_list)
     labels_unique = np.unique(cluster)
     n_clusters_ = len(labels_unique)
     print('聚类的类别数目：%d' % n_clusters_)
     class_num = get_class_num(cluster)
     print('聚类结果为：')
-    class_title = get_class_title(cluster)
-    print('my_result:')
-    print(my_result)
+    print(class_num)
+    # class_title = get_class_title(cluster)
+    with open('../data/patent_abstract/bxk_cluster_result.txt', 'w', encoding='utf-8') as result_f:
+        for label in my_result:
+            result_f.write(str(label) + ':' +'\n')
+            for patent in my_result[label]:
+                result_f.write(patent + ' ;' + '\n')
+
     # print(class_title)
-    truth = {3: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58],
-             0: [59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122],
-             2: [123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182],
-             1: [183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243]}
-    # truth = {}
-    # for i in range(1,5):
-    #     if i == 1:
-    #         cur_line = [j for j in range(73, 108)]
-    #         cur_line += [j for j in range(194, 219)]
-    #         truth[i] = cur_line
-    #     if i == 2:
-    #         cur_line = [j for j in range(108, 144)]
-    #         cur_line += [j for j in range(219, 244)]
-    #         truth[i] = cur_line
-    #     if i == 3:
-    #         cur_line = [j for j in range(34, 73)]
-    #         cur_line += [j for j in range(169, 194)]
-    #         truth[i] = cur_line
-    #     if i == 4:
-    #         cur_line = [j for j in range(0, 34)]
-    #         cur_line += [j for j in range(144, 169)]
-    #         truth[i] = cur_line
-    correct = 0
-    print('truth:')
-    print(truth)
-    for label_train in truth:
-        for label_test in class_title:
-            if label_test == label_train:
-                for j in class_title[label_test]:
-                    if j in truth[label_train]:
-                        correct += 1
-                break
-    print('聚类正确率：%f%%' % (correct/244.0*100))
-    # for label in class_num:
-    #     print(str(label) + ':' + str(class_num[label]))
-    # i = 0
-    # truth = []
-    # while i <= 243:
-    #     if
+    # truth = {3: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58],
+    #          0: [59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122],
+    #          2: [123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182],
+    #          1: [183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243]}
+    # correct = 0
+    # print('truth:')
+    # print(truth)
+    # for label_train in truth:
+    #     for label_test in class_title:
+    #         if label_test == label_train:
+    #             for j in class_title[label_test]:
+    #                 if j in truth[label_train]:
+    #                     correct += 1
+    #             break
+    # print('聚类正确率：%f%%' % (correct/244.0*100))
     print('----------------------------------------------------------------')
+
+
     # #2.MeanShift
     # bandwidth = estimate_bandwidth(vectors, quantile=10, n_samples=10)
     # ##设置均值偏移函数

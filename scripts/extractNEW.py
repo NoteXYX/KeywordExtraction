@@ -24,7 +24,7 @@ if __name__ == '__main__':
         db.rollback()
         print(e)
     log_file = open(r'..\data\patent_abstract\bxkbxk.txt', 'a', encoding='utf-8')
-    sql = """ SELECT abstract FROM tb_patentall;  """
+    sql = """ SELECT abstract FROM tb_patent;  """
     try:
         # 执行sql语句
         cursor.execute(sql)

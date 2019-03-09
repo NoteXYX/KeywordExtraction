@@ -63,8 +63,8 @@ if __name__ == '__main__':
     train_file = inp
     train_corpus = list(read_corpus(train_file))
     print(len(train_corpus))
-    dim = 50    # 句向量的维度
-    model = Doc2Vec(vector_size=dim, window=2, min_count=1, dm=1, epochs=40, workers=multiprocessing.cpu_count())
+    dim = 100    # 句向量的维度
+    model = Doc2Vec(vector_size=dim, window=5, min_count=1, dm=1, epochs=40, workers=multiprocessing.cpu_count())
     model.build_vocab(train_corpus)
     # model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
     model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
