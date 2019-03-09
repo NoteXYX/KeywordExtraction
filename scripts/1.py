@@ -19,6 +19,13 @@ from scipy.spatial import distance
 from sklearn.datasets.samples_generator import make_blobs
 from extractTrain import myfile
 
+class file_EN:
+    def __init__(self, name):
+        self.name = ""
+        self.label = -1
+        self.doc_num = None
+        self.docvec = None
+
 def search(folder, filters, allfile):
     folders = os.listdir(folder)
     for name in folders:
@@ -61,6 +68,7 @@ filters = ['C','H','I','J']
 # print(allfile.sort())
 truth = {'C':[], 'H':[], 'I':[], 'J':[]}
 num = 0
+file_list = []
 # train_file = open('../data/SemEval2010/new_line_doc.txt', 'w', encoding='utf-8')
 for name_start in filters:
     for i in range(100):
@@ -72,6 +80,7 @@ for name_start in filters:
                 # for line in curf.readlines():
                     # train_file.write(re.sub('\n', ' ', line))
             # train_file.write('\n')
+            cur_file = file_EN()
             truth[name_start].append(num)
             num += 1
 # train_file.close()

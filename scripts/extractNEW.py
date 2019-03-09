@@ -23,7 +23,7 @@ if __name__ == '__main__':
         # 如果发生错误则回滚
         db.rollback()
         print(e)
-    log_file = open(r'..\data\patent_abstract\_all_abstract.txt', 'a', encoding='utf-8')
+    log_file = open(r'..\data\patent_abstract\bxkbxk.txt', 'a', encoding='utf-8')
     sql = """ SELECT abstract FROM tb_patentall;  """
     try:
         # 执行sql语句
