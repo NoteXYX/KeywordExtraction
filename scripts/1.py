@@ -66,25 +66,25 @@ filters = ['C','H','I','J']
 # for label in truth:
 #     print(label + ':' + str(len(truth[label])))
 # print(allfile.sort())
-truth = {'C':[], 'H':[], 'I':[], 'J':[]}
-num = 0
-file_list = []
-# train_file = open('../data/SemEval2010/new_line_doc.txt', 'w', encoding='utf-8')
-for name_start in filters:
-    for i in range(100):
-        cur_name = name_start + '-' + str(i) + '.txt.final'
-        abs_name = os.path.join(folder, cur_name)
-        isfile = os.path.isfile(abs_name)
-        if isfile:
-            # with open(abs_name, 'r', encoding='utf-8') as curf:
-                # for line in curf.readlines():
-                    # train_file.write(re.sub('\n', ' ', line))
-            # train_file.write('\n')
-            cur_file = file_EN()
-            truth[name_start].append(num)
-            num += 1
-# train_file.close()
-print(truth)
+# truth = {'C':[], 'H':[], 'I':[], 'J':[]}
+# num = 0
+# file_list = []
+# # train_file = open('../data/SemEval2010/new_line_doc.txt', 'w', encoding='utf-8')
+# for name_start in filters:
+#     for i in range(100):
+#         cur_name = name_start + '-' + str(i) + '.txt.final'
+#         abs_name = os.path.join(folder, cur_name)
+#         isfile = os.path.isfile(abs_name)
+#         if isfile:
+#             # with open(abs_name, 'r', encoding='utf-8') as curf:
+#                 # for line in curf.readlines():
+#                     # train_file.write(re.sub('\n', ' ', line))
+#             # train_file.write('\n')
+#             cur_file = file_EN()
+#             truth[name_start].append(num)
+#             num += 1
+# # train_file.close()
+# print(truth)
 
 # X1, y1 = datasets.make_blobs(n_samples=100, n_features=2, centers=[[0.5,0.5]], cluster_std=[[.1]],
 #                random_state=9)
@@ -170,20 +170,34 @@ print(truth)
 # print ("Calinski-Harabasz Score", metrics.calinski_harabaz_score(X, y_pred))
 
 # # 验证
-# model = Doc2Vec.load(r'D:\PycharmProjects\KeywordExtraction\data\model\sen2vec\patent\bxkdoc_50_dm_40.model')
-#
+model = Doc2Vec.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\doc2vec\all_100_dm_10_2.model')
+num = 0
+docvecs = np.zeros((1, 100))
+with open('../data/patent_abstract/_bxk_abstract.txt', 'r', encoding='utf-8') as curf:
+    for line in curf.readlines():
+        content = re.sub('[，。；、]+', '', line)
+        content = content.strip()
+        each_cut = list(jieba.cut(content))
+        line = line.strip()
+        cur_docvec = model.infer_vector(each_cut)
+        print('读取第%d个专利摘要......' % (num + 1))
+        if num == 0:
+            docvecs[0] = cur_docvec
+        else:
+            docvecs = np.row_stack((docvecs, cur_docvec.reshape(1, 100)))
+        num += 1
 # word_list = list(jieba.cut('该技术方案能够完全摆脱遥控器实现对空调的控制，操作方便，同时，语音交互方式具有灵活性，能够满足不同用户个性化的要求，提高了用户的体验'))
 # print(word_list)
 # vector1 = model.infer_vector(word_list)
 # vector2 = np.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\doc2vec\all_100_dm_10.model.docvecs.vectors_docs.npy')
 # print(vector1.shape)
 # print(vector2.shape)
-# # sims = model.docvecs.most_similar([vector1], topn=10)
-# sims = model.docvecs.most_similar([vector2[0]], topn=10)
-# for i, sim in sims:
-#     print(i, sim)
-# # for sim in sims:
-# #     print(sim[0])
+# sims = model.docvecs.most_similar([vector1], topn=10)
+sims = model.docvecs.most_similar([docvecs[100]], topn=10)
+for i, sim in sims:
+    print(i, sim)
+# for sim in sims:
+#     print(sim[0])
 # print(vector1)
 
 # model = Doc2Vec.load(r'D:\PycharmProjects\KeywordExtraction\data\model\sen2vec\SE2010\SEdoc_50_dm_40.model')
