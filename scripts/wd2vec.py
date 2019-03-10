@@ -6,6 +6,7 @@ import logging
 import os
 import sys
 import matplotlib.pyplot as plt
+import scipy.cluster.hierarchy as sch
 from sklearn.cluster import KMeans
 from sklearn.cluster import DBSCAN
 from sklearn import metrics
@@ -19,6 +20,26 @@ class patent_ZH:
         self.doc_num = doc_num
         self.docvec = None
         self.content = content
+
+def get_class_num(labels):
+    class_num = {}
+    for label in labels:
+        if label not in class_num:
+            class_num[label] = 1
+        else:
+            class_num[label] += 1
+    class_num = dict(sorted(class_num.items(), key=operator.itemgetter(0)))
+    return class_num
+
+def get_class_title(labels):
+    class_title = {}
+    for i, label in enumerate(labels):
+        if label not in class_title:
+            class_title[label] = [i]
+        else:
+            class_title[label].append(i)
+    class_title = dict(sorted(class_title.items(), key=operator.itemgetter(0)))
+    return class_title
 
 def get_DBSCAN_clusters(vectors,labels):    # 根据DBSCAN聚类后的标签labels整理各类的向量，存放在字典clusters
     clusters = {}
@@ -129,16 +150,92 @@ def get_most_label(ind2vec, clusters, dim):     # 获得测试文本中单词数
     return most_label
 
 def mainZH():
-    model = Word2Vec.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_100_SG.model')
-    patent_file = open('../data/patent_abstract/_bxk_abstract.txt')
-    docvecs = np.zeros((1,100))
-    num = 0
-    for line in patent_file.readlines():
-        content = re.sub('[，。；、]+', '', line)
-        content = content.strip()
-        each_cut = list(jieba.cut(content))
-        print('处理第%d个专利摘要......' % (num + 1))
-        for word
+    # model = Word2Vec.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_100_SG.model')
+    patent_file = open('../data/patent_abstract/_bxk_abstract.txt', 'r', encoding='utf-8')
+    # dim = 100
+    # num = 0
+    # docvecs = np.zeros((1, dim))
+    # for line in patent_file.readlines():
+    #     content = re.sub('[，。；、]+', '', line)
+    #     content = content.strip()
+    #     each_cut = list(jieba.cut(content))
+    #     print('处理第%d个专利摘要......' % (num + 1))
+    #     num += 1
+    #     wordvecs = np.zeros((1, dim))
+    #     for word in each_cut:
+    #         try:
+    #             cur_wordvec = model.wv[word].reshape(1, dim)
+    #             wordvecs = np.concatenate((wordvecs, cur_wordvec), axis=0)
+    #         except Exception as e:
+    #             pass
+    #     wordvecs = np.delete(wordvecs, 0, 0)
+    #     # print('wordvecs.shape=' + str(wordvecs.shape))
+    #     cur_docvec = np.mean(wordvecs, axis=0).reshape(1, 100)
+    #     # print('cur_docvec.shape=' + str(cur_docvec.shape))
+    #     docvecs = np.concatenate((docvecs, cur_docvec), axis=0)
+    # docvecs = np.delete(docvecs, 0, 0)
+    # np.save('../data/model/word2vec/patent/bxk_all_100_SG.npy', docvecs)
+    docvecs = np.load('../data/model/word2vec/patent/bxk_all_100_SG.npy')
+    # disMat = sch.distance.pdist(docvecs, 'cosine')
+    # Z = sch.linkage(disMat, method='average')
+    print('DBSCAN聚类中......')
+    log_file = open('../data/all_word2vec_log.txt', 'a', encoding='utf-8')
+    myeps = 0.45
+    while myeps <= 0.9:
+        for my_min_samples in range(3, 11):
+            cluster = DBSCAN(eps=myeps, min_samples=my_min_samples).fit_predict(docvecs)
+            class_num = get_class_num(cluster)
+            print('eps=%f, min_samples=%d' % (myeps, my_min_samples))
+            n_clusters_ = len(set(cluster)) - (1 if -1 in cluster else 0)
+            print('聚类的类别数目(除噪音外)：%d' % (n_clusters_))
+            ratio = len(cluster[cluster[:] == -1]) / len(cluster)
+            print('噪音率:' + str(ratio))
+            log_file.write('eps = %f ,min_samples = %d \n聚类的类别数目（除噪音外）：%d , 噪音率: %f\n' % (myeps, my_min_samples, n_clusters_, ratio))
+            print('聚类结果为：')
+            log_file.write('聚类结果为：\n')
+            for label in class_num:
+                print(str(label) + ':' + str(class_num[label]))
+                log_file.write(str(label) + ':' + str(class_num[label]) + '\t;\t')
+            print('----------------------------------------------------------------')
+            log_file.write('\n------------------------------------------------------------------\n')
+        myeps = myeps + 0.01
+    # db_model = DBSCAN(eps=0.5, min_samples=3).fit(docvecs)
+    # cluster = db_model.labels_
+    # 将层级聚类结果以树状图表示出来并保存为plot_dendrogram.png
+    # plt.figure(num='层次聚类结果', figsize=(8, 8))
+    # P = sch.dendrogram(Z)
+    # plt.savefig('bxk_all_word2vec.png')
+    # 根据linkage matrix Z得到聚类结果:
+    # cluster = sch.fcluster(Z, 0.22, 'distance', depth=2)
+
+    # ac = AgglomerativeClustering(n_clusters=3, affinity='euclidean', linkage='average')
+    # cluster = ac.fit_predict(docvecs)
+    # cluster = KMeans(n_clusters=3, random_state=9).fit_predict(docvecs)
+    # file_list = get_label(file_list, cluster)
+
+    # patent_list = get_label(patent_list, cluster)
+    # my_result = get_result(file_list)
+    # my_result = get_patent_result(patent_list)
+
+    # labels_unique = np.unique(cluster)
+    # n_clusters_ = len(labels_unique)
+    # print('聚类的类别数目：%d' % n_clusters_)
+    # class_num = get_class_num(cluster)
+    # ratio = len(cluster[cluster[:] == -1]) / len(cluster)
+    # print('认为是噪音的数据比例：%d' % ratio)
+    # print('聚类结果为：')
+    # print(class_num)
+    # ratio = len(cluster[cluster[:] == -1]) / len(cluster)
+    # print('噪音率:' + str(ratio))
+    # log_file.write('eps = %f ,min_samples = %d \n聚类的类别数目（除噪音外）：%d , 噪音率: %f\n' % (myeps, my_min_samples, n_clusters_, ratio))
+
+    # print('聚类结果为：')
+    # log_file.write('聚类结果为：\n')
+    # for label in class_num:
+    #     print(str(label) + ':' + str(class_num[label]))
+        # log_file.write(str(label) + ':' + str(class_num[label]) + '\t;\t')
+    print('----------------------------------------------------------------')
+    log_file.close()
     patent_file.close()
 # def mainEN():
     # embedding_file = open(r'D:\PycharmProjects\Dataset\keywordEX\wikiZH_100_SG.vector', 'r', encoding='utf-8', errors='surrogateescape')
@@ -176,11 +273,5 @@ def mainZH():
 
 
 if __name__ == '__main__':
-    program = os.path.basename(sys.argv[0])
-    logger = logging.getLogger(program)
-
-    logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s')
-    logging.root.setLevel(level=logging.INFO)
-    logger.info("running %s" % ' '.join(sys.argv))
-    main()
+    mainZH()
 
