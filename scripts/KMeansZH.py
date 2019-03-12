@@ -52,8 +52,8 @@ def get_class_title(labels):
     return class_title
 
 if __name__ == '__main__':
-    dim = 100
-    model = Doc2Vec.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\doc2vec\all_100_dm_10_5.model')
+    dim = 200
+    model = Doc2Vec.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\doc2vec\all_200_dm_10_5.model')
     patent_list = []
     docvecs = np.zeros((1,dim))
     num = 0
@@ -85,7 +85,10 @@ if __name__ == '__main__':
     for label in class_num:
         print(str(label) + ':' + str(class_num[label]))
     # class_title = get_class_title(cluster)
-    with open('../data/patent_abstract/bxk_all_100_dm_10_5_KMeans.txt', 'w', encoding='utf-8') as result_f:
+    with open('../data/patent_abstract/bxk_all_200_dm_10_5_KMeans.txt', 'w', encoding='utf-8') as result_f:
+        result_f.write('聚类结果为：\n')
+        for label in class_num:
+            result_f.write(str(label) + ':' + str(class_num[label]) + '\n')
         for label in my_result:
             result_f.write('类标签为：' + str(label) + ':' +'\n')
             result_f.write(str(class_num[label]) + '条专利' + '\n')

@@ -38,13 +38,15 @@ def read_corpus(fname):
     #         yield TaggedDocument(each_cut, [tag])
     #         tag += 1
     for line in lines:
-        print('处理第%d个专利摘要......' % (tag+1))
-        content = re.sub('[，。；、]+', '', line)
-        content = content.strip()
-        each_cut = list(jieba.cut(content))
-        # print(each_cut)
-        yield TaggedDocument(each_cut, [tag])
-        tag += 1
+        line_split = line.split(' ::  ')
+        if len(line_split) == 2:
+            print('处理第%d个专利摘要......' % (tag + 1))
+            content = re.sub('[，。；、]+', '', line_split[1])
+            content = content.strip()
+            each_cut = list(jieba.cut(content))
+            # print(each_cut)
+            yield TaggedDocument(each_cut, [tag])
+            tag += 1
 
 
 if __name__ == '__main__':
