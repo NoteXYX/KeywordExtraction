@@ -23,8 +23,8 @@ if __name__ == '__main__':
     #     # 如果发生错误则回滚
     #     db.rollback()
     #     print(e)
-    log_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\_all_label_abstract.txt', 'w', encoding='utf-8')
-    sql = """ SELECT label, abstract FROM tb_patentall_label; """
+    log_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\_bxk_label_abstract.txt', 'w', encoding='utf-8')
+    sql = """ SELECT label, abstract FROM tb_patent_label; """
     try:
         # 执行sql语句
         cursor.execute(sql)

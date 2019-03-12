@@ -60,7 +60,7 @@ if __name__ == '__main__':
     patent_list = []
     docvecs = np.zeros((1, dim))
     num = 0
-    # with open('D:\PycharmProjects\Dataset\keywordEX\patent\_all_label_abstract.txt', 'r', encoding='utf-8') as curf:
+    # with open('D:\PycharmProjects\Dataset\keywordEX\patent\_bxk_label_abstract.txt', 'r', encoding='utf-8') as curf:
     #     for line in curf.readlines():
     #         content = re.sub('[，。；、]+', '', line)
     #         content = content.strip()
@@ -76,7 +76,7 @@ if __name__ == '__main__':
     #             docvecs = np.row_stack((docvecs, cur_docvec.reshape(1, dim)))
     #         patent_list.append(cur_patent)
     #         num += 1
-    with open('D:\PycharmProjects\Dataset\keywordEX\patent\_all_label_abstract.txt', 'r', encoding='utf-8') as curf:
+    with open('D:\PycharmProjects\Dataset\keywordEX\patent\_bxk_label_abstract.txt', 'r', encoding='utf-8') as curf:
         for line in curf.readlines():
             line_split = line.split(' ::  ')
             if len(line_split) == 2:
@@ -94,8 +94,6 @@ if __name__ == '__main__':
                     docvecs = np.row_stack((docvecs, cur_docvec.reshape(1, dim)))
                 patent_list.append(cur_patent)
                 num += 1
-                if num >= 1000:
-                    break
     print(docvecs.shape)
     # 1. 层次聚类
     # 生成点与点之间的距离矩阵,这里用的欧氏距离:
@@ -107,7 +105,7 @@ if __name__ == '__main__':
     # plt.savefig('../data/patent_abstract/cengci/bxk_all_complete_100_10_5.png')
     # plt.savefig('../data/patent_abstract/cengci/Test.png')
     # 根据linkage matrix Z得到聚类结果:
-    cluster = sch.fcluster(Z, 1.1, 'distance', depth=2)
+    cluster = sch.fcluster(Z, 1.34, 'distance', depth=2)
     # ac = AgglomerativeClustering(n_clusters=3, affinity='euclidean', linkage='single')
     # cluster = ac.fit_predict(docvecs)
     patent_list = get_label(patent_list, cluster)
@@ -129,7 +127,7 @@ if __name__ == '__main__':
             result_f.write('类标签为：' + str(label) + ':' + '\n')
             result_f.write(str(class_num[label]) + '条专利' + '\n')
             for ipc in my_ipc[label]:
-                result_f.write(ipc + ' ;' + '\n')
+                result_f.write(ipc + '\n')
         # for label in my_result:
         #     result_f.write('类标签为：' + str(label) + ':' + '\n')
         #     result_f.write(str(class_num[label]) + '条专利' + '\n')

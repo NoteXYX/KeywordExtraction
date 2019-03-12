@@ -31,7 +31,7 @@ def search(folder, myfilter, allfile):
     return allfile
 
 if __name__ == '__main__':
-    folder = r"D:\专利数据\cc-TXTS-10-B 中国发明专利授权公告标准化全文文本数据\20190205"
+    folder = r"D:\专利数据\cc-TXTS-10-B 中国发明专利授权公告标准化全文文本数据"
     filter = [".XML"]
     allfile = []
     allfile = search(folder, filter, allfile)
@@ -50,12 +50,12 @@ if __name__ == '__main__':
     db = pymysql.connect("localhost", "root", "", "patent_system")
     # 使用 cursor() 方法创建一个游标对象 cursor
     cursor = db.cursor()
-    patent_id = 3077    #################################################################
+    patent_id = 0    #################################################################
     for num in range(file_len):    #################################################################
         xml_name = allfile[num]    ####################################################
         #xml_name = r'D:\专利数据\cc-TXTS-10-B 中国发明专利授权公告标准化全文文本数据\20180525\1\CN112011000076153CN00001040250410BFULZH20180525CN005\CN112011000076153CN00001040250410BFULZH20180525CN005.XML'
         #xml_name = r'3.XML'
-        print('XML文件名称：%s' %(xml_name))
+        print('XML文件名称：%s' % xml_name )
         search_CN = re.search('CN', xml_name)
         if search_CN:
             dom1 = xml.dom.minidom.parse(xml_name)  # 打开xml文件
@@ -63,6 +63,10 @@ if __name__ == '__main__':
             ipc_pars = root.getElementsByTagName('business:ClassificationIPCR')
             for i in range(len(ipc_pars)):
                 str_ipc = ipc_pars[i].getElementsByTagName('base:Text')[0].firstChild.data
+                if len(str_ipc.split('    ')) == 2:
+                    str_ipc = str_ipc.split('    ')[0]
+                elif len(str_ipc.split('    ')) == 3:
+                    str_ipc = '   '.join(str_ipc.split('    ')[:2])
                 search_rfr = re.search(patt_rfr, str_ipc)
                 search_washing = re.search(patt_washing, str_ipc)
                 search_cooler = re.search(patt_cooler, str_ipc)
@@ -194,16 +198,16 @@ if __name__ == '__main__':
                         my_dict['content'] = pymysql.escape_string(str_content)
                         my_dict['tech_field'] = pymysql.escape_string(str_tecField)
                         my_dict['tech_bg'] = pymysql.escape_string(str_tecBg)
+                        my_dict['label'] = pymysql.escape_string(str_ipc)
 
                         # SQL 插入语句
-                        sql = """INSERT INTO tb_patent(id, app_num, title, abstract, company_name, content, tech_field, tech_bg)
-                            VALUES ({id}, '{app_num}', '{title}', '{abstract}', '{company_name}', '{content}', '{tech_field}', '{tech_bg}')""".format(**my_dict)
+                        sql = """INSERT INTO tb_patent_label(id, app_num, title, abstract, company_name, content, tech_field, tech_bg, label)
+                            VALUES ({id}, '{app_num}', '{title}', '{abstract}', '{company_name}', '{content}', '{tech_field}', '{tech_bg}', '{label}')""".format(**my_dict)
 
                         try:
                             # 执行sql语句
                             cursor.execute(sql)
                             # 提交到数据库执行
-
                             db.commit()
                             print('第%d条数据录入成功！' % patent_id)
                             print('***********************************************************************************************************')
@@ -213,7 +217,6 @@ if __name__ == '__main__':
                             db.rollback()
                             print(e)
                             print('第%d条数据录入失败！' % patent_id)
-                    # break
 
     # 关闭数据库连接
     db.close()

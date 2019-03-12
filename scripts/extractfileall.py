@@ -186,8 +186,6 @@ if __name__ == '__main__':
             print('发明内容：' + str_content)
 
             if (str_tecField != '' and str_tecBg != '' and str_content != ''):
-                # with open('file_冰洗空.txt', 'a') as file_log:
-                #     file_log.write('%d\t%s\n' % (patent_id + 1, xml_name))
                 patent_id += 1
                 my_dict = {}
                 my_dict['id'] = patent_id
