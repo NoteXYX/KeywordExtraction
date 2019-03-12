@@ -9,7 +9,7 @@ if __name__ == '__main__':
     db = pymysql.connect("localhost", "root", "", "patent_system")
     # 使用 cursor() 方法创建一个游标对象 cursor
     cursor = db.cursor()
-    sql = """ SELECT count(id) FROM tb_patentall; """
+    sql = """ SELECT count(id) FROM tb_patentall_label; """
     try:
         # 执行sql语句
         cursor.execute(sql)

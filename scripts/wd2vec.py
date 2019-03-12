@@ -180,7 +180,7 @@ def mainZH():
     # Z = sch.linkage(disMat, method='average')
     print('DBSCAN聚类中......')
     log_file = open('../data/all_word2vec_log.txt', 'a', encoding='utf-8')
-    myeps = 0.45
+    myeps = 0.2
     while myeps <= 0.9:
         for my_min_samples in range(3, 11):
             cluster = DBSCAN(eps=myeps, min_samples=my_min_samples).fit_predict(docvecs)

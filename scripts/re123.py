@@ -187,35 +187,35 @@ if __name__ == '__main__':
             patent_list.append(cur_patent)
             num += 1
     print(docvecs.shape)
-    np.save('../data/model/sen2vec/patent/bxk_all_100_dm_10_5.npy', docvecs)
-    # # 1. 层次聚类
-    # # 生成点与点之间的距离矩阵,这里用的欧氏距离:
-    # sentvecs = np.load('../data/model/sen2vec/patent/bxkdoc_100_dm_40_3.npy')
+    # np.save('../data/model/sen2vec/patent/bxk_all_100_dm_10_5.npy', docvecs)
+    # 1. 层次聚类
+    # 生成点与点之间的距离矩阵,这里用的欧氏距离:
+    # sentvecs = np.load('../data/model/sen2vec/patent/bxkdoc_100_dm_40_5.npy')
 
-    docvecs = np.load('../data/model/sen2vec/patent/bxk_all_100_dm_10_5.npy')
+    # docvecs = np.load('../data/model/sen2vec/patent/bxk_all_100_dm_10_5.npy')
     # log_file = open('../data/all_Doc2vec_log.txt', 'a', encoding='utf-8')
     # myeps = 2.5
     # while myeps <= 4:
     #     for my_min_samples in range(3, 8):
     #         cluster = DBSCAN(eps=myeps, min_samples=my_min_samples, n_jobs=-1).fit_predict(docvecs)
             # sentvecs = np.load(r'D:\PycharmProjects\KeywordExtraction\data\model\sen2vec\SE2010\new_SEdoc_50_dm_40.vector.npy')
-    disMat = sch.distance.pdist(docvecs, 'cosine')
-    Z = sch.linkage(disMat, method='average')
+    # disMat = sch.distance.pdist(docvecs, 'cosine')
+    # Z = sch.linkage(disMat, method='average')
     # 将层级聚类结果以树状图表示出来并保存为plot_dendrogram.png
-    plt.figure(num='层次聚类结果', figsize=(8, 8))
-    P=sch.dendrogram(Z)
-    plt.savefig('bxk_all_100_10_5.png')
+    # plt.figure(num='层次聚类结果', figsize=(8, 8))
+    # P=sch.dendrogram(Z)
+    # plt.savefig('bxk_all_100_10_5.png')
     # 根据linkage matrix Z得到聚类结果:
-    cluster = sch.fcluster(Z, 0.83, 'distance', depth=2)
+    cluster = KMeans(n_clusters=3, random_state=9).fit_predict(docvecs)
 
     # ac = AgglomerativeClustering(n_clusters=3, affinity='euclidean', linkage='average')
     # cluster = ac.fit_predict(docvecs)
     # cluster = KMeans(n_clusters=3, random_state=9).fit_predict(docvecs)
     # file_list = get_label(file_list, cluster)
 
-    # patent_list = get_label(patent_list, cluster)
+    patent_list = get_label(patent_list, cluster)
     # my_result = get_result(file_list)
-    # my_result = get_patent_result(patent_list)
+    my_result = get_patent_result(patent_list)
     labels_unique = np.unique(cluster)
     n_clusters_ = len(labels_unique)
     print('聚类的类别数目：%d' % n_clusters_)
@@ -230,16 +230,16 @@ if __name__ == '__main__':
     for label in class_num:
         print(str(label) + ':' + str(class_num[label]))
         # log_file.write(str(label) + ':' + str(class_num[label]) + '\t;\t')
-    print('----------------------------------------------------------------')
+    # print('----------------------------------------------------------------')
             # log_file.write('\n------------------------------------------------------------------\n')
         # myeps = myeps + 0.1
     # log_file.close()
     # class_title = get_class_title(cluster)
-    # with open('../data/patent_abstract/bxk__all_cluster_KMeans.txt', 'w', encoding='utf-8') as result_f:
-    #     for label in my_result:
-    #         result_f.write(str(label) + ':' +'\n')
-    #         for patent in my_result[label]:
-    #             result_f.write(patent + ' ;' + '\n')
+    with open('../data/patent_abstract/bxk_all_100_dm_10_5_KMeans.txt', 'w', encoding='utf-8') as result_f:
+        for label in my_result:
+            result_f.write(str(label) + ':' +'\n')
+            for patent in my_result[label]:
+                result_f.write(patent + ' ;' + '\n')
 
     # print(class_title)
     # truth = {3: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58],

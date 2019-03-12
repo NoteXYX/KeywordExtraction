@@ -213,7 +213,7 @@ if __name__ == '__main__':
                             db.rollback()
                             print(e)
                             print('第%d条数据录入失败！' % patent_id)
-                    break
+                    # break
 
     # 关闭数据库连接
     db.close()
