@@ -56,7 +56,7 @@ def get_class_num(labels):
 
 if __name__ == '__main__':
     dim = 100
-    model = Doc2Vec.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\doc2vec\all_100_dm_10_5.model')
+    model = Doc2Vec.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\doc2vec\all_label_100_dm_10_5.model')
     patent_list = []
     docvecs = np.zeros((1, dim))
     num = 0
@@ -100,10 +100,10 @@ if __name__ == '__main__':
     disMat = sch.distance.pdist(docvecs, 'cosine')
     Z = sch.linkage(disMat, method='complete')
     # 将层级聚类结果以树状图表示出来并保存为plot_dendrogram.png
-    # plt.figure(num='层次聚类结果', figsize=(12, 8))
-    # P=sch.dendrogram(Z)
+    plt.figure(num='层次聚类结果', figsize=(12, 8))
+    P=sch.dendrogram(Z)
     # plt.savefig('../data/patent_abstract/cengci/bxk_all_complete_100_10_5.png')
-    # plt.savefig('../data/patent_abstract/cengci/Test.png')
+    plt.savefig('../data/patent_abstract/cengci/Test.png')
     # 根据linkage matrix Z得到聚类结果:
     cluster = sch.fcluster(Z, 1.34, 'distance', depth=2)
     # ac = AgglomerativeClustering(n_clusters=3, affinity='euclidean', linkage='single')

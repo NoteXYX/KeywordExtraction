@@ -54,7 +54,7 @@ def get_class_num(labels):
 
 if __name__ == '__main__':
     dim = 100
-    model = Doc2Vec.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\doc2vec\all_label_100_dm_10_3.model')
+    model = Doc2Vec.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\doc2vec\all_label_100_dm_10_5.model')
     patent_list = []
     docvecs = np.zeros((1, dim))
     num = 0
@@ -93,7 +93,7 @@ if __name__ == '__main__':
                 patent_list.append(cur_patent)
                 num += 1
     print(docvecs.shape)
-    cluster = KMeans(n_clusters=3, init='k-means++', max_iter=800).fit_predict(docvecs)
+    cluster = KMeans(n_clusters=2, init='k-means++', max_iter=800).fit_predict(docvecs)
     patent_list = get_label(patent_list, cluster)
     my_ipc = get_patent_ipc(patent_list)
     labels_unique = np.unique(cluster)
