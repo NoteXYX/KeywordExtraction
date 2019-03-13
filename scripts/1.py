@@ -19,31 +19,80 @@ from scipy.spatial import distance
 from sklearn.datasets.samples_generator import make_blobs
 from extractTrain import myfile
 
-class file_EN:
-    def __init__(self, name):
-        self.name = ""
-        self.label = -1
-        self.doc_num = None
-        self.docvec = None
 
-def search(folder, filters, allfile):
-    folders = os.listdir(folder)
-    for name in folders:
-        curname = os.path.join(folder, name)
-        isfile = os.path.isfile(curname)
-        if isfile:
-            for filter in filters:
-                if name.startswith(filter):
-                    cur = myfile()
-                    cur.name = name
-                    allfile.append(cur.name)
-                    break
-        else:
-            search(curname, filters, allfile)
-    return allfile
+import pymysql
+import sys
+import io
+import codecs
 
-folder = r"../data/SemEval2010/mine"
-filters = ['C','H','I','J']
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8') #改变标准输出的默认编码
+if __name__ == '__main__':
+    db = pymysql.connect("localhost", "root", "", "patent_system")
+    # 使用 cursor() 方法创建一个游标对象 cursor
+    cursor = db.cursor()
+    sql1 = """ SELECT * FROM tb_patent_label where label like 'F24F%'; """
+    try:
+        # 执行sql语句
+        cursor.execute(sql1)
+        # 提交到数据库执行
+        # 获取所有记录列表
+        results = cursor.fetchall()
+        patent_id = 0
+        for row in results:
+            my_dict = dict()
+            patent_id += 1
+            my_dict['id'] = patent_id
+            my_dict['app_num'] = pymysql.escape_string(row[1])
+            my_dict['title'] = pymysql.escape_string(row[2])
+            my_dict['abstract'] = pymysql.escape_string(row[3])
+            my_dict['company_name'] = pymysql.escape_string(row[4])
+            my_dict['content'] = pymysql.escape_string(row[5])
+            my_dict['tech_field'] = pymysql.escape_string(row[6])
+            my_dict['tech_bg'] = pymysql.escape_string(row[7])
+            my_dict['label'] = pymysql.escape_string(row[8])
+
+            # SQL 插入语句
+            sql2 = """INSERT INTO tb_patent_cooler_label(id, app_num, title, abstract, company_name, content, tech_field, tech_bg, label)
+                     VALUES ({id}, '{app_num}', '{title}', '{abstract}', '{company_name}', '{content}', '{tech_field}', '{tech_bg}', '{label}')""".format(**my_dict)
+            cursor.execute(sql2)
+            print('插入第%d条专利......' % patent_id)
+        db.commit()
+    except IndexError as e:
+        # 如果发生错误则回滚
+        db.rollback()
+        print(e)
+
+
+    # 关闭数据库连接
+    db.close()
+    # log_file.close()
+
+# class file_EN:
+#     def __init__(self, name):
+#         self.name = ""
+#         self.label = -1
+#         self.doc_num = None
+#         self.docvec = None
+#
+# def search(folder, filters, allfile):
+#     folders = os.listdir(folder)
+#     for name in folders:
+#         curname = os.path.join(folder, name)
+#         isfile = os.path.isfile(curname)
+#         if isfile:
+#             for filter in filters:
+#                 if name.startswith(filter):
+#                     cur = myfile()
+#                     cur.name = name
+#                     allfile.append(cur.name)
+#                     break
+#         else:
+#             search(curname, filters, allfile)
+#     return allfile
+#
+# folder = r"../data/SemEval2010/mine"
+# filters = ['C','H','I','J']
 # allfile = []
 # allfile = search(folder, filters, allfile)
 # file_len = len(allfile)
@@ -170,22 +219,22 @@ filters = ['C','H','I','J']
 # print ("Calinski-Harabasz Score", metrics.calinski_harabaz_score(X, y_pred))
 
 # # 验证
-model = Doc2Vec.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\doc2vec\all_100_dm_10_2.model')
-num = 0
-docvecs = np.zeros((1, 100))
-with open('../data/patent_abstract/_bxk_abstract.txt', 'r', encoding='utf-8') as curf:
-    for line in curf.readlines():
-        content = re.sub('[，。；、]+', '', line)
-        content = content.strip()
-        each_cut = list(jieba.cut(content))
-        line = line.strip()
-        cur_docvec = model.infer_vector(each_cut)
-        print('读取第%d个专利摘要......' % (num + 1))
-        if num == 0:
-            docvecs[0] = cur_docvec
-        else:
-            docvecs = np.row_stack((docvecs, cur_docvec.reshape(1, 100)))
-        num += 1
+# model = Doc2Vec.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\doc2vec\all_100_dm_10_2.model')
+# num = 0
+# docvecs = np.zeros((1, 100))
+# with open('../data/patent_abstract/_bxk_abstract.txt', 'r', encoding='utf-8') as curf:
+#     for line in curf.readlines():
+#         content = re.sub('[，。；、]+', '', line)
+#         content = content.strip()
+#         each_cut = list(jieba.cut(content))
+#         line = line.strip()
+#         cur_docvec = model.infer_vector(each_cut)
+#         print('读取第%d个专利摘要......' % (num + 1))
+#         if num == 0:
+#             docvecs[0] = cur_docvec
+#         else:
+#             docvecs = np.row_stack((docvecs, cur_docvec.reshape(1, 100)))
+#         num += 1
 # word_list = list(jieba.cut('该技术方案能够完全摆脱遥控器实现对空调的控制，操作方便，同时，语音交互方式具有灵活性，能够满足不同用户个性化的要求，提高了用户的体验'))
 # print(word_list)
 # vector1 = model.infer_vector(word_list)
@@ -193,9 +242,9 @@ with open('../data/patent_abstract/_bxk_abstract.txt', 'r', encoding='utf-8') as
 # print(vector1.shape)
 # print(vector2.shape)
 # sims = model.docvecs.most_similar([vector1], topn=10)
-sims = model.docvecs.most_similar([docvecs[100]], topn=10)
-for i, sim in sims:
-    print(i, sim)
+# sims = model.docvecs.most_similar([docvecs[100]], topn=10)
+# for i, sim in sims:
+#     print(i, sim)
 # for sim in sims:
 #     print(sim[0])
 # print(vector1)
