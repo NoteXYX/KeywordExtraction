@@ -6,6 +6,7 @@ from sklearn.datasets.samples_generator import make_blobs
 import operator
 from embeddings import read
 from sklearn.cluster import Birch
+from sklearn import metrics
 
 
 class patent_ZH:
@@ -80,7 +81,7 @@ if __name__ == '__main__':
                 patent_list.append(cur_patent)
                 num += 1
     print(docvecs.shape)
-    cluster = Birch(n_clusters = 3, threshold = 0.3).fit_predict(docvecs)
+    cluster = Birch(n_clusters = 3, threshold = 0.8, branching_factor = 60).fit_predict(docvecs)
     patent_list = get_label(patent_list, cluster)
     my_ipc = get_patent_ipc(patent_list)
     labels_unique = np.unique(cluster)
@@ -91,7 +92,7 @@ if __name__ == '__main__':
     for label in class_num:
         print(str(label) + ':' + str(class_num[label]))
     # with open('../data/patent_abstract/cengci/bxk_all_100_10_5_cengci.txt', 'w', encoding='utf-8') as result_f:
-    with open('../data/patent_abstract/Kmeans/Test.txt', 'w', encoding='utf-8') as result_f:
+    with open('../data/patent_abstract/Brich/Brich_bxk_label_100_dm_10_5.txt', 'w', encoding='utf-8') as result_f:
         result_f.write('聚类结果为：\n')
         for label in class_num:
             result_f.write(str(label) + ':' + str(class_num[label]) + '\n')
@@ -100,3 +101,4 @@ if __name__ == '__main__':
             result_f.write(str(class_num[label]) + '条专利' + '\n')
             for ipc in my_ipc[label]:
                 result_f.write(ipc + '\n')
+    print("Calinski-Harabasz Score", metrics.calinski_harabaz_score(docvecs, cluster))
