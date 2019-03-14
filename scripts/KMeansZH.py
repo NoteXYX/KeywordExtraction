@@ -54,7 +54,7 @@ def get_class_num(labels):
 
 if __name__ == '__main__':
     dim = 100
-    model = Doc2Vec.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\doc2vec\all_label_100_dm_10_5.model')
+    model = Doc2Vec.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\doc2vec\all_techField_100_dm_20_3.model')
     patent_list = []
     docvecs = np.zeros((1, dim))
     num = 0
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     #             docvecs = np.row_stack((docvecs, cur_docvec.reshape(1, dim)))
     #         patent_list.append(cur_patent)
     #         num += 1
-    with open('D:\PycharmProjects\Dataset\keywordEX\patent\_bxk_label_abstract.txt', 'r', encoding='utf-8') as curf:
+    with open('D:\PycharmProjects\Dataset\keywordEX\patent\_bxk_label_techField.txt', 'r', encoding='utf-8') as curf:
         for line in curf.readlines():
             line_split = line.split(' ::  ')
             if len(line_split) == 2:
@@ -93,7 +93,7 @@ if __name__ == '__main__':
                 patent_list.append(cur_patent)
                 num += 1
     print(docvecs.shape)
-    cluster = KMeans(n_clusters=2, init='k-means++', max_iter=800).fit_predict(docvecs)
+    cluster = KMeans(n_clusters=3, init='k-means++', max_iter=800).fit_predict(docvecs)
     patent_list = get_label(patent_list, cluster)
     my_ipc = get_patent_ipc(patent_list)
     labels_unique = np.unique(cluster)
@@ -104,7 +104,7 @@ if __name__ == '__main__':
     for label in class_num:
         print(str(label) + ':' + str(class_num[label]))
     # with open('../data/patent_abstract/cengci/bxk_all_100_10_5_cengci.txt', 'w', encoding='utf-8') as result_f:
-    with open('../data/patent_abstract/Kmeans/Test.txt', 'w', encoding='utf-8') as result_f:
+    with open('../data/patent_abstract/Kmeans/techField_Test.txt', 'w', encoding='utf-8') as result_f:
         result_f.write('聚类结果为：\n')
         for label in class_num:
             result_f.write(str(label) + ':' + str(class_num[label]) + '\n')

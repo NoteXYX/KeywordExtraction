@@ -24,6 +24,11 @@ def read_corpus(fname):
     #         each_cut = list(jieba.cut(cur_sen))
     #         # yield TaggedDocument(gensim.utils.simple_preprocess(content[i]), [i])
     #         yield TaggedDocument(each_cut, [i])
+    stopwords = list()
+    with open('../data/patent_abstract/stopwords.txt', 'r', encoding='utf-8') as stopfile:
+        for stopline in stopfile.readlines():
+            stopline = stopline.strip()
+            stopwords.append(stopline)
     with open(fname, 'r', encoding='utf-8') as f:
         lines = f.readlines()
     tag = 0
@@ -41,9 +46,16 @@ def read_corpus(fname):
         line_split = line.split(' ::  ')
         if len(line_split) == 2:
             print('处理第%d个专利摘要......' % (tag + 1))
-            content = re.sub('[，。；、]+', '', line_split[1])
-            content = content.strip()
+            # content = re.sub('[，。；、]+', '', line_split[1])
+            # content = content.strip()
+            content =line_split[1]
             each_cut = list(jieba.cut(content))
+            i = 0
+            while i < len(each_cut):
+                if each_cut[i] in stopwords:
+                    each_cut.pop(i)
+                else:
+                    i += 1
             # print(each_cut)
             yield TaggedDocument(each_cut, [tag])
             tag += 1
@@ -58,20 +70,20 @@ if __name__ == '__main__':
     logger.info("running %s" % ' '.join(sys.argv))
 
     # check and process input arguments
-    if len(sys.argv) < 4:
+    if len(sys.argv) < 3:
         print(globals()['__doc__'] % locals())
         sys.exit(1)
-    inp, outp1, outp2 = sys.argv[1:4]
+    inp, outp1 = sys.argv[1:3]
     train_file = inp
-    train_corpus = list(read_corpus(train_file))
-    print(len(train_corpus))
-    dim = 100    # 句向量的维度
-    model = Doc2Vec(vector_size=dim, window=5, min_count=1, dm=1, epochs=10, workers=multiprocessing.cpu_count())
-    model.build_vocab(train_corpus)
+    # train_corpus = list(read_corpus(train_file))
+    # print(len(train_corpus))
+    # dim = 100    # 句向量的维度
+    # model = Doc2Vec(vector_size=dim, window=3, min_count=1, dm=1, epochs=20, workers=multiprocessing.cpu_count())
+    # model.build_vocab(train_corpus)
+    # # model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
     # model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
-    model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
-    # model = Doc2Vec(train_corpus, vector_size=200, window=2, min_count=1, dm=1, workers=multiprocessing.cpu_count())
-    model.save(outp1)
+    # # model = Doc2Vec(train_corpus, vector_size=200, window=2, min_count=1, dm=1, workers=multiprocessing.cpu_count())
+    # model.save(outp1)
 
     # vector_dict = model.docvecs
     # # print(len(vector_dict))
