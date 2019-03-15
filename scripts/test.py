@@ -7,7 +7,9 @@ from gensim.models.doc2vec import Doc2Vec
 if __name__ == '__main__':
     my_ipc = dict()
     ipc_num = 0
-    with open('../data/patent_abstract/Brich/Brich_bxk_label_100_dm_10_5.txt', 'r', encoding='utf-8') as result_f:
+    # with open('D:\PycharmProjects\KeywordExtraction\data\patent_abstract\Kmeans\sent2vec_Test.txt', 'r', encoding='utf-8') as result_f:
+    # with open('D:\PycharmProjects\KeywordExtraction\data\patent_abstract\Kmeans\sent2vec_Test.txt', 'r', encoding='utf-8') as result_f:
+    with open('../data/patent_abstract/Kmeans/techField_sent2vec_Test.txt', 'r', encoding='utf-8') as result_f:
         result_lines = result_f.readlines()
         line_num = 0
         if_write = False
@@ -29,7 +31,7 @@ if __name__ == '__main__':
             else:
                 line_num += 1
     # truth = {'1': 'F24F', '2': 'F24F', '3': 'F24F', '4': 'F24F'}
-    truth = {'0': 'F24F', '1': 'F25D', '2': 'D06F'}
+    truth = {'0': 'F25D', '1': 'F24F', '2': 'D06F'}
     correct = 0.0
     for label in truth:
         for label_result in my_ipc[label]:

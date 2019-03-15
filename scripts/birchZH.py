@@ -55,8 +55,7 @@ def get_class_num(labels):
     class_num = dict(sorted(class_num.items(), key=operator.itemgetter(0)))
     return class_num
 
-
-if __name__ == '__main__':
+def brich1():
     dim = 100
     model = Doc2Vec.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\doc2vec\all_label_100_dm_10_5.model')
     patent_list = []
@@ -81,7 +80,7 @@ if __name__ == '__main__':
                 patent_list.append(cur_patent)
                 num += 1
     print(docvecs.shape)
-    cluster = Birch(n_clusters = 3, threshold = 0.8, branching_factor = 60).fit_predict(docvecs)
+    cluster = Birch(n_clusters=3, threshold=0.8, branching_factor=60).fit_predict(docvecs)
     patent_list = get_label(patent_list, cluster)
     my_ipc = get_patent_ipc(patent_list)
     labels_unique = np.unique(cluster)
@@ -102,3 +101,46 @@ if __name__ == '__main__':
             for ipc in my_ipc[label]:
                 result_f.write(ipc + '\n')
     print("Calinski-Harabasz Score", metrics.calinski_harabaz_score(docvecs, cluster))
+
+def brich2():
+    embedding_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\sent2vec\bxk_sent2vec_NEW.vec', 'r',
+                          encoding='utf-8', errors='surrogateescape')
+    sent_num, sentvecs = read(embedding_file, dtype=float)
+    patent_list = list()
+    num = 0
+    with open('D:\PycharmProjects\Dataset\keywordEX\patent\_bxk_label_abstract.txt', 'r', encoding='utf-8') as curf:
+        for line in curf.readlines():
+            line_split = line.split(' ::  ')
+            if len(line_split) == 2:
+                content = line[1].strip()
+                cur_patent = patent_ZH(content, num, line_split[0])
+                # ipc_list.append(line_split[0])
+                print('读取第%d个专利摘要......' % (num + 1))
+                patent_list.append(cur_patent)
+                num += 1
+    print(sentvecs.shape)
+    cluster = Birch(n_clusters=3, threshold=0.3, branching_factor=10).fit_predict(sentvecs)
+    patent_list = get_label(patent_list, cluster)
+    my_ipc = get_patent_ipc(patent_list)
+    labels_unique = np.unique(cluster)
+    n_clusters_ = len(labels_unique)
+    print('聚类的类别数目：%d' % n_clusters_)
+    class_num = get_class_num(cluster)
+    print('聚类结果为：')
+    for label in class_num:
+        print(str(label) + ':' + str(class_num[label]))
+    # with open('../data/patent_abstract/cengci/bxk_all_100_10_5_cengci.txt', 'w', encoding='utf-8') as result_f:
+    with open('../data/patent_abstract/Brich/sent2vec_Test.txt', 'w', encoding='utf-8') as result_f:
+        result_f.write('聚类结果为：\n')
+        for label in class_num:
+            result_f.write(str(label) + ':' + str(class_num[label]) + '\n')
+        for label in my_ipc:
+            result_f.write('类标签为:' + str(label) + ':' + '\n')
+            result_f.write(str(class_num[label]) + '条专利' + '\n')
+            for ipc in my_ipc[label]:
+                result_f.write(str(label) + ':  ' + ipc + '\n')
+    print("Calinski-Harabasz Score", metrics.calinski_harabaz_score(sentvecs, cluster))
+
+if __name__ == '__main__':
+    # brich1()
+    brich2()

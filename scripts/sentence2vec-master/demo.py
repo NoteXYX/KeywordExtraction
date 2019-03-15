@@ -16,14 +16,15 @@ from word2vec import Word2Vec, Sent2Vec, LineSentence
 logging.basicConfig(format='%(asctime)s : %(threadName)s : %(levelname)s : %(message)s', level=logging.INFO)
 logging.info("running %s" % " ".join(sys.argv))
 
-input_file = r'D:\PycharmProjects\Dataset\keywordEX\patent\all_fc_abstract.txt'
-model = Word2Vec(LineSentence(input_file), size=100, window=5, sg=0, min_count=1, workers=multiprocessing.cpu_count())
-model.save(input_file + '.model')
-model.save_word2vec_format(input_file + '.vec')
+input_file = r'D:\PycharmProjects\Dataset\keywordEX\patent\all_fc_rm_abstract_NEW.txt'
+model = Word2Vec(LineSentence(input_file), size=100, window=5, sg=1, hs=1, min_count=3, workers=multiprocessing.cpu_count())
+model.save(r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_abstract_NEW.model')
+model.save_word2vec_format(r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_abstract_NEW.vec')
 
-sent_file = r'D:\PycharmProjects\Dataset\keywordEX\patent\all_fc_abstract.txt'
-model = Sent2Vec(LineSentence(sent_file), model_file=input_file + '.model')
-model.save_sent2vec_format(sent_file + '.vec')
+sent_file = r'D:\PycharmProjects\Dataset\keywordEX\patent\bxk_fc_rm_abstract_NEW.txt'
+# model = Sent2Vec(LineSentence(sent_file), model_file=input_file + '.model')
+model = Sent2Vec(LineSentence(sent_file), model_file=r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_abstract_NEW.vec')
+model.save_sent2vec_format(r'D:\PycharmProjects\Dataset\keywordEX\patent\sent2vec\bxk_fc_rm_abstract_NEW.vec')
 
 program = os.path.basename(sys.argv[0])
 logging.info("finished running %s" % program)
