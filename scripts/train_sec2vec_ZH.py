@@ -26,10 +26,9 @@ def read_corpus(fname):
     #         yield TaggedDocument(each_cut, [i])
     stopwords = list()
     documents = list()
-    with open('../data/patent_abstract/stopwords.txt', 'r', encoding='utf-8') as stopfile:
+    with open('../data/patent_abstract/stopwords_new.txt', 'r', encoding='utf-8') as stopfile:
         for stopline in stopfile.readlines():
-            stopline = stopline.strip()
-            stopwords.append(stopline)
+            stopwords.append(stopline.strip())
     with open(fname, 'r', encoding='utf-8') as f:
         lines = f.readlines()
     tag = 0
@@ -81,7 +80,7 @@ if __name__ == '__main__':
     train_file = inp
     train_corpus = read_corpus(train_file)
     print(len(train_corpus))
-    dim = 200    # 句向量的维度
+    dim = 100    # 句向量的维度
     model = Doc2Vec(vector_size=dim, window=5, min_count=1, dm=1, epochs=10, workers=multiprocessing.cpu_count())
     model.build_vocab(train_corpus)
     # model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)

@@ -130,34 +130,16 @@ def cengci1():
                 result_f.write(ipc + '\n')
 
 def cengci2():
-    embedding_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\sent2vec\bxk_sent2vec_NEW.vec', 'r',
+    embedding_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\sent2vec\bxk_fc_rm_abstract_NEW_mincount1.vec', 'r',
                           encoding='utf-8', errors='surrogateescape')
     sent_num, sentvecs = read(embedding_file, dtype=float)
     patent_list = list()
-    # ipc_list = list()
-    # docvecs = np.zeros((1, dim))
     num = 0
-    # with open('D:\PycharmProjects\Dataset\keywordEX\patent\_all_label_abstract.txt', 'r', encoding='utf-8') as curf:
-    #     for line in curf.readlines():
-    #         content = re.sub('[，。；、]+', '', line)
-    #         content = content.strip()
-    #         each_cut = list(jieba.cut(content))
-    #         line = line.strip()
-    #         cur_patent = patent_ZH(line, num)
-    #         cur_docvec = model.infer_vector(each_cut)
-    #         cur_patent.docvec = cur_docvec
-    #         print('读取第%d个专利摘要......' % (num + 1))
-    #         if num == 0:
-    #             docvecs[0] = cur_docvec.reshape(1, dim)
-    #         else:
-    #             docvecs = np.row_stack((docvecs, cur_docvec.reshape(1, dim)))
-    #         patent_list.append(cur_patent)
-    #         num += 1
     with open('D:\PycharmProjects\Dataset\keywordEX\patent\_bxk_label_abstract.txt', 'r', encoding='utf-8') as curf:
         for line in curf.readlines():
             line_split = line.split(' ::  ')
             if len(line_split) == 2:
-                content = line[1].strip()
+                content = line_split[1].strip()
                 cur_patent = patent_ZH(content, num, line_split[0])
                 # ipc_list.append(line_split[0])
                 print('读取第%d个专利摘要......' % (num + 1))
@@ -185,7 +167,7 @@ def cengci2():
     for label in class_num:
         print(str(label) + ':' + str(class_num[label]))
     # with open('../data/patent_abstract/cengci/bxk_all_100_10_5_cengci.txt', 'w', encoding='utf-8') as result_f:
-    with open('../data/patent_abstract/cengci/sent2vec_Test.txt', 'w', encoding='utf-8') as result_f:
+    with open('../data/patent_abstract/cengci/abstract_sent2vec_Test.txt', 'w', encoding='utf-8') as result_f:
         result_f.write('聚类结果为：\n')
         for label in class_num:
             result_f.write(str(label) + ':' + str(class_num[label]) + '\n')

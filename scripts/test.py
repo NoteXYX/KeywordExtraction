@@ -7,9 +7,9 @@ from gensim.models.doc2vec import Doc2Vec
 if __name__ == '__main__':
     my_ipc = dict()
     ipc_num = 0
-    # with open('D:\PycharmProjects\KeywordExtraction\data\patent_abstract\Kmeans\sent2vec_Test.txt', 'r', encoding='utf-8') as result_f:
-    # with open('D:\PycharmProjects\KeywordExtraction\data\patent_abstract\Kmeans\sent2vec_Test.txt', 'r', encoding='utf-8') as result_f:
-    with open('../data/patent_abstract/Kmeans/techField_sent2vec_Test.txt', 'r', encoding='utf-8') as result_f:
+    with open('../data/patent_abstract/Brich/abstract_sent2vec_Test.txt', 'r', encoding='utf-8') as result_f:
+    # with open('../data/patent_abstract/cengci/sent2vec_Test.txt', 'r', encoding='utf-8') as result_f:
+    # with open('../data/patent_abstract/Kmeans/techField_sent2vec_Test.txt', 'r', encoding='utf-8') as result_f:
         result_lines = result_f.readlines()
         line_num = 0
         if_write = False
@@ -17,7 +17,7 @@ if __name__ == '__main__':
         while line_num < len(result_lines):
             search_title = re.search('类标签为:', result_lines[line_num])
             if search_title:
-                cur_label = result_lines[line_num].split(':')[1]
+                cur_label = int(result_lines[line_num].split(':')[1])
                 if_write = True
                 line_num += 2
             if if_write:
@@ -30,8 +30,8 @@ if __name__ == '__main__':
                 line_num += 1
             else:
                 line_num += 1
-    # truth = {'1': 'F24F', '2': 'F24F', '3': 'F24F', '4': 'F24F'}
-    truth = {'0': 'F25D', '1': 'F24F', '2': 'D06F'}
+    # truth = {1: 'F24F', 2: 'F24F', 3: 'F24F', 4: 'F24F'}
+    truth = {0: 'D06F', 1: 'F24F', 2: 'F25D'}
     correct = 0.0
     for label in truth:
         for label_result in my_ipc[label]:
