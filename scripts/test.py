@@ -7,9 +7,9 @@ from gensim.models.doc2vec import Doc2Vec
 if __name__ == '__main__':
     my_ipc = dict()
     ipc_num = 0
-    with open('../data/patent_abstract/Brich/abstract_sent2vec_Test.txt', 'r', encoding='utf-8') as result_f:
-    # with open('../data/patent_abstract/cengci/sent2vec_Test.txt', 'r', encoding='utf-8') as result_f:
-    # with open('../data/patent_abstract/Kmeans/techField_sent2vec_Test.txt', 'r', encoding='utf-8') as result_f:
+    # with open('../data/patent_abstract/Brich/bxd_abstract_sent2vec_Test.txt', 'r', encoding='utf-8') as result_f:
+    # with open('../data/patent_abstract/Kmeans/bxd_techField_sent2vec_Test.txt', 'r', encoding='utf-8') as result_f:
+    with open('../data/patent_abstract/cengci/bxd_techField_sent2vec_Test.txt', 'r', encoding='utf-8') as result_f:
         result_lines = result_f.readlines()
         line_num = 0
         if_write = False
@@ -30,8 +30,11 @@ if __name__ == '__main__':
                 line_num += 1
             else:
                 line_num += 1
-    # truth = {1: 'F24F', 2: 'F24F', 3: 'F24F', 4: 'F24F'}
-    truth = {0: 'D06F', 1: 'F24F', 2: 'F25D'}
+    # truth = {0: 'D06F', 1: 'F25D', 2: 'H04M'}
+    # truth = {0: 'H04M', 1: 'F25D', 2: 'D06F'}
+    # truth = {0: 'F25D', 1: 'H04M',  2: 'D06F'}
+    # truth = {0: 'F25D', 1: 'D06F', 2: 'H04M'}
+    truth = {0: 'H04M', 1: 'D06F', 2: 'F25D'}
     correct = 0.0
     for label in truth:
         for label_result in my_ipc[label]:

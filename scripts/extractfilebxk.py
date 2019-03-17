@@ -43,7 +43,8 @@ if __name__ == '__main__':
     patt_detail = '具体实施方式'
     patt_rfr = 'F25D'
     patt_washing = 'D06F'
-    patt_cooler = 'F24F'
+    patt_phone = 'H04M'
+    # patt_cooler = 'F24F'
     #patt_charge = 'B60L 11'
     #patt_transport = 'G08G 1'
     print('共查找到%d个.XML文件' %(file_len))
@@ -69,10 +70,11 @@ if __name__ == '__main__':
                     str_ipc = '   '.join(str_ipc.split('    ')[:2])
                 search_rfr = re.search(patt_rfr, str_ipc)
                 search_washing = re.search(patt_washing, str_ipc)
-                search_cooler = re.search(patt_cooler, str_ipc)
+                search_phone = re.search(patt_phone,str_ipc)
+                # search_cooler = re.search(patt_cooler, str_ipc)
                 #search_charge = re.search(patt_charge, str_ipc)
                 #search_transport = re.search(patt_transport, str_ipc)
-                if search_rfr or search_washing or search_cooler:
+                if search_rfr or search_washing or search_phone:
                 #if search_washing:
                 #if search_charge:
                 #if search_transport:
@@ -189,7 +191,7 @@ if __name__ == '__main__':
                         # with open('file_冰洗空.txt', 'a') as file_log:
                         #     file_log.write('%d\t%s\n' % (patent_id + 1, xml_name))
                         patent_id += 1
-                        my_dict = {}
+                        my_dict = dict()
                         my_dict['id'] = patent_id
                         my_dict['app_num'] = pymysql.escape_string(str_appNum)
                         my_dict['title'] = pymysql.escape_string(str_title)
@@ -201,7 +203,7 @@ if __name__ == '__main__':
                         my_dict['label'] = pymysql.escape_string(str_ipc)
 
                         # SQL 插入语句
-                        sql = """INSERT INTO tb_patent_label(id, app_num, title, abstract, company_name, content, tech_field, tech_bg, label)
+                        sql = """INSERT INTO tb_patent_bxd_label(id, app_num, title, abstract, company_name, content, tech_field, tech_bg, label)
                             VALUES ({id}, '{app_num}', '{title}', '{abstract}', '{company_name}', '{content}', '{tech_field}', '{tech_bg}', '{label}')""".format(**my_dict)
 
                         try:

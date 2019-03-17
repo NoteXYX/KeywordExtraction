@@ -31,7 +31,7 @@ if __name__ == '__main__':
     db = pymysql.connect("localhost", "root", "", "patent_system")
     # 使用 cursor() 方法创建一个游标对象 cursor
     cursor = db.cursor()
-    sql1 = """ SELECT * FROM tb_patentall_label where label like 'H04M%'; """
+    sql1 = """SELECT * FROM tb_patentall_label where (label LIKE '%H04M%') OR (label LIKE '%F25D%') OR (label LIKE '%D06F%')"""
     try:
         # 执行sql语句
         cursor.execute(sql1)
@@ -53,7 +53,7 @@ if __name__ == '__main__':
             my_dict['label'] = pymysql.escape_string(row[8])
 
             # SQL 插入语句
-            sql2 = """INSERT INTO tb_patent_phone_label(id, app_num, title, abstract, company_name, content, tech_field, tech_bg, label)
+            sql2 = """INSERT INTO tb_patent_bxd_label(id, app_num, title, abstract, company_name, content, tech_field, tech_bg, label)
                      VALUES ({id}, '{app_num}', '{title}', '{abstract}', '{company_name}', '{content}', '{tech_field}', '{tech_bg}', '{label}')""".format(**my_dict)
             cursor.execute(sql2)
             print('插入第%d条专利......' % patent_id)
