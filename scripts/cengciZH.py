@@ -54,7 +54,7 @@ def get_class_num(labels):
     class_num = dict(sorted(class_num.items(), key=operator.itemgetter(0)))
     return class_num
 
-def cengci1():
+def cengci1():      # Doc2vec
     dim = 100
     model = Doc2Vec.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\doc2vec\all_techField_100_dm_10_2.model')
     patent_list = list
@@ -129,7 +129,7 @@ def cengci1():
             for ipc in my_ipc[label]:
                 result_f.write(ipc + '\n')
 
-def cengci2():
+def cengci2():      # sent2vec
     embedding_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\sent2vec\bxd_fc_rm_techField.vec', 'r',
                           encoding='utf-8', errors='surrogateescape')
     sent_num, sentvecs = read(embedding_file, dtype=float)
@@ -176,6 +176,7 @@ def cengci2():
             result_f.write(str(class_num[label]) + '条专利' + '\n')
             for ipc in my_ipc[label]:
                 result_f.write(str(label) + ':  ' + ipc + '\n')
+    embedding_file.close()
 
 if __name__ == '__main__':
     cengci2()

@@ -53,7 +53,7 @@ def get_class_num(labels):
     class_num = dict(sorted(class_num.items(), key=operator.itemgetter(0)))
     return class_num
 
-def kmeans1():
+def kmeans1():      # Doc2vec
     dim = 100
     model = Doc2Vec.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\doc2vec\all_techField_100_dm_20_3.model')
     patent_list = []
@@ -115,31 +115,12 @@ def kmeans1():
             for ipc in my_ipc[label]:
                 result_f.write(ipc + '\n')
 
-def kmeans2():
+def kmeans2():      # sent2vec
     embedding_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\sent2vec\bxd_fc_rm_techField.vec', 'r',
                           encoding='utf-8', errors='surrogateescape')
     sent_num, sentvecs = read(embedding_file, dtype=float)
     patent_list = list()
-    # ipc_list = list()
-    # docvecs = np.zeros((1, dim))
     num = 0
-    # with open('D:\PycharmProjects\Dataset\keywordEX\patent\_all_label_abstract.txt', 'r', encoding='utf-8') as curf:
-    #     for line in curf.readlines():
-    #         content = re.sub('[，。；、]+', '', line)
-    #         content = content.strip()
-    #         each_cut = list(jieba.cut(content))
-    #         line = line.strip()
-    #         cur_patent = patent_ZH(line, num)
-    #         cur_docvec = model.infer_vector(each_cut)
-    #         cur_patent.docvec = cur_docvec
-    #         print('读取第%d个专利摘要......' % (num + 1))
-    #         if num == 0:
-    #             docvecs[0] = cur_docvec.reshape(1, dim)
-    #         else:
-    #             docvecs = np.row_stack((docvecs, cur_docvec.reshape(1, dim)))
-    #         patent_list.append(cur_patent)
-    #         num += 1
-    # with open('D:\PycharmProjects\Dataset\keywordEX\patent\_bxk_label_abstract.txt', 'r', encoding='utf-8') as curf:
     with open('D:\PycharmProjects\Dataset\keywordEX\patent\_bxd_label_techField.txt', 'r', encoding='utf-8') as curf:
         for line in curf.readlines():
             line_split = line.split(' ::  ')
@@ -171,6 +152,7 @@ def kmeans2():
             result_f.write(str(class_num[label]) + '条专利' + '\n')
             for ipc in my_ipc[label]:
                 result_f.write(str(label) + ':  ' + ipc + '\n')
+    embedding_file.close()
 
 if __name__ == '__main__':
     kmeans2()

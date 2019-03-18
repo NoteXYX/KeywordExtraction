@@ -23,9 +23,9 @@ if __name__ == '__main__':
     #     # 如果发生错误则回滚
     #     db.rollback()
     #     print(e)
-    log_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\_bxd_label_techField.txt', 'w', encoding='utf-8')
+    log_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\_bxk_label_content.txt', 'w', encoding='utf-8')
     # sql = """ SELECT label, content FROM tb_patentall_label; """
-    sql = """ SELECT label, tech_field FROM tb_patent_bxd_label; """
+    sql = """ SELECT label, content FROM tb_patent_label; """
     try:
         # 执行sql语句
         cursor.execute(sql)
