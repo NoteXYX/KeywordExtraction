@@ -17,16 +17,16 @@ class patent_ZH:
         self.docvec = None
         self.ipc = ipc
 
-def get_label(file_list,cluster):
+def get_label(patent_list,cluster):
     f_num = 0
     for label in cluster:
-        cur_file = file_list[f_num]
+        cur_file = patent_list[f_num]
         cur_file.label = label
         f_num += 1
-    return file_list
+    return patent_list
 
 def get_patent_result(patent_list):
-    result_dict = {}
+    result_dict = dict()
     for patent in patent_list:
         if patent.label not in result_dict:
             result_dict[patent.label] = [patent.content]
@@ -36,7 +36,7 @@ def get_patent_result(patent_list):
     return result_dict
 
 def get_patent_ipc(patent_list):
-    ipc_dict = {}
+    ipc_dict = dict()
     for patent in patent_list:
         if patent.label not in ipc_dict:
             ipc_dict[patent.label] = [patent.ipc]
@@ -46,7 +46,7 @@ def get_patent_ipc(patent_list):
     return ipc_dict
 
 def get_class_num(labels):
-    class_num = {}
+    class_num = dict()
     for label in labels:
         if label not in class_num:
             class_num[label] = 1
@@ -55,9 +55,9 @@ def get_class_num(labels):
     class_num = dict(sorted(class_num.items(), key=operator.itemgetter(0)))
     return class_num
 
-def brich1():       # Doc2vec
+def birch1():       # Doc2vec
     dim = 100
-    model = Doc2Vec.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\doc2vec\all_techField_100_dm_20_3.model')
+    model = Doc2Vec.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\doc2vec\all_abstract_100_nostop.model')
     patent_list = list()
     docvecs = np.zeros((1, dim))
     num = 0
@@ -65,11 +65,10 @@ def brich1():       # Doc2vec
     stopwords = list()
     for line in stopfile.readlines():
         stopwords.append(line.strip())
-    with open('D:\PycharmProjects\Dataset\keywordEX\patent\_bxk_label_content.txt', 'r', encoding='utf-8') as curf:
+    with open('D:\PycharmProjects\Dataset\keywordEX\patent\_bxk_label_abstract.txt', 'r', encoding='utf-8') as curf:
         for line in curf.readlines():
             line_split = line.split(' ::  ')
             if len(line_split) == 2:
-                # content_rm = re.sub('[，。；、]+', '', line_split[1])
                 content_rm = line_split[1].strip()
                 line_cut = list(jieba.cut(content_rm))
                 line_words = [word for word in line_cut if word not in stopwords]
@@ -96,7 +95,7 @@ def brich1():       # Doc2vec
     for label in class_num:
         print(str(label) + ':' + str(class_num[label]))
     # with open('../data/patent_abstract/cengci/bxk_all_100_10_5_cengci.txt', 'w', encoding='utf-8') as result_f:
-    with open('../data/patent_abstract/Brich/bxk_techField_doc2vecTest_200_dm_10_5.txt', 'w', encoding='utf-8') as result_f:
+    with open('../data/patent_abstract/Brich/bxk_abstract_nostop_doc2vecTest_100.txt', 'w', encoding='utf-8') as result_f:
         result_f.write('聚类结果为：\n')
         for label in class_num:
             result_f.write(str(label) + ':' + str(class_num[label]) + '\n')
@@ -104,11 +103,11 @@ def brich1():       # Doc2vec
             result_f.write('类标签为:' + str(label) + ':' + '\n')
             result_f.write(str(class_num[label]) + '条专利' + '\n')
             for ipc in my_ipc[label]:
-                result_f.write(ipc + '\n')
+                result_f.write(str(label) + ':  ' + ipc + '\n')
     print("Calinski-Harabasz Score", metrics.calinski_harabaz_score(docvecs, cluster))
     stopfile.close()
 
-def brich2():       # sent2vec
+def birch2():       # sent2vec
     embedding_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\sent2vec\bxd_fc_rm_abstract.vec', 'r',
                           encoding='utf-8', errors='surrogateescape')
     sent_num, sentvecs = read(embedding_file, dtype=float)
@@ -150,8 +149,8 @@ def brich2():       # sent2vec
     print("Calinski-Harabasz Score", metrics.calinski_harabaz_score(sentvecs, cluster))
     embedding_file.close()
 
-def brich3():       # 词向量加和平均
-    embedding_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_techField_NEW.vec', 'r',
+def birch3():       # 词向量加和平均
+    embedding_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_techField_100.vec', 'r',
                           encoding='utf-8', errors='surrogateescape')
     stop_file = open('../data/patent_abstract/stopwords_new.txt', 'r', encoding='utf-8')
     stopwords = list()
@@ -162,7 +161,7 @@ def brich3():       # 词向量加和平均
     words, wordvecs = read(embedding_file, dtype=float)
     word2ind = {word: i for i, word in enumerate(words)}
     test_vecs = np.zeros((1, dim))
-    with open('D:\PycharmProjects\Dataset\keywordEX\patent\_bxk_label_techField.txt', 'r', encoding='utf-8') as test_file:
+    with open('D:\PycharmProjects\Dataset\keywordEX\patent\_bxd_label_techField.txt', 'r', encoding='utf-8') as test_file:
         num = 0
         for test_line in test_file.readlines():
             line_split = test_line.split(' ::  ')
@@ -180,7 +179,7 @@ def brich3():       # 词向量加和平均
                             line_wordvecs[0] = cur_wordvec
                         else:
                             line_wordvecs = np.row_stack((line_wordvecs, cur_wordvec))
-                cur_linevec = np.mean(line_wordvecs, 0).reshape(1, dim)
+                cur_linevec = np.mean(line_wordvecs, axis=0).reshape(1, dim)
                 cur_patent.docvec = cur_linevec
                 patent_list.append(cur_patent)
                 test_vecs = np.row_stack((test_vecs, cur_linevec))
@@ -188,7 +187,7 @@ def brich3():       # 词向量加和平均
             num += 1
         test_vecs = np.delete(test_vecs, 0 , 0)
     print(test_vecs.shape)
-    cluster = Birch(n_clusters=3, threshold=0.5, branching_factor=50).fit_predict(test_vecs)
+    cluster = Birch(n_clusters=3, threshold=0.7, branching_factor=50).fit_predict(test_vecs)
     patent_list = get_label(patent_list, cluster)
     my_ipc = get_patent_ipc(patent_list)
     labels_unique = np.unique(cluster)
@@ -199,7 +198,7 @@ def brich3():       # 词向量加和平均
     for label in class_num:
         print(str(label) + ':' + str(class_num[label]))
     # with open('../data/patent_abstract/cengci/bxk_all_100_10_5_cengci.txt', 'w', encoding='utf-8') as result_f:
-    with open('../data/patent_abstract/Brich/bxk_techField_word2vecAVG_Test.txt', 'w', encoding='utf-8') as result_f:
+    with open('../data/patent_abstract/Brich/bxd_techField_word2vecAVG_Test.txt', 'w', encoding='utf-8') as result_f:
         result_f.write('聚类结果为：\n')
         for label in class_num:
             result_f.write(str(label) + ':' + str(class_num[label]) + '\n')
@@ -212,5 +211,6 @@ def brich3():       # 词向量加和平均
     embedding_file.close()
     stop_file.close()
 if __name__ == '__main__':
-    brich3()
-    # brich2()
+    # birch2()
+    birch3()
+    # birch1()
