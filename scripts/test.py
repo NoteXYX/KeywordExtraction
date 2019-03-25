@@ -7,7 +7,7 @@ from gensim.models.doc2vec import Doc2Vec
 if __name__ == '__main__':
     my_ipc = dict()
     ipc_num = 0
-    with open('../data/patent_abstract/Brich/bxd_techField_word2vecAVG_Test.txt', 'r', encoding='utf-8') as result_f:
+    with open('../data/patent_abstract/Brich/keyword_test.txt', 'r', encoding='utf-8') as result_f:
     # with open('../data/patent_abstract/Kmeans/bxk_techField_word2vecAVG_Test.txt', 'r', encoding='utf-8') as result_f:
     # with open('../data/patent_abstract/cengci/bxd_abstract_nostop_doc2vecTest_100.txt', 'r', encoding='utf-8') as result_f:
         result_lines = result_f.readlines()

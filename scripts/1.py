@@ -20,52 +20,52 @@ from sklearn.datasets.samples_generator import make_blobs
 from extractTrain import myfile
 
 
-import pymysql
-import sys
-import io
-import codecs
-
-
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8') #改变标准输出的默认编码
-if __name__ == '__main__':
-    db = pymysql.connect("localhost", "root", "", "patent_system")
-    # 使用 cursor() 方法创建一个游标对象 cursor
-    cursor = db.cursor()
-    sql1 = """SELECT * FROM tb_patentall_label where (label LIKE '%H04M%') OR (label LIKE '%F25D%') OR (label LIKE '%D06F%')"""
-    try:
-        # 执行sql语句
-        cursor.execute(sql1)
-        # 提交到数据库执行
-        # 获取所有记录列表
-        results = cursor.fetchall()
-        patent_id = 0
-        for row in results:
-            my_dict = dict()
-            patent_id += 1
-            my_dict['id'] = patent_id
-            my_dict['app_num'] = pymysql.escape_string(row[1])
-            my_dict['title'] = pymysql.escape_string(row[2])
-            my_dict['abstract'] = pymysql.escape_string(row[3])
-            my_dict['company_name'] = pymysql.escape_string(row[4])
-            my_dict['content'] = pymysql.escape_string(row[5])
-            my_dict['tech_field'] = pymysql.escape_string(row[6])
-            my_dict['tech_bg'] = pymysql.escape_string(row[7])
-            my_dict['label'] = pymysql.escape_string(row[8])
-
-            # SQL 插入语句
-            sql2 = """INSERT INTO tb_patent_bxd_label(id, app_num, title, abstract, company_name, content, tech_field, tech_bg, label)
-                     VALUES ({id}, '{app_num}', '{title}', '{abstract}', '{company_name}', '{content}', '{tech_field}', '{tech_bg}', '{label}')""".format(**my_dict)
-            cursor.execute(sql2)
-            print('插入第%d条专利......' % patent_id)
-        db.commit()
-    except IndexError as e:
-        # 如果发生错误则回滚
-        db.rollback()
-        print(e)
-
-
-    # 关闭数据库连接
-    db.close()
+# import pymysql
+# import sys
+# import io
+# import codecs
+#
+#
+# sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8') #改变标准输出的默认编码
+# if __name__ == '__main__':
+#     db = pymysql.connect("localhost", "root", "", "patent_system")
+#     # 使用 cursor() 方法创建一个游标对象 cursor
+#     cursor = db.cursor()
+#     sql1 = """SELECT * FROM tb_patentall_label where (label LIKE '%H04M%') OR (label LIKE '%F25D%') OR (label LIKE '%D06F%')"""
+#     try:
+#         # 执行sql语句
+#         cursor.execute(sql1)
+#         # 提交到数据库执行
+#         # 获取所有记录列表
+#         results = cursor.fetchall()
+#         patent_id = 0
+#         for row in results:
+#             my_dict = dict()
+#             patent_id += 1
+#             my_dict['id'] = patent_id
+#             my_dict['app_num'] = pymysql.escape_string(row[1])
+#             my_dict['title'] = pymysql.escape_string(row[2])
+#             my_dict['abstract'] = pymysql.escape_string(row[3])
+#             my_dict['company_name'] = pymysql.escape_string(row[4])
+#             my_dict['content'] = pymysql.escape_string(row[5])
+#             my_dict['tech_field'] = pymysql.escape_string(row[6])
+#             my_dict['tech_bg'] = pymysql.escape_string(row[7])
+#             my_dict['label'] = pymysql.escape_string(row[8])
+#
+#             # SQL 插入语句
+#             sql2 = """INSERT INTO tb_patent_bxd_label(id, app_num, title, abstract, company_name, content, tech_field, tech_bg, label)
+#                      VALUES ({id}, '{app_num}', '{title}', '{abstract}', '{company_name}', '{content}', '{tech_field}', '{tech_bg}', '{label}')""".format(**my_dict)
+#             cursor.execute(sql2)
+#             print('插入第%d条专利......' % patent_id)
+#         db.commit()
+#     except IndexError as e:
+#         # 如果发生错误则回滚
+#         db.rollback()
+#         print(e)
+#
+#
+#     # 关闭数据库连接
+#     db.close()
     # log_file.close()
 
 # class file_EN:
@@ -143,7 +143,7 @@ if __name__ == '__main__':
 #                                           noise=.05)
 # X2, y2 = datasets.make_blobs(n_samples=1000, n_features=2, centers=[[1.2,1.2]], cluster_std=[[.1]],
 #                random_state=9)
-# # points = np.concatenate((X1, X2))
+# points = np.concatenate((X1, X2))
 # points=scipy.randn(10000,50)
 #1. 层次聚类
 #生成点与点之间的距离矩阵,这里用的欧氏距离:
@@ -207,16 +207,18 @@ if __name__ == '__main__':
 # plt.scatter(X[:, 0], X[:, 1], c=y_pred)
 # plt.show()
 
-# # 4.BIRCH
+# 4.BIRCH
 # X为样本特征，Y为样本簇类别， 共1000个样本，每个样本2个特征，共4个簇，簇中心在[-1,-1], [0,0],[1,1], [2,2]
-# X, y = make_blobs(n_samples=1000, n_features=2, centers=[[-1,-1], [0,0], [1,1], [2,2]], cluster_std=[0.4, 0.3, 0.4, 0.3],
-#                   random_state =9)
-# from sklearn.cluster import Birch
-# y_pred = Birch(n_clusters = None, threshold = 0.5, branching_factor = 60).fit_predict(X)
+X, y = make_blobs(n_samples=1000, n_features=2, centers=[[-1,-1], [0,0], [1,1], [2,2]], cluster_std=[0.4, 0.3, 0.4, 0.3],
+                  random_state =9)
+from sklearn.cluster import Birch
+y_pred = Birch(n_clusters = None, threshold = 0.5, branching_factor = 60).fit(X)
+t = y_pred.predict(np.array([[-1,-1]]))
+print(t)
 # plt.scatter(X[:, 0], X[:, 1], c=y_pred)
 # plt.show()
-# from sklearn import metrics
-# print ("Calinski-Harabasz Score", metrics.calinski_harabaz_score(X, y_pred))
+from sklearn import metrics
+print ("Calinski-Harabasz Score", metrics.calinski_harabaz_score(X, y_pred))
 
 # # 验证
 # model = Doc2Vec.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\doc2vec\all_100_dm_10_2.model')

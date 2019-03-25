@@ -2,6 +2,7 @@ import re
 import jieba
 import numpy as np
 from gensim.models.doc2vec import Doc2Vec
+from sklearn.cluster import KMeans
 from sklearn.datasets.samples_generator import make_blobs
 import operator
 from embeddings import read
@@ -55,16 +56,93 @@ def get_class_num(labels):
     class_num = dict(sorted(class_num.items(), key=operator.itemgetter(0)))
     return class_num
 
+def get_clusters(vectors,labels):    # 根据DBSCAN聚类后的标签labels整理各类的向量，存放在字典clusters
+    clusters = {}
+    for i in range(len(labels)):
+        if labels[i] not in clusters:
+            clusters[labels[i]] = vectors[i]
+        elif labels[i] in clusters:
+            cur_vec = vectors[i]
+            cur_cluster = clusters[labels[i]]
+            clusters[labels[i]] = np.row_stack((cur_cluster, cur_vec))
+    return clusters
+
+def get_centers(clusters):  # 获得各个类的中心点(噪音类除外)
+    centers = {}
+    for label in clusters:
+        if label == -1:     #如果是噪音类
+            continue
+        else:
+            cur_vectors = clusters[label]
+            km_model = KMeans(n_clusters=1, max_iter=500, random_state=0).fit(cur_vectors)
+            km_labels = km_model.labels_
+            km_score = metrics.calinski_harabaz_score(cur_vectors, km_labels)
+            print('类标签为%d的K-means聚类得分：%f' % (label, km_score))
+            cur_center = km_model.cluster_centers_
+            print('类标签为%d的K-means聚类中心：' %label + str(cur_center))
+            centers[label] = cur_center
+    return centers
+
+def get_distance(cur_vector, cur_center, method):   # 获得与中心点的距离(余弦相似度 or 欧式距离)
+    if method == 'cos':
+        num = float(np.dot(cur_vector, cur_center.T))
+        vec_norm = np.linalg.norm(cur_vector) * np.linalg.norm(cur_center)
+        cos = num / vec_norm
+        sim = 0.5 + 0.5 * cos   # 归一化
+        return sim
+    elif method == 'ED':
+        dist = np.linalg.norm(cur_vector - cur_center)
+        return dist
+
+def distance_sort(vectors, cur_center, method):     # 获得根据与中心点距离大小排序后的{词向量：与中心点的距离}
+    distance_dict = {}
+    for vector in vectors:
+        distance = get_distance(vector, cur_center, method)
+        distance_dict[vector] = distance
+    sorted_distance = sorted(distance_dict.items(), key=operator.itemgetter(1))
+    sorted_distance_dict = dict(sorted_distance)
+    return sorted_distance_dict
+
+def get_stopwords():
+    stop_file = open('../data/patent_abstract/stopwords_new.txt', 'r', encoding='utf-8')
+    stopwords = list()
+    for line in stop_file.readlines():
+        stopwords.append(line.strip())
+    return stopwords
+
+def write_cluster_result(fname, class_num, my_ipc):
+    with open(fname, 'w', encoding='utf-8') as result_f:
+        result_f.write('聚类结果为：\n')
+        for label in class_num:
+            result_f.write(str(label) + ':' + str(class_num[label]) + '\n')
+        for label in my_ipc:
+            result_f.write('类标签为:' + str(label) + ':' + '\n')
+            result_f.write(str(class_num[label]) + '条专利' + '\n')
+            for ipc in my_ipc[label]:
+                result_f.write(str(label) + ':  ' + ipc + '\n')
+
+def get_most_label(line_vecs, birch_model):
+    # word_cluster = dict()
+    label_num = dict()
+    for vec in line_vecs:
+        cur_label = birch_model.predict(vec)
+        # print(cur_label)
+        if cur_label[0] not in label_num:
+            label_num[cur_label[0]] = 1
+        else:
+            label_num[cur_label[0]] += 1
+        # word_cluster[vec] = cur_label
+    label_num = dict(sorted(label_num.items(), key=operator.itemgetter(1), reverse=True))
+    most_label = list(label_num.items())[0][0]
+    return most_label
+
 def birch1():       # Doc2vec
     dim = 100
     model = Doc2Vec.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\doc2vec\all_abstract_100_nostop.model')
     patent_list = list()
     docvecs = np.zeros((1, dim))
     num = 0
-    stopfile = open('../data/patent_abstract/stopwords_new.txt', 'r', encoding='utf-8')
-    stopwords = list()
-    for line in stopfile.readlines():
-        stopwords.append(line.strip())
+    stopwords = get_stopwords()
     with open('D:\PycharmProjects\Dataset\keywordEX\patent\_bxk_label_abstract.txt', 'r', encoding='utf-8') as curf:
         for line in curf.readlines():
             line_split = line.split(' ::  ')
@@ -84,7 +162,8 @@ def birch1():       # Doc2vec
                 patent_list.append(cur_patent)
                 num += 1
     print(docvecs.shape)
-    cluster = Birch(n_clusters=3, threshold=0.5, branching_factor=50).fit_predict(docvecs)
+    model = Birch(n_clusters=3, threshold=0.5, branching_factor=50).fit(docvecs)
+    cluster = model.labels_
     patent_list = get_label(patent_list, cluster)
     my_ipc = get_patent_ipc(patent_list)
     labels_unique = np.unique(cluster)
@@ -94,18 +173,9 @@ def birch1():       # Doc2vec
     print('聚类结果为：')
     for label in class_num:
         print(str(label) + ':' + str(class_num[label]))
-    # with open('../data/patent_abstract/cengci/bxk_all_100_10_5_cengci.txt', 'w', encoding='utf-8') as result_f:
-    with open('../data/patent_abstract/Brich/bxk_abstract_nostop_doc2vecTest_100.txt', 'w', encoding='utf-8') as result_f:
-        result_f.write('聚类结果为：\n')
-        for label in class_num:
-            result_f.write(str(label) + ':' + str(class_num[label]) + '\n')
-        for label in my_ipc:
-            result_f.write('类标签为:' + str(label) + ':' + '\n')
-            result_f.write(str(class_num[label]) + '条专利' + '\n')
-            for ipc in my_ipc[label]:
-                result_f.write(str(label) + ':  ' + ipc + '\n')
+    write_cluster_result('../data/patent_abstract/Brich/bxk_abstract_nostop_doc2vecTest_100.txt', class_num, my_ipc)
     print("Calinski-Harabasz Score", metrics.calinski_harabaz_score(docvecs, cluster))
-    stopfile.close()
+    return model
 
 def birch2():       # sent2vec
     embedding_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\sent2vec\bxd_fc_rm_abstract.vec', 'r',
@@ -121,12 +191,12 @@ def birch2():       # sent2vec
                 content = line_split[1].strip()
                 cur_patent = patent_ZH(content, num, line_split[0])
                 cur_patent.docvec = sentvecs[num].reshape(1, dim)
-                # ipc_list.append(line_split[0])
                 patent_list.append(cur_patent)
                 print('读取第%d个专利摘要......' % (num + 1))
                 num += 1
     print(sentvecs.shape)
-    cluster = Birch(threshold=0.7, branching_factor=50).fit_predict(sentvecs)
+    model = Birch(n_clusters=3, threshold=0.7, branching_factor=50).fit(sentvecs)
+    cluster = model.labels_
     patent_list = get_label(patent_list, cluster)
     my_ipc = get_patent_ipc(patent_list)
     labels_unique = np.unique(cluster)
@@ -136,28 +206,17 @@ def birch2():       # sent2vec
     print('聚类结果为：')
     for label in class_num:
         print(str(label) + ':' + str(class_num[label]))
-    # with open('../data/patent_abstract/cengci/bxk_all_100_10_5_cengci.txt', 'w', encoding='utf-8') as result_f:
-    with open('../data/patent_abstract/Brich/bxd_abstract_sent2vec_Test.txt', 'w', encoding='utf-8') as result_f:
-        result_f.write('聚类结果为：\n')
-        for label in class_num:
-            result_f.write(str(label) + ':' + str(class_num[label]) + '\n')
-        for label in my_ipc:
-            result_f.write('类标签为:' + str(label) + ':' + '\n')
-            result_f.write(str(class_num[label]) + '条专利' + '\n')
-            for ipc in my_ipc[label]:
-                result_f.write(str(label) + ':  ' + ipc + '\n')
+    write_cluster_result('../data/patent_abstract/Brich/bxd_abstract_sent2vec_Test.txt', class_num, my_ipc)
     print("Calinski-Harabasz Score", metrics.calinski_harabaz_score(sentvecs, cluster))
     embedding_file.close()
+    return model
 
 def birch3():       # 词向量加和平均
     embedding_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_techField_100.vec', 'r',
                           encoding='utf-8', errors='surrogateescape')
-    stop_file = open('../data/patent_abstract/stopwords_new.txt', 'r', encoding='utf-8')
-    stopwords = list()
     patent_list = list()
     dim = 100
-    for line in stop_file.readlines():
-        stopwords.append(line.strip())
+    stopwords = get_stopwords()
     words, wordvecs = read(embedding_file, dtype=float)
     word2ind = {word: i for i, word in enumerate(words)}
     test_vecs = np.zeros((1, dim))
@@ -187,7 +246,8 @@ def birch3():       # 词向量加和平均
             num += 1
         test_vecs = np.delete(test_vecs, 0 , 0)
     print(test_vecs.shape)
-    cluster = Birch(n_clusters=3, threshold=0.7, branching_factor=50).fit_predict(test_vecs)
+    model = Birch(n_clusters=3, threshold=0.7, branching_factor=50).fit(test_vecs)
+    cluster = model.labels_
     patent_list = get_label(patent_list, cluster)
     my_ipc = get_patent_ipc(patent_list)
     labels_unique = np.unique(cluster)
@@ -197,20 +257,47 @@ def birch3():       # 词向量加和平均
     print('聚类结果为：')
     for label in class_num:
         print(str(label) + ':' + str(class_num[label]))
-    # with open('../data/patent_abstract/cengci/bxk_all_100_10_5_cengci.txt', 'w', encoding='utf-8') as result_f:
-    with open('../data/patent_abstract/Brich/bxd_techField_word2vecAVG_Test.txt', 'w', encoding='utf-8') as result_f:
-        result_f.write('聚类结果为：\n')
-        for label in class_num:
-            result_f.write(str(label) + ':' + str(class_num[label]) + '\n')
-        for label in my_ipc:
-            result_f.write('类标签为:' + str(label) + ':' + '\n')
-            result_f.write(str(class_num[label]) + '条专利' + '\n')
-            for ipc in my_ipc[label]:
-                result_f.write(str(label) + ':  ' + ipc + '\n')
+    write_cluster_result('../data/patent_abstract/Brich/keyword_test.txt', class_num, my_ipc)
     print("Calinski-Harabasz Score", metrics.calinski_harabaz_score(test_vecs, cluster))
     embedding_file.close()
-    stop_file.close()
+    return model
+
+def keyword_extraction(test_name, wordvec_file, birch_model, dim):
+    stopwords = get_stopwords()
+    words, wordvecs = read(wordvec_file, dtype=float)
+    word2ind = {word: i for i, word in enumerate(words)}
+    with open(test_name, 'r', encoding='utf-8') as test_file:
+        num = 0
+        for test_line in test_file.readlines():
+            line_split = test_line.split(' ::  ')
+            if len(line_split) == 2:
+                content = line_split[1].strip()
+                test_line_words = list(jieba.cut(content))
+                line_words = list()
+                line_vecs = list()
+                for word in test_line_words:
+                    if word not in stopwords and word in word2ind:
+                        line_words.append(word)
+                        cur_wordvec = wordvecs[word2ind[word]].reshape(1, dim)
+                        line_vecs.append(cur_wordvec)
+                assert len(line_words) == len(line_vecs)
+                get_most_label(line_vecs, birch_model)
+                most_label = get_most_label(line_vecs, birch_model)
+                print(most_label)
+                num += 1
+                if num >= 10:
+                    break
+
+
 if __name__ == '__main__':
-    # birch2()
-    birch3()
+    dim = 100
+    wordvec_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_techField_100.vec', 'r', encoding='utf-8', errors='surrogateescape')
+    test_name = 'D:\PycharmProjects\Dataset\keywordEX\patent\_bxd_label_techField.txt'
     # birch1()
+    # birch2()
+    birch_model = birch3()
+    keyword_extraction(test_name, wordvec_file, birch_model, dim)
+    wordvec_file.close()
+
+
+
