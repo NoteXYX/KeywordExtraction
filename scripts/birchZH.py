@@ -1,6 +1,7 @@
 import re
 import jieba
 import numpy as np
+from gensim.models import KeyedVectors
 from gensim.models.doc2vec import Doc2Vec
 from sklearn.cluster import KMeans
 from sklearn.datasets.samples_generator import make_blobs
@@ -67,21 +68,13 @@ def get_clusters(vectors,labels):    # 根据DBSCAN聚类后的标签labels整�
             clusters[labels[i]] = np.row_stack((cur_cluster, cur_vec))
     return clusters
 
-def get_centers(clusters):  # 获得各个类的中心点(噪音类除外)
-    centers = {}
-    for label in clusters:
-        if label == -1:     #如果是噪音类
-            continue
-        else:
-            cur_vectors = clusters[label]
-            km_model = KMeans(n_clusters=1, max_iter=500, random_state=0).fit(cur_vectors)
-            km_labels = km_model.labels_
-            km_score = metrics.calinski_harabaz_score(cur_vectors, km_labels)
-            print('类标签为%d的K-means聚类得分：%f' % (label, km_score))
-            cur_center = km_model.cluster_centers_
-            print('类标签为%d的K-means聚类中心：' %label + str(cur_center))
-            centers[label] = cur_center
-    return centers
+def get_index2vectors(word2ind, wordvecs, line_words):    # 获得测试文本中所有词的词向量
+    ind2vec = dict()
+    for word in line_words:
+        cur_index = word2ind[word]
+        cur_vec = wordvecs[cur_index]
+        ind2vec[cur_index] = cur_vec
+    return ind2vec
 
 def get_distance(cur_vector, cur_center, method):   # 获得与中心点的距离(余弦相似度 or 欧式距离)
     if method == 'cos':
@@ -94,14 +87,17 @@ def get_distance(cur_vector, cur_center, method):   # 获得与中心点的距�
         dist = np.linalg.norm(cur_vector - cur_center)
         return dist
 
-def distance_sort(vectors, cur_center, method):     # 获得根据与中心点距离大小排序后的{词向量：与中心点的距离}
-    distance_dict = {}
-    for vector in vectors:
-        distance = get_distance(vector, cur_center, method)
-        distance_dict[vector] = distance
-    sorted_distance = sorted(distance_dict.items(), key=operator.itemgetter(1))
-    sorted_distance_dict = dict(sorted_distance)
-    return sorted_distance_dict
+def distance_sort(ind2vec, cur_center, method):     # 获得根据与中心点距离大小排序后的{词向量序号：与中心点的距离}
+    index_distance = dict()
+    for index in ind2vec:
+        distance = get_distance(ind2vec[index], cur_center, method)
+        index_distance[index] = distance
+    if method == 'cos':
+        sorted_distance = sorted(index_distance.items(), key=operator.itemgetter(1), reverse=True)
+    else:
+        sorted_distance = sorted(index_distance.items(), key=operator.itemgetter(1))
+    sorted_index_distance = dict(sorted_distance)
+    return sorted_index_distance
 
 def get_stopwords():
     stop_file = open('../data/patent_abstract/stopwords_new.txt', 'r', encoding='utf-8')
@@ -122,16 +118,13 @@ def write_cluster_result(fname, class_num, my_ipc):
                 result_f.write(str(label) + ':  ' + ipc + '\n')
 
 def get_most_label(line_vecs, birch_model):
-    # word_cluster = dict()
     label_num = dict()
     for vec in line_vecs:
         cur_label = birch_model.predict(vec)
-        # print(cur_label)
         if cur_label[0] not in label_num:
             label_num[cur_label[0]] = 1
         else:
             label_num[cur_label[0]] += 1
-        # word_cluster[vec] = cur_label
     label_num = dict(sorted(label_num.items(), key=operator.itemgetter(1), reverse=True))
     most_label = list(label_num.items())[0][0]
     return most_label
@@ -211,16 +204,15 @@ def birch2():       # sent2vec
     embedding_file.close()
     return model
 
-def birch3():       # 词向量加和平均
-    embedding_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_techField_100.vec', 'r',
-                          encoding='utf-8', errors='surrogateescape')
+def birch3(embedding_name, test_name):       # 词向量加和平均
+    embedding_file = open(embedding_name, 'r', encoding='utf-8', errors='surrogateescape')
     patent_list = list()
     dim = 100
     stopwords = get_stopwords()
     words, wordvecs = read(embedding_file, dtype=float)
     word2ind = {word: i for i, word in enumerate(words)}
     test_vecs = np.zeros((1, dim))
-    with open('D:\PycharmProjects\Dataset\keywordEX\patent\_bxd_label_techField.txt', 'r', encoding='utf-8') as test_file:
+    with open(test_name, 'r', encoding='utf-8') as test_file:
         num = 0
         for test_line in test_file.readlines():
             line_split = test_line.split(' ::  ')
@@ -262,7 +254,9 @@ def birch3():       # 词向量加和平均
     embedding_file.close()
     return model
 
-def keyword_extraction(test_name, wordvec_file, birch_model, dim):
+def keyword_extraction(test_name, wordvec_name, birch_model, dim, topn=20, sent2vec_name=None):
+    log_file = open(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\test\abstract_word2vec_test.txt', 'w', encoding='utf-8')
+    wordvec_file = open(wordvec_name, 'r', encoding='utf-8', errors='surrogateescape')
     stopwords = get_stopwords()
     words, wordvecs = read(wordvec_file, dtype=float)
     word2ind = {word: i for i, word in enumerate(words)}
@@ -272,6 +266,10 @@ def keyword_extraction(test_name, wordvec_file, birch_model, dim):
             line_split = test_line.split(' ::  ')
             if len(line_split) == 2:
                 content = line_split[1].strip()
+                print('第%d条专利摘要：' % (num+1))
+                print(content)
+                log_file.write('第%d条专利摘要：\n' % (num+1))
+                log_file.write('%s\n' % content)
                 test_line_words = list(jieba.cut(content))
                 line_words = list()
                 line_vecs = list()
@@ -281,23 +279,42 @@ def keyword_extraction(test_name, wordvec_file, birch_model, dim):
                         cur_wordvec = wordvecs[word2ind[word]].reshape(1, dim)
                         line_vecs.append(cur_wordvec)
                 assert len(line_words) == len(line_vecs)
-                get_most_label(line_vecs, birch_model)
+                ind2vec = get_index2vectors(word2ind, wordvecs, line_words)
+                get_most_label(line_vecs, birch_model)      ####################################
                 most_label = get_most_label(line_vecs, birch_model)
                 print(most_label)
+                center = birch_model.subcluster_centers_[most_label]
+                sorted_index_distance = distance_sort(ind2vec, center, 'cos')
+                print('-------keyword-------')
+                log_file.write('-------keyword-------\n')
+                keyword_num = 0
+                for item in list(sorted_index_distance.items()):
+                    cur_word = words[item[0]]
+                    cur_dis = item[1]
+                    log_file.write('%s\t%f\n' % (cur_word, cur_dis))
+                    print(cur_word + '\t' + str(cur_dis))
+                    keyword_num += 1
+                    if keyword_num >= topn:
+                        break
+                print('-----------------------------------------------------------------')
+                log_file.write('------------------------------------------------------------------\n')
                 num += 1
-                if num >= 10:
-                    break
+                # if num >= 50:
+                #     break
+    wordvec_file.close()
+    log_file.close()
 
 
 if __name__ == '__main__':
     dim = 100
-    wordvec_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_techField_100.vec', 'r', encoding='utf-8', errors='surrogateescape')
-    test_name = 'D:\PycharmProjects\Dataset\keywordEX\patent\_bxd_label_techField.txt'
+    embedding_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
+    wordvec_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
+    test_name = 'D:\PycharmProjects\Dataset\keywordEX\patent\_bxd_label_abstract.txt'
+    birch_test_name = 'D:\PycharmProjects\Dataset\keywordEX\patent\_bxd_label_techField.txt'
     # birch1()
     # birch2()
-    birch_model = birch3()
-    keyword_extraction(test_name, wordvec_file, birch_model, dim)
-    wordvec_file.close()
+    birch_model = birch3(embedding_name, birch_test_name)
+    keyword_extraction(test_name, wordvec_name, birch_model, dim)
 
 
 

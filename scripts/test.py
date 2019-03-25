@@ -30,9 +30,9 @@ if __name__ == '__main__':
                 line_num += 1
             else:
                 line_num += 1
-    truth = {0: 'D06F', 1: 'F25D', 2: 'H04M'}
+    # truth = {0: 'D06F', 1: 'F25D', 2: 'H04M'}
     # truth = {0: 'H04M', 1: 'F25D', 2: 'D06F'}
-    # truth = {0: 'F25D', 1: 'H04M',  2: 'D06F'}
+    truth = {0: 'F25D', 1: 'H04M',  2: 'D06F'}
     #truth = {0: 'D06F', 1: 'H04M', 2: 'F25D'}
     # truth = {0: 'F25D', 1: 'D06F', 2: 'H04M'}
     # truth = {0: 'D06F', 1: 'F25D', 2: 'F24F'}

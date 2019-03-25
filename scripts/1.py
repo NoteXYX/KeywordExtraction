@@ -212,13 +212,14 @@ from extractTrain import myfile
 X, y = make_blobs(n_samples=1000, n_features=2, centers=[[-1,-1], [0,0], [1,1], [2,2]], cluster_std=[0.4, 0.3, 0.4, 0.3],
                   random_state =9)
 from sklearn.cluster import Birch
-y_pred = Birch(n_clusters = None, threshold = 0.5, branching_factor = 60).fit(X)
-t = y_pred.predict(np.array([[-1,-1]]))
-print(t)
-# plt.scatter(X[:, 0], X[:, 1], c=y_pred)
-# plt.show()
+model = Birch(n_clusters = None, threshold = 0.5, branching_factor = 60).fit(X)
+y_pred = model.labels_
+label = model.subcluster_centers_
+print(label)
+plt.scatter(X[:, 0], X[:, 1], c=y_pred)
+plt.show()
 from sklearn import metrics
-print ("Calinski-Harabasz Score", metrics.calinski_harabaz_score(X, y_pred))
+# print ("Calinski-Harabasz Score", metrics.calinski_harabaz_score(X, y_pred))
 
 # # 验证
 # model = Doc2Vec.load(r'D:\PycharmProjects\Dataset\keywordEX\patent\doc2vec\all_100_dm_10_2.model')

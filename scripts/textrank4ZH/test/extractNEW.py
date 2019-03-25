@@ -7,27 +7,27 @@ from textrank4zh import TextRank4Keyword
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8') #改变标准输出的默认编码
 if __name__ == '__main__':
-    db = pymysql.connect("localhost", "root", "", "patent_system")
-    # 使用 cursor() 方法创建一个游标对象 cursor
-    cursor = db.cursor()
-    patent_id = 0
-    sql = """ SELECT count(id) FROM tb_patent; """
-    try:
-        # 执行sql语句
-        cursor.execute(sql)
-        # 提交到数据库执行
-        # 获取所有记录列表
-        results = cursor.fetchall()
-        patent_num = results[0][0]
-        print('专利数目：' + str(patent_num) )
-        db.commit()
-    except IndexError as e:
-        # 如果发生错误则回滚
-        db.rollback()
-        print(e)
+    # db = pymysql.connect("localhost", "root", "", "patent_system")
+    # # 使用 cursor() 方法创建一个游标对象 cursor
+    # cursor = db.cursor()
+    # patent_id = 0
+    # sql = """ SELECT count(id) FROM tb_patent; """
+    # try:
+    #     # 执行sql语句
+    #     cursor.execute(sql)
+    #     # 提交到数据库执行
+    #     # 获取所有记录列表
+    #     results = cursor.fetchall()
+    #     patent_num = results[0][0]
+    #     print('专利数目：' + str(patent_num) )
+    #     db.commit()
+    # except IndexError as e:
+    #     # 如果发生错误则回滚
+    #     db.rollback()
+    #     print(e)
     # with open('TextRank_test.txt', 'a') as file_log:
     #     file_log.write('%d\t%s\n' % (patent_id + 1, xml_name))
-    test_file = open('TextRank_test_no_stop_words.txt', 'a', encoding='utf-8')
+    test_file = open('D:\PycharmProjects\KeywordExtraction\data\patent_abstract\test', 'a', encoding='utf-8')
     sql = """ SELECT abstract FROM tb_patent;  """
     try:
         # 执行sql语句
