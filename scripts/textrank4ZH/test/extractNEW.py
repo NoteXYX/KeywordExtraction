@@ -44,13 +44,13 @@ if __name__ == '__main__':
                 content = line_split[1].strip()
                 print('第%d条专利摘要：' % (num + 1))
                 print(content)
-                log_file.write('第%d条专利摘要：\n' % (num + 1))
+                log_file.write('第%d条专利摘要：\t\t%s\n' % (num + 1, line_split[0]))
                 log_file.write('%s\n' % content)
                 log_file.write('-------keyword-------\n')
                 tr4w = TextRank4Keyword()
                 tr4w.analyze(text=content, lower=True, window=3, pagerank_config={'alpha': 0.85})
                 for item in tr4w.get_keywords(20, word_min_len=2):
-                    log_file.write('%s\t%f\n' % (item.word, item.weight))
+                    log_file.write('%s\t\t%f\n' % (item.word, item.weight))
                 num += 1
                 log_file.write('----------------------------------------------------------------\n')
             # print(row[0] + "\n")
