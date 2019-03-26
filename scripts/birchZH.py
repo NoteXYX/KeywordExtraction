@@ -291,7 +291,7 @@ def keyword_extraction(test_name, wordvec_name, birch_model, dim, topn=20, sent2
                 for item in list(sorted_index_distance.items()):
                     cur_word = words[item[0]]
                     cur_dis = item[1]
-                    log_file.write('%s\t%f\n' % (cur_word, cur_dis))
+                    log_file.write('%s  %f\n' % (cur_word, cur_dis))
                     print(cur_word + '\t' + str(cur_dis))
                     keyword_num += 1
                     if keyword_num >= topn:

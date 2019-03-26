@@ -27,37 +27,53 @@ if __name__ == '__main__':
     #     print(e)
     # with open('TextRank_test.txt', 'a') as file_log:
     #     file_log.write('%d\t%s\n' % (patent_id + 1, xml_name))
-    test_file = open('D:\PycharmProjects\KeywordExtraction\data\patent_abstract\test', 'a', encoding='utf-8')
-    sql = """ SELECT abstract FROM tb_patent;  """
-    try:
+
+    log_file = open(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\test\textRank_abstract.txt', 'w', encoding='utf-8')
+    # sql = """ SELECT abstract FROM tb_patent;  """
+    # try:
         # 执行sql语句
-        cursor.execute(sql)
+        # cursor.execute(sql)
         # 提交到数据库执行
         # 获取所有记录列表
-        results = cursor.fetchall()
-        i = 0
-        for row in results:
-            print(row[0] + "\n")
-            test_file.write('%s\n\n' % (row[0]))
-            test_file.write('-------keyword-------\n')
-            tr4w = TextRank4Keyword(stop_words_file = '../textrank4zh/stopwords.txt')
-            tr4w.analyze(text=row[0], lower=True, vertex_source = 'no_stop_words', window=3, pagerank_config={'alpha': 0.85})
-            for item in tr4w.get_keywords(20, word_min_len=2):
-                test_file.write('%s\t%f\n' % (item.word, item.weight))
-            test_file.write("-------phrase-------\n")
-            for phrase in tr4w.get_keyphrases(keywords_num=20, min_occur_num=0):
-                test_file.write('%s\n' % (phrase))
-            i+=1
-            print("第%d条专利成功写入文档！\n" % (i))
-            test_file.write('\n')
-        db.commit()
-    except IndexError as e:
-        # 如果发生错误则回滚
-        db.rollback()
-        print(e)
+        # results = cursor.fetchall()
+    with open('D:\PycharmProjects\Dataset\keywordEX\patent\_bxd_label_abstract.txt', 'r', encoding='utf-8') as test_file:
+        num = 0
+        for row in test_file.readlines():
+            line_split = row.split(' ::  ')
+            if len(line_split) == 2:
+                content = line_split[1].strip()
+                print('第%d条专利摘要：' % (num + 1))
+                print(content)
+                log_file.write('第%d条专利摘要：\n' % (num + 1))
+                log_file.write('%s\n' % content)
+                log_file.write('-------keyword-------\n')
+                tr4w = TextRank4Keyword()
+                tr4w.analyze(text=content, lower=True, window=3, pagerank_config={'alpha': 0.85})
+                for item in tr4w.get_keywords(20, word_min_len=2):
+                    log_file.write('%s\t%f\n' % (item.word, item.weight))
+                num += 1
+                log_file.write('----------------------------------------------------------------\n')
+            # print(row[0] + "\n")
+            # log_file.write('%s\n\n' % (row[0]))
+            # log_file.write('-------keyword-------\n')
+            # tr4w = TextRank4Keyword(stop_words_file = '../textrank4zh/stopwords.txt')
+            # tr4w.analyze(text=row[0], lower=True, vertex_source = 'no_stop_words', window=3, pagerank_config={'alpha': 0.85})
+            # for item in tr4w.get_keywords(20, word_min_len=2):
+            #     log_file.write('%s\t%f\n' % (item.word, item.weight))
+            # log_file.write("-------phrase-------\n")
+            # for phrase in tr4w.get_keyphrases(keywords_num=20, min_occur_num=0):
+            #     log_file.write('%s\n' % (phrase))
+            # i+=1
+            # print("第%d条专利成功写入文档！\n" % (i))
+            # log_file.write('\n')
+        # db.commit()
+    # except IndexError as e:
+    #     # 如果发生错误则回滚
+    #     db.rollback()
+    #     print(e)
     #for num in range(1, patent_num+1):
 
 
     # 关闭数据库连接
-    db.close()
-    test_file.close()
+    # db.close()
+    log_file.close()
