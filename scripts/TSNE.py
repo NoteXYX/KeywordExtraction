@@ -1,21 +1,60 @@
 import numpy as np
+import operator
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 import jieba
 from embeddings import read
 from sklearn.cluster import Birch
+from sklearn.cluster import KMeans
 from pylab import mpl
 
 
-def plot_with_labels(low_dim_embs, color_labels, ipc_labels,filename):
+def get_Birch_clusters(vectors,labels):    # 根据DBSCAN聚类后的标签labels整理各类的向量，存放在字典clusters
+    clusters = dict()
+    for i in range(len(labels)):
+        if labels[i] not in clusters:
+            clusters[labels[i]] = vectors[i]
+        elif labels[i] in clusters:
+            cur_vec = vectors[i]
+            cur_cluster = clusters[labels[i]]
+            clusters[labels[i]] = np.row_stack((cur_cluster, cur_vec))
+    clusters = dict(sorted(clusters.items(), key=operator.itemgetter(0)))
+    return clusters
+
+def get_centers(clusters, dim=100):  # 获得各个类的中心点(噪音类除外)
+    centers = np.zeros((len(clusters), dim))
+    for label in clusters:
+        if label == -1:     #如果是噪音类
+            continue
+        else:
+            cur_vectors = clusters[label]
+            # km_model = KMeans(n_clusters=1, max_iter=500, random_state=0).fit(cur_vectors)
+            # km_labels = km_model.labels_
+            # km_score = metrics.calinski_harabaz_score(cur_vectors, km_labels)
+            # print('类标签为%d的K-means聚类得分：%f' % (label, km_score))
+            # cur_center = km_model.cluster_centers_
+            # print('类标签为%d的K-means聚类中心：' %label + str(cur_center))
+            cur_center = np.mean(cur_vectors, axis=0).reshape(1, dim)
+            centers[label] = cur_center
+    return centers
+
+def plot_with_labels(low_dim_embs, color_labels, ipc_labels, filename, low_dim_centers=None):
+# def plot_with_labels(color_labels, ipc_labels, filename, low_dim_centers):
     assert low_dim_embs.shape[0] >= len(color_labels), 'More labels than embeddings'
     assert len(color_labels) == len(ipc_labels)
     plt.figure(figsize=(19, 19))  # in inches
     color_list = ['b', 'g', 'y']
     for i, label in enumerate(color_labels):
         x, y = low_dim_embs[i, :]
-        plt.scatter(x, y, c=color_list[label])
-        plt.annotate(ipc_labels[i], xy=(x, y), xytext=(5, 2), textcoords='offset points',ha='right', va='bottom')
+        if i in range(2336, 2339):
+            plt.scatter(x, y, c='r')
+        else:
+            plt.scatter(x, y, c=color_list[label])
+            plt.annotate(ipc_labels[i], xy=(x, y), xytext=(5, 2), textcoords='offset points',ha='right', va='bottom')
+    # print(low_dim_centers.shape)
+    # for i in range(low_dim_centers.shape[0]):
+    #     x, y = low_dim_centers[i, :]
+    #     plt.scatter(x, y, c='k')
     plt.savefig(filename)
 
 def techField_wordAVG_display():
@@ -58,11 +97,24 @@ def techField_wordAVG_display():
             num += 1
         tsne_vecs = np.delete(tsne_vecs, 0, 0)
     print(tsne_vecs.shape)
-    cluster = Birch(n_clusters=3, threshold=0.7, branching_factor=50).fit_predict(tsne_vecs)
-    # plot_only = 1000
-    low_dim_embs = tsne.fit_transform(tsne_vecs)
-    # labels = [words[i] for i in range(plot_only)]
-    plot_with_labels(low_dim_embs, cluster, ipc_list,'../data/TSNE_cluster1.png')
+    birch_model = Birch(threshold=0.7, branching_factor=50).fit(tsne_vecs)
+    # cluster = Birch(threshold=0.7, branching_factor=50).fit_predict(tsne_vecs)
+    cluster = np.zeros((2339,dim))
+    cluster[:2336] = birch_model.labels_
+    label_vecs = get_Birch_clusters(tsne_vecs, cluster)
+    centers = get_centers(label_vecs)
+    # low_dim_centers = tsne.fit_transform(centers)
+    # centers = birch_model.subcluster_centers_
+    # print(len(np.unique(cluster)))
+    # print(centers.shape)
+    tsne_vecs = np.row_stack((tsne_vecs, centers))
+    print(tsne_vecs.shape)
+    print(cluster.shape)
+    # low_dim_embs = tsne.fit_transform(tsne_vecs)
+    for i in range(2336,2339):
+        cluster[i] = -2
+    # plot_with_labels(low_dim_embs, cluster, ipc_list, '../data/TSNE_cluster_NEW.png', low_dim_centers)
+    # plot_with_labels(low_dim_embs, cluster, ipc_list, '../data/TSNE_cluster_NEW.png')
 
 if __name__ == '__main__':
     techField_wordAVG_display()

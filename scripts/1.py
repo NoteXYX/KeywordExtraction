@@ -214,9 +214,10 @@ X, y = make_blobs(n_samples=1000, n_features=2, centers=[[-1,-1], [0,0], [1,1], 
 from sklearn.cluster import Birch
 model = Birch(n_clusters = None, threshold = 0.5, branching_factor = 60).fit(X)
 y_pred = model.labels_
-label = model.subcluster_centers_
-print(label)
+centers = model.subcluster_centers_
 plt.scatter(X[:, 0], X[:, 1], c=y_pred)
+for i in range(len(centers)):
+    plt.scatter(centers[i, 0], centers[i, 1], c='k')
 plt.show()
 from sklearn import metrics
 # print ("Calinski-Harabasz Score", metrics.calinski_harabaz_score(X, y_pred))

@@ -23,40 +23,11 @@ if __name__ == '__main__':
     #     # 如果发生错误则回滚
     #     db.rollback()
     #     print(e)
-    log_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\ydy\_0kt1tv_techField.txt', 'w', encoding='utf-8')
-    # sql = """ SELECT label, content FROM tb_patentall_label; """
-    # sql = """ SELECT label, content FROM tb_patent_label; """
-    # try:
-    #     # 执行sql语句
-    #     cursor.execute(sql)
-    #     # 提交到数据库执行
-    #     # 获取所有记录列表
-    #     results = cursor.fetchall()
-    #     i = 0
-    #     for row in results:
-    #         print(row[0] + ' ::  ' + row[1])
-    #         # print(row[0])
-    #         # log_file.write('%s\n' % (row[0]))
-    #         log_file.write('%s ::  %s\n' % (row[0], row[1]))
-    #         # log_file.write('-------keyword-------\n')
-    #         # tr4w = TextRank4Keyword(stop_words_file = '../textrank4zh/stopwords.txt')
-    #         # tr4w.analyze(text=row[0], lower=True, vertex_source = 'no_stop_words', window=3, pagerank_config={'alpha': 0.85})
-    #         # for item in tr4w.get_keywords(20, word_min_len=2):
-    #         #     log_file.write('%s\t%f\n' % (item.word, item.weight))
-    #         # log_file.write("-------phrase-------\n")
-    #         # for phrase in tr4w.get_keyphrases(keywords_num=20, min_occur_num=0):
-    #         #     log_file.write('%s\n' % (phrase))
-    #         i+=1
-    #         print("第%d条专利成功写入文档!" % i)
-    #         print('************************************************************************')
-    #     db.commit()
-    # except IndexError as e:
-    #     # 如果发生错误则回滚
-    #     db.rollback()
-    #     print(e)
-    sql = """ SELECT label, tech_field FROM tb_patentall_label where (label LIKE '%F24F%') OR (label LIKE '%H04N%'); """
+    log_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\_kTVq_abstract.txt', 'w', encoding='utf-8')
+    sql = """ SELECT label, abstract FROM tb_patentall_label where (label LIKE '%F24F%') OR (label LIKE '%H04N%') OR (label LIKE '%B08B%'); """
     num0 = 0
     num1 = 0
+    num2 = 0
     try:
         # 执行sql语句
         cursor.execute(sql)
@@ -64,29 +35,50 @@ if __name__ == '__main__':
         # 获取所有记录列表
         results = cursor.fetchall()
         i = 0
-        cur_label = -1
         for row in results:
-            if num0 == 200:
-                break
-            else:
+            if re.search('F24F', row[0]) and num0 < 1000:
+                num0 += 1
                 print(row[0] + ' ::  ' + row[1])
-                if re.search('F24F', row[0]):
-                    cur_label = 0
-                    log_file.write('%s ::  %s\n' % (cur_label, row[1]))
-                    num0 +=1
-                    i += 1
+                log_file.write('%s ::  %s\n' % (row[0], row[1]))
+                i += 1
                 print("第%d条专利成功写入文档!" % i)
                 print('************************************************************************')
-        for row in results:
-            if num1 == 200:
-                break
-            else:
+            if re.search('H04N', row[0]) and num1 < 1000:
+                num1 += 1
                 print(row[0] + ' ::  ' + row[1])
-                if re.search('H04N', row[0]):
-                    cur_label = 1
-                    log_file.write('%s ::  %s\n' % (cur_label, row[1]))
-                    num1 += 1
-                    i += 1
+                log_file.write('%s ::  %s\n' % (row[0], row[1]))
+                i += 1
+                print("第%d条专利成功写入文档!" % i)
+                print('************************************************************************')
+            if re.search('B08B', row[0]) and num2 < 1000:
+                num2 += 1
+                print(row[0] + ' ::  ' + row[1])
+                log_file.write('%s ::  %s\n' % (row[0], row[1]))
+                i += 1
+                print("第%d条专利成功写入文档!" % i)
+                print('************************************************************************')
+        # for row in results:      #YDY
+        #     if num0 == 200:
+        #         break
+        #     else:
+        #         print(row[0] + ' ::  ' + row[1])
+        #         if re.search('F24F', row[0]):
+        #             cur_label = 0
+        #             log_file.write('%s ::  %s\n' % (cur_label, row[1]))
+        #             num0 +=1
+        #             i += 1
+        #         print("第%d条专利成功写入文档!" % i)
+        #         print('************************************************************************')
+        # for row in results:
+        #     if num1 == 200:
+        #         break
+        #     else:
+        #         print(row[0] + ' ::  ' + row[1])
+        #         if re.search('H04N', row[0]):
+        #             cur_label = 1
+        #             log_file.write('%s ::  %s\n' % (cur_label, row[1]))
+        #             num1 += 1
+        #             i += 1
         db.commit()
     except IndexError as e:
         # 如果发生错误则回滚
@@ -100,3 +92,4 @@ if __name__ == '__main__':
     log_file.close()
     print('num0:' + str(num0))
     print('num1:' + str(num1))
+    print('num2:' + str(num2))
