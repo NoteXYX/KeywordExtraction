@@ -217,7 +217,7 @@ y_pred = model.labels_
 centers = model.subcluster_centers_
 plt.scatter(X[:, 0], X[:, 1], c=y_pred)
 for i in range(len(centers)):
-    plt.scatter(centers[i, 0], centers[i, 1], c='k')
+    plt.scatter(centers[i, 0], centers[i, 1], s=80, c='k')
 plt.show()
 from sklearn import metrics
 # print ("Calinski-Harabasz Score", metrics.calinski_harabaz_score(X, y_pred))
