@@ -7,7 +7,7 @@ from gensim.models.doc2vec import Doc2Vec
 if __name__ == '__main__':
     my_ipc = dict()
     ipc_num = 0
-    with open('../data/patent_abstract/Birch/keyword_sent2vec_Test.txt', 'r', encoding='utf-8') as result_f:
+    with open('../data/patent_abstract/Birch/kTVq_keyword_sent2vec_Test.txt', 'r', encoding='utf-8') as result_f:
     # with open('../data/patent_abstract/Kmeans/bxk_techField_word2vecAVG_Test.txt', 'r', encoding='utf-8') as result_f:
     # with open('../data/patent_abstract/cengci/bxd_abstract_nostop_doc2vecTest_100.txt', 'r', encoding='utf-8') as result_f:
         result_lines = result_f.readlines()
@@ -30,8 +30,9 @@ if __name__ == '__main__':
                 line_num += 1
             else:
                 line_num += 1
+    truth = {0: 'F24F', 1: 'H04N', 2: 'B08B'}
     # truth = {0: 'D06F', 1: 'F25D', 2: 'H04M'}
-    truth = {0: 'H04M', 1: 'F25D', 2: 'D06F'}
+    # truth = {0: 'H04M', 1: 'F25D', 2: 'D06F'}
     # truth = {0: 'F25D', 1: 'H04M',  2: 'D06F'}
     #truth = {0: 'D06F', 1: 'H04M', 2: 'F25D'}
     # truth = {0: 'F25D', 1: 'D06F', 2: 'H04M'}

@@ -9,22 +9,8 @@ if __name__ == '__main__':
     db = pymysql.connect("localhost", "root", "", "patent_system")
     # 使用 cursor() 方法创建一个游标对象 cursor
     cursor = db.cursor()
-    # sql = """ SELECT count(id) FROM tb_patentall_label; """
-    # try:
-    #     # 执行sql语句
-    #     cursor.execute(sql)
-    #     # 提交到数据库执行
-    #     # 获取所有记录列表
-    #     results = cursor.fetchall()
-    #     patent_num = results[0][0]
-    #     print('专利数目：' + str(patent_num) )
-    #     db.commit()
-    # except IndexError as e:
-    #     # 如果发生错误则回滚
-    #     db.rollback()
-    #     print(e)
-    log_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\_kTVq_abstract.txt', 'w', encoding='utf-8')
-    sql = """ SELECT label, abstract FROM tb_patentall_label where (label LIKE '%F24F%') OR (label LIKE '%H04N%') OR (label LIKE '%B08B%'); """
+    log_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\_kTVq_techField.txt', 'w', encoding='utf-8')
+    sql = """ SELECT label, tech_field FROM tb_patentall_label where (label LIKE '%F24F%') OR (label LIKE '%H04N%') OR (label LIKE '%B08B%'); """
     num0 = 0
     num1 = 0
     num2 = 0
@@ -38,22 +24,28 @@ if __name__ == '__main__':
         for row in results:
             if re.search('F24F', row[0]) and num0 < 1000:
                 num0 += 1
-                print(row[0] + ' ::  ' + row[1])
-                log_file.write('%s ::  %s\n' % (row[0], row[1]))
+                # print(row[0] + ' ::  ' + row[1])
+                # log_file.write('%s ::  %s\n' % (row[0], row[1]))
+                print(row[1])
+                log_file.write('%s\n' % row[1])
                 i += 1
                 print("第%d条专利成功写入文档!" % i)
                 print('************************************************************************')
             if re.search('H04N', row[0]) and num1 < 1000:
                 num1 += 1
-                print(row[0] + ' ::  ' + row[1])
-                log_file.write('%s ::  %s\n' % (row[0], row[1]))
+                # print(row[0] + ' ::  ' + row[1])
+                # log_file.write('%s ::  %s\n' % (row[0], row[1]))
+                print(row[1])
+                log_file.write('%s\n' % row[1])
                 i += 1
                 print("第%d条专利成功写入文档!" % i)
                 print('************************************************************************')
             if re.search('B08B', row[0]) and num2 < 1000:
                 num2 += 1
-                print(row[0] + ' ::  ' + row[1])
-                log_file.write('%s ::  %s\n' % (row[0], row[1]))
+                # print(row[0] + ' ::  ' + row[1])
+                # log_file.write('%s ::  %s\n' % (row[0], row[1]))
+                print(row[1])
+                log_file.write('%s\n' % row[1])
                 i += 1
                 print("第%d条专利成功写入文档!" % i)
                 print('************************************************************************')

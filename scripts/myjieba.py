@@ -23,8 +23,8 @@ def jieba1():
 def jieba2():
     try:
         stopfile = open('../data/patent_abstract/stopwords_new.txt', 'r', encoding='utf-8')
-        f1 = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\_bxd_techField.txt', 'r', encoding='utf-8')
-        f2 = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\bxd_fc_rm_techField.txt', 'w', encoding='utf-8')
+        f1 = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\kTVq\_kTVq_abstract.txt', 'r', encoding='utf-8')
+        f2 = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\kTVq\kTVq_fc_rm_abstract.txt', 'w', encoding='utf-8')
         mystr = f1.readlines()
         stopwords = list()
         for line in stopfile.readlines():
@@ -35,7 +35,7 @@ def jieba2():
             words = [word for word in seg_list if word not in stopwords]
             result = ' '.join(words)
             f2.write(result)
-            print('处理完成%d行' % (iters))
+            print('处理完成%d行' % iters)
             iters += 1
 
     finally:
