@@ -28,7 +28,7 @@ if __name__ == '__main__':
     # with open('TextRank_test.txt', 'a') as file_log:
     #     file_log.write('%d\t%s\n' % (patent_id + 1, xml_name))
 
-    log_file = open(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\test\textRank_abstract.txt', 'w', encoding='utf-8')
+    log_file = open(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\test\kTVq_textRank_abstract.txt', 'w', encoding='utf-8')
     # sql = """ SELECT abstract FROM tb_patent;  """
     # try:
         # 执行sql语句
@@ -36,7 +36,7 @@ if __name__ == '__main__':
         # 提交到数据库执行
         # 获取所有记录列表
         # results = cursor.fetchall()
-    with open('D:\PycharmProjects\Dataset\keywordEX\patent\_bxd_label_abstract.txt', 'r', encoding='utf-8') as test_file:
+    with open('D:\PycharmProjects\Dataset\keywordEX\patent\kTVq\_kTVq_label_abstract.txt', 'r', encoding='utf-8') as test_file:
         num = 0
         for row in test_file.readlines():
             line_split = row.split(' ::  ')

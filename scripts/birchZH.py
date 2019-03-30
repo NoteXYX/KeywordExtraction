@@ -19,7 +19,7 @@ class patent_ZH:
         self.docvec = None
         self.ipc = ipc
 
-def get_Birch_clusters(vectors,labels):    # 根据DBSCAN聚类后的标签labels整理各类的向量，存放在字典clusters
+def get_Birch_clusters(vectors,labels):    # 根据Birch聚类后的标签labels整理各类的向量，存放在字典clusters
     clusters = dict()
     for i in range(len(labels)):
         if labels[i] not in clusters:
@@ -32,16 +32,6 @@ def get_Birch_clusters(vectors,labels):    # 根据DBSCAN聚类后的标签label
     return clusters
 
 def get_centers(clusters, dim=100):  # 获得各个类的中心点(噪音类除外)
-    # centers = np.zeros((len(clusters), dim))
-    # for label in clusters:
-    #     if label == -1:     #如果是噪音类
-    #         continue
-    #     else:
-    #         cur_vectors = clusters[label]
-    #         km_model = KMeans(n_clusters=1, max_iter=500, random_state=0).fit(cur_vectors)
-    #         cur_center = km_model.cluster_centers_
-    #         centers[label] = cur_center.reshape(1, dim)
-    # return centers
     centers = np.zeros((len(clusters), dim))
     for label in clusters:
         if label == -1:  # 如果是噪音类
@@ -182,13 +172,13 @@ def birch1(model_name):       # Doc2vec
     print("Calinski-Harabasz Score", metrics.calinski_harabaz_score(docvecs, cluster))
     return model
 
-def birch2(embedding_name, birch_test_name, cluster_result_name):       # sent2vec
+def birch2(embedding_name, birch_train_name, cluster_result_name):       # sent2vec
     embedding_file = open(embedding_name, 'r', encoding='utf-8', errors='surrogateescape')
     sent_num, sentvecs = read(embedding_file, dtype=float)
     patent_list = list()
     num = 0
     dim = 100
-    with open(birch_test_name, 'r', encoding='utf-8') as curf:
+    with open(birch_train_name, 'r', encoding='utf-8') as curf:
         for line in curf.readlines():
             line_split = line.split(' ::  ')
             if len(line_split) == 2:
@@ -217,7 +207,7 @@ def birch2(embedding_name, birch_test_name, cluster_result_name):       # sent2v
     centers = get_centers(label_vecs)
     return model, centers
 
-def birch3(embedding_name, test_name, cluster_result_name):       # 词向量加和平均
+def birch3(embedding_name, birch_train_name, cluster_result_name):       # 词向量加和平均
     embedding_file = open(embedding_name, 'r', encoding='utf-8', errors='surrogateescape')
     patent_list = list()
     dim = 100
@@ -225,7 +215,7 @@ def birch3(embedding_name, test_name, cluster_result_name):       # 词向量加
     words, wordvecs = read(embedding_file, dtype=float)
     word2ind = {word: i for i, word in enumerate(words)}
     test_vecs = np.zeros((1, dim))
-    with open(test_name, 'r', encoding='utf-8') as test_file:
+    with open(birch_train_name, 'r', encoding='utf-8') as test_file:
         num = 0
         for test_line in test_file.readlines():
             line_split = test_line.split(' ::  ')
@@ -315,24 +305,20 @@ def keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, cent
                 print('-----------------------------------------------------------------')
                 log_file.write('------------------------------------------------------------------\n')
                 num += 1
-                # if num >= 50:
-                #     break
     wordvec_file.close()
     log_file.close()
 
 
 if __name__ == '__main__':
-    sent2vec_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\sent2vec\kTVq_fc_rm_abstract_100.vec'
-    # embedding_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
+    sent2vec_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\sent2vec\bxd_fc_rm_techField_100.vec'
+    embedding_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
+    # embedding_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_techField_100.vec'
     wordvec_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
-    test_name = 'D:\PycharmProjects\Dataset\keywordEX\patent\kTVq\_kTVq_label_abstract.txt'
-    cluster_result_name = '../data/patent_abstract/Birch/kTVq_keyword_sent2vec_Test.txt'
-    log_file_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\test\kTVq_sent2vec_test.txt'
-    # birch_test_name = 'D:\PycharmProjects\Dataset\keywordEX\patent\_bxd_label_techField.txt'
+    test_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\kTVq\_kTVq_label_abstract.txt'
+    cluster_result_name = '../data/patent_abstract/Birch/kTVq_techField_wordAVG_keywordTest.txt'
+    log_file_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\test\kTVq_techField_wordAVG.txt'
+    birch_train_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\kTVq\_kTVq_label_techField.txt'
     # birch1()
-    birch_model, centers = birch2(sent2vec_name, test_name, cluster_result_name)
-    # birch_model = birch3(embedding_name, birch_test_name, cluster_result_name)
+    # birch_model, centers = birch2(sent2vec_name, birch_train_name, cluster_result_name)
+    birch_model, centers = birch3(embedding_name, birch_train_name, cluster_result_name)
     keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, centers)
-
-
-
