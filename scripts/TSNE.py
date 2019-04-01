@@ -9,13 +9,13 @@ from sklearn.cluster import KMeans
 from pylab import mpl
 
 
-def get_Birch_clusters(vectors,labels):    # 根据DBSCAN聚类后的标签labels整理各类的向量，存放在字典clusters
+def get_Birch_clusters(vectors,labels, dim=100):    # 根据DBSCAN聚类后的标签labels整理各类的向量，存放在字典clusters
     clusters = dict()
     for i in range(len(labels)):
         if labels[i] not in clusters:
-            clusters[labels[i]] = vectors[i]
+            clusters[labels[i]] = vectors[i].reshape(1, dim)
         elif labels[i] in clusters:
-            cur_vec = vectors[i]
+            cur_vec = vectors[i].reshape(1, dim)
             cur_cluster = clusters[labels[i]]
             clusters[labels[i]] = np.row_stack((cur_cluster, cur_vec))
     clusters = dict(sorted(clusters.items(), key=operator.itemgetter(0)))
@@ -28,12 +28,6 @@ def get_centers(clusters, dim=100):  # 获得各个类的中心点(噪音类除�
             continue
         else:
             cur_vectors = clusters[label]
-            # km_model = KMeans(n_clusters=1, max_iter=500, random_state=0).fit(cur_vectors)
-            # km_labels = km_model.labels_
-            # km_score = metrics.calinski_harabaz_score(cur_vectors, km_labels)
-            # print('类标签为%d的K-means聚类得分：%f' % (label, km_score))
-            # cur_center = km_model.cluster_centers_
-            # print('类标签为%d的K-means聚类中心：' %label + str(cur_center))
             cur_center = np.mean(cur_vectors, axis=0).reshape(1, dim)
             centers[label] = cur_center
     return centers
@@ -61,8 +55,7 @@ def techField_wordAVG_display():
     mpl.rcParams['font.sans-serif'] = ['FangSong']  # 指定默认字体
     mpl.rcParams['axes.unicode_minus'] = False  # 解决保存图像是负号'-'显示为方块的问题
     tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000, method='exact')
-    embedding_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_techField_100.vec', 'r',
-                          encoding='utf-8', errors='surrogateescape')
+    embedding_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec', 'r',encoding='utf-8', errors='surrogateescape')
     stop_file = open('../data/patent_abstract/stopwords_new.txt', 'r', encoding='utf-8')
     stopwords = list()
     dim = 100
@@ -72,7 +65,7 @@ def techField_wordAVG_display():
     word2ind = {word: i for i, word in enumerate(words)}
     tsne_vecs = np.zeros((1, dim))
     ipc_list = list()
-    with open('D:\PycharmProjects\Dataset\keywordEX\patent\_bxd_label_techField.txt', 'r',
+    with open(r'D:\PycharmProjects\Dataset\keywordEX\patent\bxd\_bxd_label_techField.txt', 'r',
               encoding='utf-8') as test_file:
         num = 0
         for test_line in test_file.readlines():
@@ -97,7 +90,7 @@ def techField_wordAVG_display():
             num += 1
         tsne_vecs = np.delete(tsne_vecs, 0, 0)
     print(tsne_vecs.shape)
-    birch_model = Birch(threshold=0.7, branching_factor=50).fit(tsne_vecs)
+    birch_model = Birch(threshold=1.009, branching_factor=50, n_clusters=None).fit(tsne_vecs)
     # cluster = Birch(threshold=0.7, branching_factor=50).fit_predict(tsne_vecs)
     # cluster = np.zeros((2339,dim))
     cluster = list(birch_model.labels_)
@@ -114,7 +107,7 @@ def techField_wordAVG_display():
         cluster.append(-2)
     print(len(cluster))
     # plot_with_labels(low_dim_embs, cluster, ipc_list, '../data/TSNE_cluster_NEW.png', low_dim_centers)
-    plot_with_labels(low_dim_embs, cluster, ipc_list, '../data/TSNE_cluster_NEW.png')
+    plot_with_labels(low_dim_embs, cluster, ipc_list, '../data/TSNE_cluster_NEW123.png')
 
 if __name__ == '__main__':
     techField_wordAVG_display()

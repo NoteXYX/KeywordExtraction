@@ -19,13 +19,13 @@ class patent_ZH:
         self.docvec = None
         self.ipc = ipc
 
-def get_Birch_clusters(vectors,labels):    # 根据Birch聚类后的标签labels整理各类的向量，存放在字典clusters
+def get_Birch_clusters(vectors,labels, dim=100):    # 根据Birch聚类后的标签labels整理各类的向量，存放在字典clusters
     clusters = dict()
     for i in range(len(labels)):
         if labels[i] not in clusters:
-            clusters[labels[i]] = vectors[i]
+            clusters[labels[i]] = vectors[i].reshape(1, dim)
         elif labels[i] in clusters:
-            cur_vec = vectors[i]
+            cur_vec = vectors[i].reshape(1, dim)
             cur_cluster = clusters[labels[i]]
             clusters[labels[i]] = np.row_stack((cur_cluster, cur_vec))
     clusters = dict(sorted(clusters.items(), key=operator.itemgetter(0)))
@@ -39,6 +39,8 @@ def get_centers(clusters, dim=100):  # 获得各个类的中心点(噪音类除�
         else:
             cur_vectors = clusters[label]
             cur_center = np.mean(cur_vectors, axis=0).reshape(1, dim)
+            # print(cur_vectors.shape)
+            # print(np.mean(cur_vectors, axis=0).shape)
             centers[label] = cur_center
     return centers
 
@@ -241,7 +243,7 @@ def birch3(embedding_name, birch_train_name, cluster_result_name):       # 词�
             num += 1
         test_vecs = np.delete(test_vecs, 0 , 0)
     print(test_vecs.shape)
-    model = Birch(threshold=0.7, branching_factor=50).fit(test_vecs)
+    model = Birch(threshold=1.035, branching_factor=50, n_clusters=None).fit(test_vecs)
     cluster = model.labels_
     patent_list = get_label(patent_list, cluster)
     my_ipc = get_patent_ipc(patent_list)
@@ -315,10 +317,10 @@ if __name__ == '__main__':
     # embedding_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_techField_100.vec'
     wordvec_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
     test_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\kTVq\_kTVq_label_abstract.txt'
-    cluster_result_name = '../data/patent_abstract/Birch/kTVq_techField_wordAVG_keywordTest.txt'
+    cluster_result_name = '../data/patent_abstract/Birch/bxd_techField_word2vecAVG_Test_1.04_50.txt'
     log_file_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\test\kTVq_techField_wordAVG.txt'
-    birch_train_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\kTVq\_kTVq_label_techField.txt'
+    birch_train_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\bxd\_bxd_label_techField.txt'
     # birch1()
     # birch_model, centers = birch2(sent2vec_name, birch_train_name, cluster_result_name)
     birch_model, centers = birch3(embedding_name, birch_train_name, cluster_result_name)
-    keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, centers)
+    # keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, centers)
