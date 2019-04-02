@@ -32,23 +32,18 @@ def get_centers(clusters, dim=100):  # 获得各个类的中心点(噪音类除�
             centers[label] = cur_center
     return centers
 
-def plot_with_labels(low_dim_embs, color_labels, ipc_labels, filename, low_dim_centers=None):
-# def plot_with_labels(color_labels, ipc_labels, filename, low_dim_centers):
+def plot_with_labels(low_dim_embs, color_labels, ipc_labels, filename):
     assert low_dim_embs.shape[0] >= len(color_labels), 'More labels than embeddings'
     # assert len(color_labels) == len(ipc_labels)
     plt.figure(figsize=(19, 19))  # in inches
     color_list = ['b', 'g', 'y']
     for i, label in enumerate(color_labels):
         x, y = low_dim_embs[i, :]
-        if i in range(2336, 2339):
+        if i in range(2687, 2690):
             plt.scatter(x, y, s=100, c='r')
         else:
             plt.scatter(x, y, c=color_list[label])
             plt.annotate(ipc_labels[i], xy=(x, y), xytext=(5, 2), textcoords='offset points',ha='right', va='bottom')
-    # print(low_dim_centers.shape)
-    # for i in range(low_dim_centers.shape[0]):
-    #     x, y = low_dim_centers[i, :]
-    #     plt.scatter(x, y, c='k')
     plt.savefig(filename)
 
 def techField_wordAVG_display():
@@ -65,8 +60,7 @@ def techField_wordAVG_display():
     word2ind = {word: i for i, word in enumerate(words)}
     tsne_vecs = np.zeros((1, dim))
     ipc_list = list()
-    with open(r'D:\PycharmProjects\Dataset\keywordEX\patent\bxd\_bxd_label_techField.txt', 'r',
-              encoding='utf-8') as test_file:
+    with open(r'D:\PycharmProjects\Dataset\keywordEX\patent\kTVq\_kTVq_label_techField.txt', 'r', encoding='utf-8') as test_file:
         num = 0
         for test_line in test_file.readlines():
             line_split = test_line.split(' ::  ')
@@ -107,7 +101,7 @@ def techField_wordAVG_display():
         cluster.append(-2)
     print(len(cluster))
     # plot_with_labels(low_dim_embs, cluster, ipc_list, '../data/TSNE_cluster_NEW.png', low_dim_centers)
-    plot_with_labels(low_dim_embs, cluster, ipc_list, '../data/TSNE_cluster_NEW123.png')
+    plot_with_labels(low_dim_embs, cluster, ipc_list, '../data/kTVq_TSNE_cluster.png')
 
 if __name__ == '__main__':
     techField_wordAVG_display()

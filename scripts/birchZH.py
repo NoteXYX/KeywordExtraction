@@ -243,7 +243,7 @@ def birch3(embedding_name, birch_train_name, cluster_result_name):       # è¯å
             num += 1
         test_vecs = np.delete(test_vecs, 0 , 0)
     print(test_vecs.shape)
-    model = Birch(threshold=1.035, branching_factor=50, n_clusters=None).fit(test_vecs)
+    model = Birch(threshold=1.04, branching_factor=50, n_clusters=None).fit(test_vecs)
     cluster = model.labels_
     patent_list = get_label(patent_list, cluster)
     my_ipc = get_patent_ipc(patent_list)
