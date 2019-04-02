@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import jieba
 from embeddings import read
 from sklearn.cluster import Birch
-from sklearn.cluster import KMeans
 from pylab import mpl
 
 
@@ -85,22 +84,15 @@ def techField_wordAVG_display():
         tsne_vecs = np.delete(tsne_vecs, 0, 0)
     print(tsne_vecs.shape)
     birch_model = Birch(threshold=1.009, branching_factor=50, n_clusters=None).fit(tsne_vecs)
-    # cluster = Birch(threshold=0.7, branching_factor=50).fit_predict(tsne_vecs)
-    # cluster = np.zeros((2339,dim))
     cluster = list(birch_model.labels_)
     label_vecs = get_Birch_clusters(tsne_vecs, cluster)
     centers = get_centers(label_vecs)
-    # low_dim_centers = tsne.fit_transform(centers)
-    # centers = birch_model.subcluster_centers_
-    # print(len(np.unique(cluster)))
-    # print(centers.shape)
     tsne_vecs = np.row_stack((tsne_vecs, centers))
     print(tsne_vecs.shape)
     low_dim_embs = tsne.fit_transform(tsne_vecs)
     for i in range(3):
         cluster.append(-2)
     print(len(cluster))
-    # plot_with_labels(low_dim_embs, cluster, ipc_list, '../data/TSNE_cluster_NEW.png', low_dim_centers)
     plot_with_labels(low_dim_embs, cluster, ipc_list, '../data/kTVq_TSNE_cluster.png')
 
 if __name__ == '__main__':
