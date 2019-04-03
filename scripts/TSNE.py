@@ -38,7 +38,7 @@ def plot_with_labels(low_dim_embs, color_labels, ipc_labels, filename):
     color_list = ['b', 'g', 'y']
     for i, label in enumerate(color_labels):
         x, y = low_dim_embs[i, :]
-        if i in range(2687, 2690):
+        if i in range(2336, 2339):
             plt.scatter(x, y, s=100, c='r')
         else:
             plt.scatter(x, y, c=color_list[label])
@@ -59,7 +59,7 @@ def techField_wordAVG_display():
     word2ind = {word: i for i, word in enumerate(words)}
     tsne_vecs = np.zeros((1, dim))
     ipc_list = list()
-    with open(r'D:\PycharmProjects\Dataset\keywordEX\patent\kTVq\_kTVq_label_techField.txt', 'r', encoding='utf-8') as test_file:
+    with open(r'D:\PycharmProjects\Dataset\keywordEX\patent\bxd\_bxd_label_techField.txt', 'r', encoding='utf-8') as test_file:
         num = 0
         for test_line in test_file.readlines():
             line_split = test_line.split(' ::  ')
@@ -83,7 +83,7 @@ def techField_wordAVG_display():
             num += 1
         tsne_vecs = np.delete(tsne_vecs, 0, 0)
     print(tsne_vecs.shape)
-    birch_model = Birch(threshold=1.009, branching_factor=50, n_clusters=None).fit(tsne_vecs)
+    birch_model = Birch(threshold=1.04, branching_factor=50, n_clusters=None).fit(tsne_vecs)
     cluster = list(birch_model.labels_)
     label_vecs = get_Birch_clusters(tsne_vecs, cluster)
     centers = get_centers(label_vecs)
@@ -93,7 +93,7 @@ def techField_wordAVG_display():
     for i in range(3):
         cluster.append(-2)
     print(len(cluster))
-    plot_with_labels(low_dim_embs, cluster, ipc_list, '../data/kTVq_TSNE_cluster.png')
+    plot_with_labels(low_dim_embs, cluster, ipc_list, '../data/bxd_TSNE_cluster_NEW.png')
 
 if __name__ == '__main__':
     techField_wordAVG_display()
