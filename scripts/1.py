@@ -18,6 +18,7 @@ from sklearn.cluster import AgglomerativeClustering
 from scipy.spatial import distance
 from sklearn.datasets.samples_generator import make_blobs
 from extractTrain import myfile
+import csv
 
 
 # import pymysql
@@ -67,7 +68,11 @@ from extractTrain import myfile
 #     # 关闭数据库连接
 #     db.close()
     # log_file.close()
-
+train_f = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\ydy\_0kt1tv_abstract.csv', 'r', encoding='utf-8-sig')
+myreader = csv.DictReader(train_f)
+rows = [row for row in myreader]
+print(rows[0]['label'])
+train_f.close()
 # class file_EN:
 #     def __init__(self, name):
 #         self.name = ""
@@ -209,17 +214,17 @@ from extractTrain import myfile
 
 # 4.BIRCH
 # X为样本特征，Y为样本簇类别， 共1000个样本，每个样本2个特征，共4个簇，簇中心在[-1,-1], [0,0],[1,1], [2,2]
-X, y = make_blobs(n_samples=1000, n_features=2, centers=[[-1,-1], [0,0], [1,1], [2,2]], cluster_std=[0.4, 0.3, 0.4, 0.3],
-                  random_state =9)
-from sklearn.cluster import Birch
-model = Birch(n_clusters = None, threshold = 0.5, branching_factor = 60).fit(X)
-y_pred = model.labels_
-centers = model.subcluster_centers_
-plt.scatter(X[:, 0], X[:, 1], c=y_pred)
-for i in range(len(centers)):
-    plt.scatter(centers[i, 0], centers[i, 1], s=80, c='k')
-plt.show()
-from sklearn import metrics
+# X, y = make_blobs(n_samples=1000, n_features=2, centers=[[-1,-1], [0,0], [1,1], [2,2]], cluster_std=[0.4, 0.3, 0.4, 0.3],
+#                   random_state =9)
+# from sklearn.cluster import Birch
+# model = Birch(n_clusters = None, threshold = 0.5, branching_factor = 60).fit(X)
+# y_pred = model.labels_
+# centers = model.subcluster_centers_
+# plt.scatter(X[:, 0], X[:, 1], c=y_pred)
+# for i in range(len(centers)):
+#     plt.scatter(centers[i, 0], centers[i, 1], s=80, c='k')
+# plt.show()
+# from sklearn import metrics
 # print ("Calinski-Harabasz Score", metrics.calinski_harabaz_score(X, y_pred))
 
 # # 验证
