@@ -245,7 +245,7 @@ def birch3(embedding_name, birch_train_name, cluster_result_name):       # è¯å
             num += 1
         test_vecs = np.delete(test_vecs, 0 , 0)
     print(test_vecs.shape)
-    model = Birch(threshold=1.04, branching_factor=50, n_clusters=None).fit(test_vecs)
+    model = Birch(threshold=1.009, branching_factor=50, n_clusters=None).fit(test_vecs)
     cluster = model.labels_
     patent_list = get_label(patent_list, cluster)
     my_ipc = get_patent_ipc(patent_list)
@@ -284,7 +284,7 @@ def keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, cent
                 line_words = list()
                 line_vecs = list()
                 for word in test_line_words:
-                    if word not in stopwords and word not in keywordstop and word in word2ind:
+                    if word not in stopwords and word not in keywordstop and word in word2ind and len(word)>1:
                         line_words.append(word)
                         cur_wordvec = wordvecs[word2ind[word]].reshape(1, dim)
                         line_vecs.append(cur_wordvec)
@@ -293,11 +293,9 @@ def keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, cent
                 most_label = get_most_label(line_vecs, birch_model)
                 center = centers[most_label]
                 sorted_index_distance = distance_sort(ind2vec, center, 'cos')
-                print('textrank-----------ours-----------------')
-                log_file.write('textrank----ours-----------------\n')
-                tr4w = TextRank4Keyword(stop_words_file = '../data/patent_abstract/TextRankstop.txt')
-                tr4w.analyze(text=content, lower=True, window=3, vertex_source = 'words_no_stop_words', pagerank_config={'alpha': 0.85})
                 keyword_num = 0
+                # print('-------------keywords-----------------')
+                # log_file.write('-------------keywords-----------------\n')
                 # for our_item in list(sorted_index_distance.items()):
                 #     cur_word = words[our_item[0]]
                 #     cur_dis = our_item[1]
@@ -306,13 +304,15 @@ def keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, cent
                 #     keyword_num += 1
                 #     if keyword_num >= topn:
                 #         break
+                tr4w = TextRank4Keyword(stop_words_file = '../data/patent_abstract/TextRankstop.txt')
+                tr4w.analyze(text=content, lower=True, window=3, vertex_source = 'words_no_stop_words', pagerank_config={'alpha': 0.85})
+                print('textrank-----------ours-----------------')
+                log_file.write('textrank----ours-----------------\n')
                 for textrank_item, our_item in zip(tr4w.get_keywords(20, word_min_len=2), list(sorted_index_distance.items())):
                     cur_word = words[our_item[0]]
                     cur_dis = our_item[1]
                     log_file.write('%s\t\t\t' % textrank_item.word)
                     log_file.write('%s\n' % cur_word)
-                    # log_file.write('%s\t\t%f\n' % (cur_word, cur_dis))
-                    # print(cur_word + '\t' + str(cur_dis))
                     print(textrank_item.word + '%f' % textrank_item.weight + '\t\t' + cur_word + '%f' % cur_dis)
                     keyword_num += 1
                     if keyword_num >= topn:
@@ -327,10 +327,10 @@ def keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, cent
 if __name__ == '__main__':
     # sent2vec_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\sent2vec\bxd_fc_rm_techField_100.vec'
     embedding_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
-    birch_train_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\bxd\_bxd_label_techField.txt'
-    cluster_result_name = '../data/patent_abstract/Birch/bxd_techField_wordAVG_keywordTest_1.04_50.txt'
-    log_file_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\test\bxd_textRankVSours_techField_wordAVG_1.04_50.txt'
-    test_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\bxd\_bxd_label_abstract.txt'
+    birch_train_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\kTVq\_kTVq_label_techField.txt'
+    cluster_result_name = '../data/patent_abstract/Birch/kTVq_techField_wordAVG_keywordTest_1.009_50.txt'
+    log_file_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\test\kTVq_textRankVSours_techField_wordAVG_1.009_50.txt'
+    test_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\kTVq\_kTVq_label_abstract.txt'
     wordvec_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
     # birch1()
     # birch_model, centers = birch2(sent2vec_name, birch_train_name, cluster_result_name)

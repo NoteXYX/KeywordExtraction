@@ -28,7 +28,7 @@ if __name__ == '__main__':
     # with open('TextRank_test.txt', 'a') as file_log:
     #     file_log.write('%d\t%s\n' % (patent_id + 1, xml_name))
 
-    log_file = open(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\test\kTVq_textRank_abstract.txt', 'w', encoding='utf-8')
+    log_file = open(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\test\bxd_textRank_abstract.txt', 'w', encoding='utf-8')
     # sql = """ SELECT abstract FROM tb_patent;  """
     # try:
         # 执行sql语句
@@ -36,7 +36,7 @@ if __name__ == '__main__':
         # 提交到数据库执行
         # 获取所有记录列表
         # results = cursor.fetchall()
-    with open('D:\PycharmProjects\Dataset\keywordEX\patent\kTVq\_kTVq_label_abstract.txt', 'r', encoding='utf-8') as test_file:
+    with open(r'D:\PycharmProjects\Dataset\keywordEX\patent\bxd\_bxd_label_abstract.txt', 'r', encoding='utf-8') as test_file:
         num = 0
         for row in test_file.readlines():
             line_split = row.split(' ::  ')
@@ -47,8 +47,8 @@ if __name__ == '__main__':
                 log_file.write('第%d条专利摘要：\t\t%s\n' % (num + 1, line_split[0]))
                 log_file.write('%s\n' % content)
                 log_file.write('-------keyword-------\n')
-                tr4w = TextRank4Keyword()
-                tr4w.analyze(text=content, lower=True, window=3, pagerank_config={'alpha': 0.85})
+                tr4w = TextRank4Keyword(stop_words_file='D:\PycharmProjects\KeywordExtraction\data\patent_abstract\TextRankstop.txt')
+                tr4w.analyze(text=content, lower=True, window=3, vertex_source = 'words_no_stop_words', pagerank_config={'alpha': 0.85})
                 for item in tr4w.get_keywords(20, word_min_len=2):
                     log_file.write('%s\t\t%f\n' % (item.word, item.weight))
                 num += 1
