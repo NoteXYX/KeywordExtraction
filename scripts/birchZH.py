@@ -3,7 +3,6 @@ import jieba
 import numpy as np
 from gensim.models import KeyedVectors
 from gensim.models.doc2vec import Doc2Vec
-from sklearn.cluster import KMeans
 from sklearn.datasets.samples_generator import make_blobs
 import operator
 from embeddings import read

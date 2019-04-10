@@ -10,13 +10,14 @@ if __name__ == '__main__':
     db = pymysql.connect("localhost", "root", "", "patent_system")
     # 使用 cursor() 方法创建一个游标对象 cursor
     cursor = db.cursor()
-    log_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\ydy\_0bx1dh_abstract.csv', 'w', newline='', encoding='utf-8-sig')
-    f_csv = csv.writer(log_file)
-    headers = ['label', 'abstract']
+    # log_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\ydy\_0bx1dh_abstract.csv', 'w', newline='', encoding='utf-8-sig')
+    log_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\xiyiji.txt', 'w', encoding='utf-8')
+    # f_csv = csv.writer(log_file)
+    # headers = ['label', 'abstract']
     # headers = ['label', 'tech_field']
-    f_csv.writerow(headers)
+    # f_csv.writerow(headers)
     # sql = """ SELECT label, tech_field FROM tb_patentall_label where (label LIKE '%F24F%') OR (label LIKE '%H04N%') OR (label LIKE '%B08B%'); """
-    sql = """ SELECT label, abstract FROM tb_patentall_label where (label LIKE '%F25D%') OR (label LIKE '%H04M%'); """
+    sql = """ SELECT label, abstract FROM tb_patentall_label where label LIKE '%D06F%'; """
     num0 = 0
     num1 = 0
     num2 = 0
@@ -26,7 +27,7 @@ if __name__ == '__main__':
         # 提交到数据库执行
         # 获取所有记录列表
         results = cursor.fetchall()
-        i = 0
+        i = 1
         # for row in results:
         #     if re.search('F24F', row[0]) and num0 < 1000:
         #         num0 += 1
@@ -59,29 +60,30 @@ if __name__ == '__main__':
         #         print("第%d条专利成功写入文档!" % i)
         #         print('************************************************************************')
         for row in results:      #YDY
-            if num0 == 500:
+            if num0 == 100:
                 break
             else:
                 print(row[0] + ' ::  ' + row[1])
-                if re.search('F25D', row[0]):
-                    cur_label = 0
-                    # log_file.write('%s ::  %s\n' % (cur_label, row[1]))
-                    f_csv.writerow([cur_label, row[1]])
+                if re.search('D06F', row[0]):
+                    # cur_label = 0
+                    log_file.write('%d ::  %s\n' % (i, row[1]))
+                    log_file.write('keywords:\n')
+                    # f_csv.writerow([cur_label, row[1]])
                     num0 +=1
                     i += 1
                 print("第%d条专利成功写入文档!" % i)
                 print('************************************************************************')
-        for row in results:
-            if num1 == 500:
-                break
-            else:
-                print(row[0] + ' ::  ' + row[1])
-                if re.search('H04M', row[0]):
-                    cur_label = 1
-                    # log_file.write('%s ::  %s\n' % (cur_label, row[1]))
-                    f_csv.writerow([cur_label, row[1]])
-                    num1 += 1
-                    i += 1
+        # for row in results:
+        #     if num1 == 500:
+        #         break
+        #     else:
+        #         print(row[0] + ' ::  ' + row[1])
+        #         if re.search('H04M', row[0]):
+        #             cur_label = 1
+        #             # log_file.write('%s ::  %s\n' % (cur_label, row[1]))
+        #             f_csv.writerow([cur_label, row[1]])
+        #             num1 += 1
+        #             i += 1
         db.commit()
     except IndexError as e:
         # 如果发生错误则回滚
