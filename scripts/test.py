@@ -128,7 +128,7 @@ def birch3(embedding_name, birch_train_name, cluster_result_name):       # ËØçÂê
 if __name__ == '__main__':
     # embedding_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
     # birch_train_name = 'D:\PycharmProjects\Dataset\keywordEX\patent\ydy\_0bx1dh_abstract.csv'
-    cluster_result_name = 'result.txt'
+    cluster_result_name = 'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\Birch\kTVq_techField_wordAVG_keywordTest_1.009_50.txt'
     # birch3(embedding_name, birch_train_name, cluster_result_name)
     my_ipc = dict()
     ipc_num = 0
