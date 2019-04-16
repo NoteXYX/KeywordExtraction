@@ -163,12 +163,3 @@ if __name__ == '__main__':
             if label_ipc != truth[label]:
                 error += 1
     print('聚类准确率为：%f%%' % (100-error/ipc_num*100))
-
-    # with open('D:\PycharmProjects\Dataset\keywordEX\patent\ydy\_0bx1dh_abstract.csv', 'r', encoding='utf-8') as csvFile:
-    #     csv_reader = csv.reader(csvFile)
-    #     num = 0
-    #     birth_header = next(csv_reader)
-    #     for row in csv_reader:
-    #         print(row[0])
-    #         print(row[1])
-
