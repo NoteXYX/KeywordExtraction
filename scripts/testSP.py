@@ -140,7 +140,7 @@ def birch3(embedding_name, birch_train_name, cluster_result_name):       # 词�
 if __name__ == '__main__':
     embedding_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'  #词向量文件
     birch_train_name = 'D:\PycharmProjects\Dataset\keywordEX\patent\ydy\_0bx1dh_abstract.csv'   #有标签数据
-    cluster_result_name = 'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\Birch\kTVq_techField_wordAVG_keywordTest_1.009_50.txt' #写入聚类结果的文件
+    cluster_result_name = 're.txt' #写入聚类结果的文件
     birch3(embedding_name, birch_train_name, cluster_result_name)
     my_ipc = dict()
     ipc_num = 0
