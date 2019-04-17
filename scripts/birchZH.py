@@ -122,16 +122,24 @@ def write_cluster_result(fname, class_num, my_ipc):
             for ipc in my_ipc[label]:
                 result_f.write(str(label) + ':  ' + ipc + '\n')
 
-def get_most_label(line_vecs, birch_model):
-    label_num = dict()
+# def get_most_label(line_vecs, birch_model):
+#     label_num = dict()
+#     for vec in line_vecs:
+#         cur_label = birch_model.predict(vec)
+#         if cur_label[0] not in label_num:
+#             label_num[cur_label[0]] = 1
+#         else:
+#             label_num[cur_label[0]] += 1
+#     label_num = dict(sorted(label_num.items(), key=operator.itemgetter(1), reverse=True))
+#     most_label = list(label_num.items())[0][0]
+#     return most_label
+def get_most_label(line_vecs, birch_model, dim=100):
+    line_matrix = np.zeros((1, dim))
     for vec in line_vecs:
-        cur_label = birch_model.predict(vec)
-        if cur_label[0] not in label_num:
-            label_num[cur_label[0]] = 1
-        else:
-            label_num[cur_label[0]] += 1
-    label_num = dict(sorted(label_num.items(), key=operator.itemgetter(1), reverse=True))
-    most_label = list(label_num.items())[0][0]
+        line_matrix = np.row_stack((line_matrix, vec))
+    line_matrix = np.delete(line_matrix, 0, 0)
+    line_AVG = np.mean(line_matrix, axis=0).reshape(1, dim)
+    most_label = birch_model.predict(line_AVG)
     return most_label
 
 def birch1(model_name):       # Doc2vec
@@ -324,14 +332,11 @@ def keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, cent
 
 
 if __name__ == '__main__':
-    # sent2vec_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\sent2vec\bxd_fc_rm_techField_100.vec'
     embedding_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
-    birch_train_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\kTVq\_kTVq_label_techField.txt'
-    cluster_result_name = '../data/patent_abstract/Birch/kTVq_techField_wordAVG_keywordTest_1.009_50.txt'
-    log_file_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\test\kTVq_textRankVSours_techField_wordAVG_1.009_50.txt'
-    test_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\kTVq\_kTVq_label_abstract.txt'
+    birch_train_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\bxd\_bxd_label_techField.txt'
+    cluster_result_name = '../data/patent_abstract/Birch/bxd_techField_wordAVG_keywordTest_1.04_50.txt'
+    log_file_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\test\bxd_textRankVSours_techField_wordAVG_1.04_50.txt'
+    test_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\bxd\_bxd_label_abstract.txt'
     wordvec_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
-    # birch1()
-    # birch_model, centers = birch2(sent2vec_name, birch_train_name, cluster_result_name)
     birch_model, centers = birch3(embedding_name, birch_train_name, cluster_result_name)
     keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, centers)
