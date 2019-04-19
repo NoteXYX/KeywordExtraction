@@ -68,11 +68,14 @@ import csv
 #     # 关闭数据库连接
 #     db.close()
     # log_file.close()
-train_f = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\ydy\_0kt1tv_abstract.csv', 'r', encoding='utf-8-sig')
-myreader = csv.DictReader(train_f)
-rows = [row for row in myreader]
-print(rows[0]['label'])
-train_f.close()
+a = np.load(r'D:\PycharmProjects\Dataset\vocabEN-ES.npy')
+print(a)
+print(a.shape)
+# train_f = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\ydy\_0kt1tv_abstract.csv', 'r', encoding='utf-8-sig')
+# myreader = csv.DictReader(train_f)
+# rows = [row for row in myreader]
+# print(rows[0]['label'])
+# train_f.close()
 # class file_EN:
 #     def __init__(self, name):
 #         self.name = ""
