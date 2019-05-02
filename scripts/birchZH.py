@@ -244,11 +244,14 @@ def birch3(embedding_name, birch_train_name, cluster_result_name):       # 词�
                             line_wordvecs[0] = cur_wordvec
                         else:
                             line_wordvecs = np.row_stack((line_wordvecs, cur_wordvec))
-                cur_linevec = np.mean(line_wordvecs, axis=0).reshape(1, dim)
-                cur_patent.docvec = cur_linevec
-                patent_list.append(cur_patent)
-                test_vecs = np.row_stack((test_vecs, cur_linevec))
-                print('处理第%d条专利......' % (num+1))
+                if line_wordvecs.all() == 0:
+                    continue
+                else:
+                    cur_linevec = np.mean(line_wordvecs, axis=0).reshape(1, dim)
+                    cur_patent.docvec = cur_linevec
+                    patent_list.append(cur_patent)
+                    test_vecs = np.row_stack((test_vecs, cur_linevec))
+                    print('处理第%d条专利......' % (num+1))
             num += 1
         test_vecs = np.delete(test_vecs, 0 , 0)
     print(test_vecs.shape)
