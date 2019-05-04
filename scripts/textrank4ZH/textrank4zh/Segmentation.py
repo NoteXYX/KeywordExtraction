@@ -37,7 +37,7 @@ class WordSegmentation(object):
         for word in codecs.open(self.stop_words_file, 'r', 'utf-8', 'ignore'):
             self.stop_words.add(word.strip())
     
-    def segment(self, text, lower = True, use_stop_words = True, use_speech_tags_filter = False):
+    def segment(self, text, lower = False, use_stop_words = True, use_speech_tags_filter = False):
         """对一段文本进行分词，返回list类型的分词结果
 
         Keyword arguments:

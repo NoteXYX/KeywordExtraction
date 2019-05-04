@@ -12,13 +12,13 @@ if __name__ == '__main__':
     # 使用 cursor() 方法创建一个游标对象 cursor
     cursor = db.cursor()
     # log_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\ydy\_0bx1dh_abstract.csv', 'w', newline='', encoding='utf-8-sig')
-    log_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\clean.txt', 'w', encoding='utf-8')
+    log_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\_xiyiji_abstract.txt', 'w', encoding='utf-8')
     # f_csv = csv.writer(log_file)
     # headers = ['label', 'abstract']
     # headers = ['label', 'tech_field']
     # f_csv.writerow(headers)
     # sql = """ SELECT label, tech_field FROM tb_patentall_label where (label LIKE '%F24F%') OR (label LIKE '%H04N%') OR (label LIKE '%B08B%'); """
-    sql = """ SELECT label, abstract FROM tb_patentall_label where label LIKE '%B08B%'; """
+    sql = """ SELECT label,abstract FROM tb_patentall_label where label LIKE '%D06F%'; """
     num0 = 0
     num1 = 0
     num2 = 0
@@ -61,16 +61,17 @@ if __name__ == '__main__':
         #         print("第%d条专利成功写入文档!" % i)
         #         print('************************************************************************')
         for row in results:      #YDY
-            if num0 == 100:
+            if num0 == 1000:
                 break
             else:
-                if re.search('B08B', row[0]):
+                if re.search('D06F', row[0]):
                     # cur_label = 0
                     print(row[0] + ' ::  ' + row[1])
-                    word_list = jieba.cut(row[1])
-                    cur_abstract = ' / '.join(word_list)
-                    log_file.write('%d ::  %s\n' % (i+1, cur_abstract))
-                    log_file.write('keywords:\n\n')
+                    # word_list = jieba.cut(row[1])
+                    # cur_abstract = ' / '.join(word_list)
+                    # log_file.write('%d ::  %s\n' % (i+1, cur_abstract))
+                    log_file.write('%d ::  %s\n' % (i+1, row[1]))
+                    # log_file.write('keywords:\n\n')
                     # f_csv.writerow([cur_label, row[1]])
                     num0 +=1
                     i += 1
