@@ -65,7 +65,7 @@ class WordSegmentation(object):
 
         return word_list
         
-    def segment_sentences(self, sentences, lower=True, use_stop_words=True, use_speech_tags_filter=False):
+    def segment_sentences(self, sentences, lower=False, use_stop_words=True, use_speech_tags_filter=False):
         """将列表sequences中的每个元素/句子转换为由单词构成的列表。
         
         sequences -- 列表，每个元素是一个句子（字符串类型）
