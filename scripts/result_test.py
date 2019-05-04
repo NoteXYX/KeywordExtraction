@@ -62,7 +62,7 @@ def get_truth_result(truth_name, get_num=100):       #获得人工标注的关�
 def main():
     truth_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\6种专利摘要各100条已标注\电视余道远.txt'
     test_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\6种专利摘要各100条已标注\TV_textRankVSours_techField_wordAVG_1.009_50.txt'
-    top_k = 20
+    top_k = 10
     textRank_dict,  our_dict = get_test_result(test_name)
     truth_dict = get_truth_result(truth_name)
     textRank_true_num = 0.0
