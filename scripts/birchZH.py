@@ -109,6 +109,7 @@ def get_stopwords(fname):
     stopwords = list()
     for line in stop_file.readlines():
         stopwords.append(line.strip())
+    stop_file.close()
     return stopwords
 
 def write_cluster_result(fname, class_num, my_ipc):
@@ -142,88 +143,16 @@ def get_most_label(line_vecs, birch_model, dim=100):    #词向量加和
     most_label = birch_model.predict(line_AVG)
     return most_label
 
-def frequency_test(test_name):
-    test_file = open(test_name, 'r', encoding='utf-8')
-    test_lines = test_file.readlines()
-    for line in test_lines:
+def frequency_test(line_words, topn=20):      #frequency算法，返回一个list——按频率排序的关键字
+    frequency_dict = dict()
+    for word in line_words:
+        if word not in frequency_dict:
+            frequency_dict[word] = 1
+        else:
+            frequency_dict[word] += 1
+    frequency_sorted  = dict(sorted(frequency_dict.items(), key=operator.itemgetter(1), reverse=True))
+    return dict(list(frequency_sorted.items())[0 : min(topn, len(frequency_sorted)) : 1])
 
-    test_file.close()
-
-# def birch1(model_name):       # Doc2vec
-#     dim = 100
-#     model = Doc2Vec.load(model_name)
-#     patent_list = list()
-#     docvecs = np.zeros((1, dim))
-#     num = 0
-#     stopwords = get_stopwords('../data/patent_abstract/stopwords_new.txt')
-#     with open('D:\PycharmProjects\Dataset\keywordEX\patent\_bxk_label_abstract.txt', 'r', encoding='utf-8') as curf:
-#         for line in curf.readlines():
-#             line_split = line.split(' ::  ')
-#             if len(line_split) == 2:
-#                 content_rm = line_split[1].strip()
-#                 line_cut = list(jieba.cut(content_rm))
-#                 line_words = [word for word in line_cut if word not in stopwords]
-#                 content = line_split[1].strip()
-#                 cur_patent = patent_ZH(content, num, line_split[0])
-#                 cur_docvec = model.infer_vector(line_words)
-#                 cur_patent.docvec = cur_docvec
-#                 print('读取第%d个专利摘要......' % (num + 1))
-#                 if num == 0:
-#                     docvecs[0] = cur_docvec.reshape(1, dim)
-#                 else:
-#                     docvecs = np.row_stack((docvecs, cur_docvec.reshape(1, dim)))
-#                 patent_list.append(cur_patent)
-#                 num += 1
-#     print(docvecs.shape)
-#     model = Birch(n_clusters=3, threshold=0.5, branching_factor=50).fit(docvecs)
-#     cluster = model.labels_
-#     patent_list = get_label(patent_list, cluster)
-#     my_ipc = get_patent_ipc(patent_list)
-#     labels_unique = np.unique(cluster)
-#     n_clusters_ = len(labels_unique)
-#     print('聚类的类别数目：%d' % n_clusters_)
-#     class_num = get_class_num(cluster)
-#     print('聚类结果为：')
-#     for label in class_num:
-#         print(str(label) + ':' + str(class_num[label]))
-#     write_cluster_result('../data/patent_abstract/Birch/bxk_abstract_nostop_doc2vecTest_100.txt', class_num, my_ipc)
-#     print("Calinski-Harabasz Score", metrics.calinski_harabaz_score(docvecs, cluster))
-#     return model
-#
-# def birch2(embedding_name, birch_train_name, cluster_result_name):       # sent2vec
-#     embedding_file = open(embedding_name, 'r', encoding='utf-8', errors='surrogateescape')
-#     sent_num, sentvecs = read(embedding_file, dtype=float)
-#     patent_list = list()
-#     num = 0
-#     dim = 100
-#     with open(birch_train_name, 'r', encoding='utf-8') as curf:
-#         for line in curf.readlines():
-#             line_split = line.split(' ::  ')
-#             if len(line_split) == 2:
-#                 content = line_split[1].strip()
-#                 cur_patent = patent_ZH(content, num, line_split[0])
-#                 cur_patent.docvec = sentvecs[num].reshape(1, dim)
-#                 patent_list.append(cur_patent)
-#                 print('读取第%d个专利摘要......' % (num + 1))
-#                 num += 1
-#     print(sentvecs.shape)
-#     model = Birch(threshold=0.5, branching_factor=50).fit(sentvecs)
-#     cluster = model.labels_
-#     patent_list = get_label(patent_list, cluster)
-#     my_ipc = get_patent_ipc(patent_list)
-#     labels_unique = np.unique(cluster)
-#     n_clusters_ = len(labels_unique)
-#     print('聚类的类别数目：%d' % n_clusters_)
-#     class_num = get_class_num(cluster)
-#     print('聚类结果为：')
-#     for label in class_num:
-#         print(str(label) + ':' + str(class_num[label]))
-#     write_cluster_result(cluster_result_name, class_num, my_ipc)
-#     print("Calinski-Harabasz Score", metrics.calinski_harabaz_score(sentvecs, cluster))
-#     embedding_file.close()
-#     label_vecs = get_Birch_clusters(sentvecs, cluster)
-#     centers = get_centers(label_vecs)
-#     return model, centers
 
 def birch3(embedding_name, birch_train_name, cluster_result_name):       # 词向量加和平均
     embedding_file = open(embedding_name, 'r', encoding='utf-8', errors='surrogateescape')
@@ -312,6 +241,7 @@ def keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, cent
                         cur_wordvec = wordvecs[word2ind[word]].reshape(1, dim)
                         line_vecs.append(cur_wordvec)
                 assert len(line_words) == len(line_vecs)
+                frequency_result = frequency_test(line_words, topn=topn)
                 ind2vec = get_index2vectors(word2ind, wordvecs, line_words)
                 most_label = get_most_label(line_vecs, birch_model)
                 center = centers[most_label]
@@ -329,18 +259,20 @@ def keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, cent
                 #         break
                 tr4w = TextRank4Keyword(stop_words_file = '../data/patent_abstract/mystop.txt')
                 tr4w.analyze(text=content, lower=False, window=3, vertex_source = 'words_no_stop_words', pagerank_config={'alpha': 0.85})
-                print('textrank-----------ours-----------------')
-                log_file.write('textrank----ours-----------------\n')
-                for textrank_item, our_item in zip(tr4w.get_keywords(20, word_min_len=2), list(sorted_index_distance.items())):
-                    cur_word = words[our_item[0]]
-                    cur_dis = our_item[1]
-                    log_file.write('%s\t\t\t' % textrank_item.word)
-                    log_file.write('%s\n' % cur_word)
-                    print(textrank_item.word + '%f' % textrank_item.weight + '\t\t' + cur_word + '%f' % cur_dis)
+                print('frequency----textrank----ours-----------------')
+                log_file.write('frequency----textrank----ours-----------------\n')
+                for frequency_item, textrank_item, our_item in zip(list(frequency_result.items()), tr4w.get_keywords(20, word_min_len=2), list(sorted_index_distance.items())):
+                    frequency_word = frequency_item[0]
+                    frequency = frequency_item[1]
+                    textrank_word = textrank_item.word
+                    our_word = words[our_item[0]]
+                    our_dis = our_item[1]
+                    log_file.write('%s\t\t\t%s\t\t\t%s\n' % (frequency_word, textrank_word, our_word))
+                    print(frequency_word + '%d' % frequency+ '\t\t' + textrank_word + '%f' % textrank_item.weight + '\t\t' + our_word + '%f' % our_dis)
                     keyword_num += 1
                     if keyword_num >= topn:
                         break
-                print('-----------------------------------------------------------------')
+                print('------------------------------------------------------------------')
                 log_file.write('------------------------------------------------------------------\n')
                 num += 1
     wordvec_file.close()
@@ -351,8 +283,84 @@ if __name__ == '__main__':
     embedding_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
     birch_train_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\bxd\_bxd_label_techField.txt'
     cluster_result_name = '../data/patent_abstract/Birch/bxd_techField_wordAVG_keywordTest_1.04_50.txt'
-    log_file_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\test\phone_textRankVSours_techField_wordAVG_1.04_50.txt'
-    test_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\_phone_abstract.txt'
+    log_file_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注\bingxiang_freq_textRank_ours_techField_wordAVG_1.04_50.txt'
+    test_name = '../data/patent_abstract/6种专利摘要各100未标注/_bingxiang_abstract.txt'
     wordvec_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
     birch_model, centers = birch3(embedding_name, birch_train_name, cluster_result_name)
     keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, centers)
+
+# def birch1(model_name):       # Doc2vec
+#     dim = 100
+#     model = Doc2Vec.load(model_name)
+#     patent_list = list()
+#     docvecs = np.zeros((1, dim))
+#     num = 0
+#     stopwords = get_stopwords('../data/patent_abstract/stopwords_new.txt')
+#     with open('D:\PycharmProjects\Dataset\keywordEX\patent\_bxk_label_abstract.txt', 'r', encoding='utf-8') as curf:
+#         for line in curf.readlines():
+#             line_split = line.split(' ::  ')
+#             if len(line_split) == 2:
+#                 content_rm = line_split[1].strip()
+#                 line_cut = list(jieba.cut(content_rm))
+#                 line_words = [word for word in line_cut if word not in stopwords]
+#                 content = line_split[1].strip()
+#                 cur_patent = patent_ZH(content, num, line_split[0])
+#                 cur_docvec = model.infer_vector(line_words)
+#                 cur_patent.docvec = cur_docvec
+#                 print('读取第%d个专利摘要......' % (num + 1))
+#                 if num == 0:
+#                     docvecs[0] = cur_docvec.reshape(1, dim)
+#                 else:
+#                     docvecs = np.row_stack((docvecs, cur_docvec.reshape(1, dim)))
+#                 patent_list.append(cur_patent)
+#                 num += 1
+#     print(docvecs.shape)
+#     model = Birch(n_clusters=3, threshold=0.5, branching_factor=50).fit(docvecs)
+#     cluster = model.labels_
+#     patent_list = get_label(patent_list, cluster)
+#     my_ipc = get_patent_ipc(patent_list)
+#     labels_unique = np.unique(cluster)
+#     n_clusters_ = len(labels_unique)
+#     print('聚类的类别数目：%d' % n_clusters_)
+#     class_num = get_class_num(cluster)
+#     print('聚类结果为：')
+#     for label in class_num:
+#         print(str(label) + ':' + str(class_num[label]))
+#     write_cluster_result('../data/patent_abstract/Birch/bxk_abstract_nostop_doc2vecTest_100.txt', class_num, my_ipc)
+#     print("Calinski-Harabasz Score", metrics.calinski_harabaz_score(docvecs, cluster))
+#     return model
+#
+# def birch2(embedding_name, birch_train_name, cluster_result_name):       # sent2vec
+#     embedding_file = open(embedding_name, 'r', encoding='utf-8', errors='surrogateescape')
+#     sent_num, sentvecs = read(embedding_file, dtype=float)
+#     patent_list = list()
+#     num = 0
+#     dim = 100
+#     with open(birch_train_name, 'r', encoding='utf-8') as curf:
+#         for line in curf.readlines():
+#             line_split = line.split(' ::  ')
+#             if len(line_split) == 2:
+#                 content = line_split[1].strip()
+#                 cur_patent = patent_ZH(content, num, line_split[0])
+#                 cur_patent.docvec = sentvecs[num].reshape(1, dim)
+#                 patent_list.append(cur_patent)
+#                 print('读取第%d个专利摘要......' % (num + 1))
+#                 num += 1
+#     print(sentvecs.shape)
+#     model = Birch(threshold=0.5, branching_factor=50).fit(sentvecs)
+#     cluster = model.labels_
+#     patent_list = get_label(patent_list, cluster)
+#     my_ipc = get_patent_ipc(patent_list)
+#     labels_unique = np.unique(cluster)
+#     n_clusters_ = len(labels_unique)
+#     print('聚类的类别数目：%d' % n_clusters_)
+#     class_num = get_class_num(cluster)
+#     print('聚类结果为：')
+#     for label in class_num:
+#         print(str(label) + ':' + str(class_num[label]))
+#     write_cluster_result(cluster_result_name, class_num, my_ipc)
+#     print("Calinski-Harabasz Score", metrics.calinski_harabaz_score(sentvecs, cluster))
+#     embedding_file.close()
+#     label_vecs = get_Birch_clusters(sentvecs, cluster)
+#     centers = get_centers(label_vecs)
+#     return model, centers
