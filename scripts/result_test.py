@@ -41,7 +41,7 @@ def get_truth_result(truth_name, get_num=100):       #获得人工标注的关�
             keywords = list()
             line_words = truth_line.split('keywords:')[1]
             for word in line_words.split('、'):
-                if word.strip() != '':
+                if word.strip() != '' and len(word) > 1:
                     keywords.append(word.strip())
             truth_dict[num] = keywords
             print('第%d条人工标注专利关键字提取完成......' % num)
@@ -52,7 +52,7 @@ def get_truth_result(truth_name, get_num=100):       #获得人工标注的关�
             keywords = list()
             line_words = truth_line.split('keywords: ')[1]
             for word in line_words.split('、'):
-                if word.strip() != '':
+                if word.strip() != '' and len(word) > 1:
                     keywords.append(word.strip())
             truth_dict[num] = keywords
             print('第%d条人工标注专利关键字提取完成......' % num)
@@ -60,9 +60,11 @@ def get_truth_result(truth_name, get_num=100):       #获得人工标注的关�
     return truth_dict
 
 def main():
-    truth_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\6种专利摘要各100条已标注\电视余道远.txt'
-    test_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\6种专利摘要各100条已标注\TV_textRankVSours_techField_wordAVG_1.009_50.txt'
+    truth_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\空调谢育欣.txt'
+    test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\kongtiao_textRankVSours_techField_wordAVG_1.009_50.txt'
     top_k = 10
+    # top_k = 15
+    # top_k = 20
     textRank_dict,  our_dict = get_test_result(test_name)
     truth_dict = get_truth_result(truth_name)
     textRank_true_num = 0.0
