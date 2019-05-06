@@ -184,7 +184,6 @@ def mytfidf(test_name, stopwords, keywordstop, topn=20):     #TF-IDF算法，返
         for word_index in range(len(word)):
             weight_index[weight[line_index][word_index]] = word_index
         sorted_weight_index = dict(sorted(weight_index.items(), key=operator.itemgetter(0), reverse=True)[0 : min(topn, len(word)) : 1])
-        print("-------这里输出第", line_index, u"类文本的词语tf-idf权重------")
         line_keywords = list()
         for keyword_weight in sorted_weight_index:
             line_keywords.append(word[sorted_weight_index[keyword_weight]])
@@ -311,8 +310,8 @@ if __name__ == '__main__':
     embedding_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
     birch_train_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\bxd\_bxd_label_techField.txt'
     cluster_result_name = '../data/patent_abstract/Birch/bxd_techField_wordAVG_keywordTest_1.04_50.txt'
-    log_file_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注\xiyiji_freq_TFIDF_textRank_ours_techField_wordAVG_1.04_50.txt'
-    test_name = '../data/patent_abstract/6种专利摘要各100未标注/_xiyiji_abstract.txt'
+    log_file_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注\dianhua_freq_TFIDF_textRank_ours_techField_wordAVG_1.04_50.txt'
+    test_name = '../data/patent_abstract/6种专利摘要各100未标注/_phone_abstract.txt'
     wordvec_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
     birch_model, centers = birch3(embedding_name, birch_train_name, cluster_result_name)
     keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, centers)

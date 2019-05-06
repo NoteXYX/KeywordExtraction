@@ -2,7 +2,9 @@ import re
 import operator
 from birchZH import get_stopwords
 import jieba
-
+import xlwt
+import xlrd
+import xlutils.copy
 
 
 def get_test_result(test_name, test_num=100):         #获得各类算法的关键字结果，返回一个字典
@@ -71,7 +73,7 @@ def get_truth_result(truth_name, get_num=100):       #获得人工标注的关�
     truth_file.close()
     return truth_dict
 
-def acc_test(truth_name, test_name, top_k=10):
+def acc_test(truth_name, test_name, truth_top_k=10, test_top_k=10):
     freq_dict, tfidf_dict, textRank_dict,  our_dict = get_test_result(test_name)
     truth_dict = get_truth_result(truth_name)
     freq_true_num = 0.0
@@ -82,15 +84,16 @@ def acc_test(truth_name, test_name, top_k=10):
     for patent_index in truth_dict:
         truth_keywords = truth_dict[patent_index]
         freq_keywords = freq_dict[patent_index]
-        test_freq_keywords = freq_keywords[0: min(top_k, len(freq_keywords)): 1]
+        test_freq_keywords = freq_keywords[0: min(test_top_k, len(freq_keywords)): 1]
         tfidf_keywords = tfidf_dict[patent_index]
-        test_tfidf_keywords = tfidf_keywords[0: min(top_k, len(tfidf_keywords)): 1]
+        test_tfidf_keywords = tfidf_keywords[0: min(test_top_k, len(tfidf_keywords)): 1]
         textRank_keywords = textRank_dict[patent_index]
-        test_textRank_keywords = textRank_keywords[0 : min(top_k, len(textRank_keywords)) : 1]
+        test_textRank_keywords = textRank_keywords[0 : min(test_top_k, len(textRank_keywords)) : 1]
         our_keywords = our_dict[patent_index]
-        test_our_keywords = our_keywords[0 : min(top_k, len(our_keywords)) : 1]
-        truth_num += len(truth_keywords)
-        for truth_keyword_index in range(len(truth_keywords)):
+        test_our_keywords = our_keywords[0 : min(test_top_k, len(our_keywords)) : 1]
+        cur_truth_num = min(truth_top_k, len(truth_keywords))
+        truth_num += cur_truth_num    #####################
+        for truth_keyword_index in range(cur_truth_num):  ################
             truth_keyword = truth_keywords[truth_keyword_index]
             if truth_keyword in test_freq_keywords:
                 freq_true_num += 1
@@ -100,15 +103,58 @@ def acc_test(truth_name, test_name, top_k=10):
                 textRank_true_num += 1
             if truth_keyword in test_our_keywords:
                 our_true_num += 1
-    print('frequency准确率为：%f%%' % (freq_true_num / truth_num * 100))
-    print('TF-IDF准确率为：%f%%' % (tfidf_true_num / truth_num * 100))
-    print('textRank准确率为：%f%%' % (textRank_true_num / truth_num * 100))
-    print('our准确率为：%f%%' % (our_true_num / truth_num * 100))
+    freq_acc = freq_true_num / truth_num * 100
+    tfidf_acc = tfidf_true_num / truth_num * 100
+    textRank_acc = textRank_true_num / truth_num * 100
+    our_acc = our_true_num / truth_num * 100
+    print('frequency准确率为：%f%%' % freq_acc)
+    print('TF-IDF准确率为：%f%%' % tfidf_acc)
+    print('textRank准确率为：%f%%' % textRank_acc)
+    print('our准确率为：%f%%' % our_acc)
+    return freq_acc, tfidf_acc, textRank_acc, our_acc
 
 def main():
-    truth_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\洗衣机李玉玲.txt'
-    test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\xiyiji_freq_TFIDF_textRank_ours_techField_wordAVG_1.04_50.txt'
-    acc_test(truth_name, test_name, top_k=10)
+    truth_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\移动通信余道远.txt'
+    # test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\dianhua_freq_TFIDF_textRank_ours_techField_wordAVG_1.04_50.txt'
+    test_top_k = 5
+    truth_top_k = 5
+    name_index = 2
+    if name_index == 1:  #第一个人为2，第二个人为6
+        name = 2
+    elif name_index == 2:
+        name = 6
+    # freq_acc, tfidf_acc, textRank_acc, our_acc = acc_test(truth_name, test_name, truth_top_k=truth_top_k, test_top_k=test_top_k)
+    data = xlrd.open_workbook(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\实验结果.xls')
+    ws = xlutils.copy.copy(data)
+    table = ws.get_sheet(0)
+    title_line_num = 0
+    title_line_xishu = 0
+    if re.search('电视', truth_name):
+        title_line_xishu = 1
+    if re.search('清洁', truth_name):
+        title_line_xishu = 2
+    if re.search('冰箱', truth_name):
+        title_line_xishu = 3
+    if re.search('洗衣机', truth_name):
+        title_line_xishu = 4
+    if re.search('移动通信', truth_name):
+        title_line_xishu = 5
+    title_line_num += title_line_xishu * 16
+    write_line_num = title_line_num + name + test_top_k/5
+    if truth_top_k == 5:
+        table.write(write_line_num, 2, 'append2')
+        table.write(write_line_num, 4, 'append4')
+        table.write(write_line_num, 6, 'append6')
+        table.write(write_line_num, 8, 'append8')
+    if truth_top_k == 10:
+        table.write(write_line_num, 3, 'append2')
+        table.write(write_line_num, 5, 'append4')
+        table.write(write_line_num, 7, 'append6')
+        table.write(write_line_num, 9, 'append8')
+
+    ws.save(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\实验结果.xls')
+
+
 
 if __name__ == '__main__':
     main()
