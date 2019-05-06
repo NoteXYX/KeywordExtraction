@@ -125,7 +125,7 @@ def write_cluster_result(fname, class_num, my_ipc):
             for ipc in my_ipc[label]:
                 result_f.write(str(label) + ':  ' + ipc + '\n')
 
-# def get_most_label(line_vecs, birch_model):
+# def get_most_label(line_vecs, birch_model):       #摘要中哪个类的单词数目最多，就归为哪一类
 #     label_num = dict()
 #     for vec in line_vecs:
 #         cur_label = birch_model.predict(vec)
@@ -145,7 +145,7 @@ def get_most_label(line_vecs, birch_model, dim=100):    #词向量加和
     most_label = birch_model.predict(line_AVG)
     return most_label
 
-def frequency_test(line_words, topn=20):      #frequency算法，返回一个list——按频率排序的关键字
+def frequency_test(line_words, topn=20):      #frequency算法，返回一个字典{关键词：频率}
     frequency_dict = dict()
     for word in line_words:
         if word not in frequency_dict:
@@ -155,8 +155,9 @@ def frequency_test(line_words, topn=20):      #frequency算法，返回一个lis
     frequency_sorted  = dict(sorted(frequency_dict.items(), key=operator.itemgetter(1), reverse=True))
     return dict(list(frequency_sorted.items())[0 : min(topn, len(frequency_sorted)) : 1])
 
-def mytfidf(test_name, stopwords, keywordstop):     #TF-IDF算法，返回字典{index:[关键字1,关键字2...]}
+def mytfidf(test_name, stopwords, keywordstop, topn=20):     #TF-IDF算法，返回字典{index:[关键字1,关键字2...]}
     corpus = list()
+    tfidf_keywords = dict()
     with open(test_name, 'r', encoding='utf-8') as test_file:
         num = 0
         for test_line in test_file.readlines():
@@ -175,14 +176,21 @@ def mytfidf(test_name, stopwords, keywordstop):     #TF-IDF算法，返回字典
                 num += 1
     vectorizer = CountVectorizer()  # 该类会将文本中的词语转换为词频矩阵，矩阵元素a[i][j] 表示j词在i类文本下的词频
     transformer = TfidfTransformer()  # 该类会统计每个词语的tf-idf权值
-    tfidf = transformer.fit_transform(
-        vectorizer.fit_transform(corpus))  # 第一个fit_transform是计算tf-idf，第二个fit_transform是将文本转为词频矩阵
+    tfidf = transformer.fit_transform(vectorizer.fit_transform(corpus))  # 第一个fit_transform是计算tf-idf，第二个fit_transform是将文本转为词频矩阵
     word = vectorizer.get_feature_names()  # 获取词袋模型中的所有词语
     weight = tfidf.toarray()  # 将tf-idf矩阵抽取出来，元素a[i][j]表示j词在i类文本中的tf-idf权重
-    for i in range(len(weight)):  # 打印每类文本的tf-idf词语权重，第一个for遍历所有文本，第二个for便利某一类文本下的词语权重
-        print("-------这里输出第", i, u"类文本的词语tf-idf权重------")
-        for j in range(len(word)):
-            print(word[j], weight[i][j])
+    for line_index in range(len(weight)):  # 打印每类文本的tf-idf词语权重，第一个for遍历所有文本，第二个for便利某一类文本下的词语权重
+        weight_index = dict()
+        for word_index in range(len(word)):
+            weight_index[weight[line_index][word_index]] = word_index
+        sorted_weight_index = dict(sorted(weight_index.items(), key=operator.itemgetter(0), reverse=True)[0 : min(topn, len(word)) : 1])
+        print("-------这里输出第", line_index, u"类文本的词语tf-idf权重------")
+        line_keywords = list()
+        for keyword_weight in sorted_weight_index:
+            line_keywords.append(word[sorted_weight_index[keyword_weight]])
+            # print(word[sorted_weight_index[keyword_weight]], keyword_weight)
+        tfidf_keywords[line_index] = line_keywords
+    return tfidf_keywords
 
 def birch3(embedding_name, birch_train_name, cluster_result_name):       # 词向量加和平均
     embedding_file = open(embedding_name, 'r', encoding='utf-8', errors='surrogateescape')
@@ -251,7 +259,7 @@ def keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, cent
     keywordstop = get_stopwords('../data/patent_abstract/mystop.txt')
     words, wordvecs = read(wordvec_file, dtype=float)
     word2ind = {word: i for i, word in enumerate(words)}
-    # corpus = list()
+    tfidf_keywords = mytfidf(test_name, stopwords,keywordstop ,topn=topn)
     with open(test_name, 'r', encoding='utf-8') as test_file:
         num = 0
         for test_line in test_file.readlines():
@@ -271,9 +279,7 @@ def keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, cent
                         cur_wordvec = wordvecs[word2ind[word]].reshape(1, dim)
                         line_vecs.append(cur_wordvec)
                 assert len(line_words) == len(line_vecs)
-                # line_str = ' '.join(line_words)
-                # corpus.append(line_str)
-                # frequency_result = frequency_test(line_words, topn=topn)
+                frequency_result = frequency_test(line_words, topn=topn)
                 ind2vec = get_index2vectors(word2ind, wordvecs, line_words)
                 most_label = get_most_label(line_vecs, birch_model)
                 center = centers[most_label]
@@ -281,21 +287,16 @@ def keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, cent
                 keyword_num = 0
                 tr4w = TextRank4Keyword(stop_words_file = '../data/patent_abstract/mystop.txt')
                 tr4w.analyze(text=content, lower=False, window=3, vertex_source = 'words_no_stop_words', pagerank_config={'alpha': 0.85})
-                # print('frequency----textrank----ours-----------------')
-                # log_file.write('frequency----textrank----ours-----------------\n')
-                print('TF-IDF----textrank----ours-----------------')
-                log_file.write('TF-IDF----textrank----ours-----------------\n')
-                # for frequency_item, textrank_item, our_item in zip(list(frequency_result.items()), tr4w.get_keywords(20, word_min_len=2), list(sorted_index_distance.items())):
-                for frequency_item, textrank_item, our_item in zip(list(frequency_result.items()), tr4w.get_keywords(20, word_min_len=2), list(sorted_index_distance.items())):
-                    # frequency_word = frequency_item[0]
-                    # frequency = frequency_item[1]
+                print('frequency----TF-IDF----textrank----ours-----------------')
+                log_file.write('frequency----TF-IDF----textrank----ours-----------------\n')
+                for frequency_item, tfidf_keyword, textrank_item, our_item in zip(list(frequency_result.items()), tfidf_keywords[num], tr4w.get_keywords(20, word_min_len=2), list(sorted_index_distance.items())):
+                    frequency_word = frequency_item[0]
+                    frequency = frequency_item[1]
                     textrank_word = textrank_item.word
                     our_word = words[our_item[0]]
                     our_dis = our_item[1]
-                    log_file.write('%s\t\t\t%s\t\t\t%s\n' % (frequency_word, textrank_word, our_word))
-                    print(frequency_word + '%d' % frequency+ '\t\t' + textrank_word + '%f' % textrank_item.weight + '\t\t' + our_word + '%f' % our_dis)
-                    # log_file.write('%s\t\t\t%s\t\t\t%s\n' % (frequency_word, textrank_word, our_word))
-                    # print(frequency_word + '%d' % frequency+ '\t\t' + textrank_word + '%f' % textrank_item.weight + '\t\t' + our_word + '%f' % our_dis)
+                    log_file.write('%s\t\t\t%s\t\t\t%s\t\t\t%s\n' % (frequency_word, tfidf_keyword, textrank_word, our_word))
+                    print(frequency_word + '%d  ' % frequency + '\t\t'+tfidf_keyword + '\t\t'+'\t\t' + textrank_word + '%f' % textrank_item.weight + '\t\t' + our_word + '%f' % our_dis)
                     keyword_num += 1
                     if keyword_num >= topn:
                         break
@@ -307,18 +308,14 @@ def keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, cent
 
 
 if __name__ == '__main__':
-    # embedding_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
-    # birch_train_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\bxd\_bxd_label_techField.txt'
-    # cluster_result_name = '../data/patent_abstract/Birch/bxd_techField_wordAVG_keywordTest_1.04_50.txt'
-    # log_file_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注\bingxiang_freq_textRank_ours_techField_wordAVG_1.04_50.txt'
-    test_name = '../data/patent_abstract/6种专利摘要各100未标注/_bingxiang_abstract.txt'
-    # wordvec_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
-    # birch_model, centers = birch3(embedding_name, birch_train_name, cluster_result_name)
-    # keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, centers)
-    stopwords = get_stopwords('../data/patent_abstract/stopwords_new.txt')
-    keywordstop = get_stopwords('../data/patent_abstract/mystop.txt')
-    mytfidf(test_name,stopwords,keywordstop)
-
+    embedding_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
+    birch_train_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\bxd\_bxd_label_techField.txt'
+    cluster_result_name = '../data/patent_abstract/Birch/bxd_techField_wordAVG_keywordTest_1.04_50.txt'
+    log_file_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注\xiyiji_freq_TFIDF_textRank_ours_techField_wordAVG_1.04_50.txt'
+    test_name = '../data/patent_abstract/6种专利摘要各100未标注/_xiyiji_abstract.txt'
+    wordvec_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
+    birch_model, centers = birch3(embedding_name, birch_train_name, cluster_result_name)
+    keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, centers)
 # def birch1(model_name):       # Doc2vec
 #     dim = 100
 #     model = Doc2Vec.load(model_name)
