@@ -54,7 +54,7 @@ def get_truth_result(truth_name, get_num=100):       #获得人工标注的关�
                 break
             keywords = list()
             line_words = truth_line.split('keywords:')[1]
-            for word in line_words.split('，'):
+            for word in line_words.split('、'):
                 if word.strip() != '' and len(word) > 1:
                     keywords.append(word.strip())
             truth_dict[num] = keywords
@@ -65,7 +65,7 @@ def get_truth_result(truth_name, get_num=100):       #获得人工标注的关�
                 break
             keywords = list()
             line_words = truth_line.split('keywords: ')[1]
-            for word in line_words.split('，'):
+            for word in line_words.split('、'):
                 if word.strip() != '' and len(word) > 1:
                     keywords.append(word.strip())
             truth_dict[num] = keywords
@@ -135,11 +135,11 @@ def acc_test(truth_name, test_name, truth_top_k=10, test_top_k=10):
     # return freq_recall, tfidf_recall, textRank_recall, our_recall
 
 def main():
-    truth_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\空调植文武.txt'
-    test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\kongtiao_freq_TFIDF_textRank_ours_techField_wordAVG_1.009_50.txt'
-    test_top_k = 20
-    truth_top_k = 5
-    name_index = 2
+    truth_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\洗衣机李玉玲.txt'
+    test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\xiyiji_freq_TFIDF_textRank_ours_techField_wordAVG_1.04_50.txt'
+    test_top_k = 5
+    truth_top_k = 10
+    name_index = 1
     if name_index == 1:  #第一个人为2，第二个人为6
         name = 2
     elif name_index == 2:
