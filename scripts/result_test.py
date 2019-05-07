@@ -8,7 +8,6 @@ import xlutils.copy
 
 
 def get_test_result(test_name, test_num=100):         #获得各类算法的关键字结果，返回一个字典
-    # freq_dict = dict()
     rake_dict = dict()
     tfidf_dict = dict()
     textRank_dict = dict()
@@ -23,14 +22,12 @@ def get_test_result(test_name, test_num=100):         #获得各类算法的关�
             num += 1
             if num > test_num:
                 break
-            # freq_keyword = list()
             rake_keywords = list()
             tfidf_keywords = list()
             textRank_keywords = list()
             our_keywords = list()
         elif test_line == '------------------------------------------------------------------\n':
             ifwrite = False
-            # freq_dict[num] = freq_keyword
             rake_dict[num] = rake_keywords
             tfidf_dict[num] = tfidf_keywords
             textRank_dict[num] = textRank_keywords
@@ -38,14 +35,12 @@ def get_test_result(test_name, test_num=100):         #获得各类算法的关�
         else:
             if ifwrite:
                 line_split = test_line.split('\t\t\t')
-                # freq_keywords.append(line_split[0])
                 rake_keywords.append(line_split[0])
                 tfidf_keywords.append(line_split[1])
                 textRank_keywords.append(line_split[2])
                 our_keywords.append(line_split[3].strip())
     test_file.close()
     return rake_dict, tfidf_dict, textRank_dict, our_dict
-    # return freq_dict, tfidf_dict, textRank_dict, our_dict
 
 def get_truth_result(truth_name, get_num=100):       #获得人工标注的关键字结果，返回一个字典
     truth_file = open(truth_name, 'r', encoding = 'utf-8')
@@ -101,10 +96,8 @@ def result_test(truth_name, test_name, test_model, truth_top_k=10, test_top_k=10
         assert len(test_rake_keywords) == len(test_tfidf_keywords) == len(test_textRank_keywords) == len(test_our_keywords)
         # acc
         cur_test_num = min(test_top_k, len(test_our_keywords))
-        test_num += cur_test_num    #####################
-        for test_keyword_index in range(cur_test_num):  ################
-            # if test_freq_keywords[test_keyword_index] in test_truth_keywords:
-            #     freq_true_num += 1
+        test_num += cur_test_num
+        for test_keyword_index in range(cur_test_num):
             if test_rake_keywords[test_keyword_index] in test_truth_keywords:
                 rake_acc_true_num += 1
             if test_tfidf_keywords[test_keyword_index] in test_truth_keywords:
@@ -115,8 +108,8 @@ def result_test(truth_name, test_name, test_model, truth_top_k=10, test_top_k=10
                 our_acc_true_num += 1
         # recall
         cur_truth_num = min(truth_top_k, len(truth_keywords))
-        truth_num += cur_truth_num    #####################
-        for truth_keyword_index in range(cur_truth_num):  ################
+        truth_num += cur_truth_num
+        for truth_keyword_index in range(cur_truth_num):
             truth_keyword = truth_keywords[truth_keyword_index]
             if truth_keyword in test_rake_keywords:
                 rake_recall_true_num += 1
