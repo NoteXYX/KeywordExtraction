@@ -41,10 +41,10 @@ def jiao_truth(truth_dict1, truth_dict2):
     return truth_zonghe
 
 def main():
-    truth_name1 = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注\空调谢育欣.txt'
-    truth_name2 = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注\空调植文武.txt'
-    truth_file = open(truth_name1, 'r',encoding='utf-8')
-    file_zonghe = open(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注\空调综合.txt', 'w', encoding='utf-8')
+    truth_name1 = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注\清洁周明.txt'
+    truth_name2 = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注\清洁唐雪涛.txt'
+    file_zonghe = open(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注\清洁综合.txt', 'w', encoding='utf-8')
+    truth_file = open(truth_name1, 'r', encoding='utf-8')
     truth_dict1 = get_truth_result(truth_name1)
     truth_dict2 = get_truth_result(truth_name2)
     truth_zonghe = jiao_truth(truth_dict1, truth_dict2)
