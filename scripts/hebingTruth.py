@@ -83,10 +83,10 @@ def jiao_truth(truth_dict1, truth_dict2, our_dict):       #获得交叉验证后
     return truth_zonghe
 
 def main():
-    truth_name1 = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注\清洁唐雪涛.txt'
-    truth_name2 = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注\清洁周明.txt'
-    our_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\qingjie_RAKE_TFIDF_textRank_ours_techField_wordAVG_1.009_50.txt'
-    file_zonghe = open(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注\清洁综合.txt', 'w', encoding='utf-8')
+    truth_name1 = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注\空调谢育欣.txt'
+    truth_name2 = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注\空调植文武.txt'
+    our_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\kongtiao_RAKE_TFIDF_textRank_ours_techField_wordAVG_1.009_50.txt'
+    file_zonghe = open(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注\空调综合.txt', 'w', encoding='utf-8')
     our_dict = get_test_result(our_name)
     truth_file = open(truth_name1, 'r', encoding='utf-8')
     truth_dict1 = get_truth_result(truth_name1)
