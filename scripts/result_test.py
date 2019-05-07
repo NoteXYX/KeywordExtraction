@@ -150,8 +150,8 @@ def acc_test(truth_name, test_name, truth_top_k=10, test_top_k=10):
     # return freq_recall, tfidf_recall, textRank_recall, our_recall
 
 def main():
-    truth_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\移动通信丁晗.txt'
-    test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\dianhua_RAKE_TFIDF_textRank_ours_techField_wordAVG_1.04_50.txt'
+    truth_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\空调谢育欣.txt'
+    test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\kongtiao_RAKE_TFIDF_textRank_ours_techField_wordAVG_1.009_50.txt'
     test_top_k = 5
     truth_top_k = 5
     name_index = 1
@@ -162,7 +162,7 @@ def main():
     name = name_index - 1
     # freq_acc, tfidf_acc, textRank_acc, our_acc = acc_test(truth_name, test_name, truth_top_k=truth_top_k, test_top_k=test_top_k)
     rake_acc, tfidf_acc, textRank_acc, our_acc = acc_test(truth_name, test_name, truth_top_k=truth_top_k,test_top_k=test_top_k)
-    data = xlrd.open_workbook(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\truth_top5实验结果.xls')
+    data = xlrd.open_workbook(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\truth_top10实验结果.xls')
     ws = xlutils.copy.copy(data)
     table = ws.get_sheet(0)
     title_line_num = 0
@@ -185,7 +185,7 @@ def main():
     table.write(title_line_num + 5, write_col_num, '%.2f' % textRank_acc)
     table.write(title_line_num + 6, write_col_num, '%.2f' % our_acc)
 
-    ws.save(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\truth_top5实验结果.xls')
+    ws.save(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\truth_top10实验结果.xls')
 
 
 
