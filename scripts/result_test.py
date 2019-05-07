@@ -153,8 +153,8 @@ def result_test(truth_name, test_name, test_model, truth_top_k=10, test_top_k=10
         return rake_acc, tfidf_acc, textRank_acc, our_acc, rake_recall, tfidf_recall, textRank_recall, our_recall
 
 def main():
-    truth_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\空调综合.txt'
-    test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\kongtiao_RAKE_TFIDF_textRank_ours_techField_wordAVG_1.009_50.txt'
+    truth_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\移动通信综合.txt'
+    test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\dianhua_RAKE_TFIDF_textRank_ours_techField_wordAVG_1.04_50.txt'
     test_top_k = 20
     truth_top_k = 5
     name_index = 1
@@ -163,31 +163,30 @@ def main():
     elif re.search('综合', truth_name):
         name_index = 3
     name = name_index - 1
-    rake_acc, tfidf_acc, textRank_acc, our_acc = result_test(truth_name, test_name, 'recall', truth_top_k=truth_top_k,test_top_k=test_top_k)
-    # data = xlrd.open_workbook(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\truth_top10实验结果.xls')
-    # ws = xlutils.copy.copy(data)
-    # table = ws.get_sheet(0)
-    # title_line_num = 0
-    # title_line_xishu = 0
-    # if re.search('电视', truth_name):
-    #     title_line_xishu = 1
-    # if re.search('清洁', truth_name):
-    #     title_line_xishu = 2
-    # if re.search('冰箱', truth_name):
-    #     title_line_xishu = 3
-    # if re.search('洗衣机', truth_name):
-    #     title_line_xishu = 4
-    # if re.search('移动通信', truth_name):
-    #     title_line_xishu = 5
-    # title_line_num += title_line_xishu * 8
-    # # table.write(write_line_num, 3, '%.2f' % freq_acc)
-    # write_col_num = int(test_top_k / 5 + name * 4)
-    # table.write(title_line_num + 3, write_col_num, '%.2f' % rake_acc)
-    # table.write(title_line_num + 4, write_col_num, '%.2f' % tfidf_acc)
-    # table.write(title_line_num + 5, write_col_num, '%.2f' % textRank_acc)
-    # table.write(title_line_num + 6, write_col_num, '%.2f' % our_acc)
-    #
-    # ws.save(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\truth_top10实验结果.xls')
+    rake_acc, tfidf_acc, textRank_acc, our_acc = result_test(truth_name, test_name, 'accuracy', truth_top_k=truth_top_k,test_top_k=test_top_k)
+    data = xlrd.open_workbook(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\truth_top5实验结果.xls')
+    ws = xlutils.copy.copy(data)
+    table = ws.get_sheet(0)
+    title_line_num = 0
+    title_line_xishu = 0
+    if re.search('电视', truth_name):
+        title_line_xishu = 1
+    if re.search('清洁', truth_name):
+        title_line_xishu = 2
+    if re.search('冰箱', truth_name):
+        title_line_xishu = 3
+    if re.search('洗衣机', truth_name):
+        title_line_xishu = 4
+    if re.search('移动通信', truth_name):
+        title_line_xishu = 5
+    title_line_num += title_line_xishu * 8
+    write_col_num = int(test_top_k / 5 + name * 4)
+    table.write(title_line_num + 3, write_col_num, '%.2f' % rake_acc)
+    table.write(title_line_num + 4, write_col_num, '%.2f' % tfidf_acc)
+    table.write(title_line_num + 5, write_col_num, '%.2f' % textRank_acc)
+    table.write(title_line_num + 6, write_col_num, '%.2f' % our_acc)
+
+    ws.save(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\truth_top5实验结果.xls')
 
 
 
