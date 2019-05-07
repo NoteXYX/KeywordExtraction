@@ -155,7 +155,7 @@ def result_test(truth_name, test_name, test_model, truth_top_k=10, test_top_k=10
 def main():
     truth_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\清洁综合.txt'
     test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\qingjie_RAKE_TFIDF_textRank_ours_techField_wordAVG_1.009_50.txt'
-    test_top_k = 20
+    test_top_k = 5
     truth_top_k = 5
     name_index = 1
     if re.search('植文武', truth_name) or re.search('丁晗', truth_name) or re.search('唐雪涛', truth_name) or re.search('岳永政', truth_name):
