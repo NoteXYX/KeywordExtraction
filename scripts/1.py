@@ -22,21 +22,26 @@ import csv
 from sklearn import feature_extraction
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_extraction.text import CountVectorizer
+from rake import Rake
 
+rake = Rake()
+text = '本发明公开一种具有语音交互功能的声控空调器，通过用户发出的语音指令信息直接对空调器进行控制，并在对空调进行语音控制过程中通过反馈语音指令信息给用户确认，实现用户与空调的语音交互。该技术方案能够完全摆脱遥控器实现对空调的控制，操作方便，同时，语音交互方式具有灵活性，能够满足不同用户个性化的要求，提高了用户的体验。'
+keywords = rake.run(text)
+print(keywords)
 
-corpus=["我 来到 北京 清华大学",#第一类文本切词后的结果，词之间以空格隔开
-		"他 来到 了 网易 杭研 大厦",#第二类文本的切词结果
-		"小明 硕士 毕业 与 中国 科学院",#第三类文本的切词结果
-		"我 爱 北京 天安门"]#第四类文本的切词结果
-vectorizer=CountVectorizer()#该类会将文本中的词语转换为词频矩阵，矩阵元素a[i][j] 表示j词在i类文本下的词频
-transformer=TfidfTransformer()#该类会统计每个词语的tf-idf权值
-tfidf=transformer.fit_transform(vectorizer.fit_transform(corpus))#第一个fit_transform是计算tf-idf，第二个fit_transform是将文本转为词频矩阵
-word=vectorizer.get_feature_names()#获取词袋模型中的所有词语
-weight=tfidf.toarray()#将tf-idf矩阵抽取出来，元素a[i][j]表示j词在i类文本中的tf-idf权重
-for i in range(len(weight)):#打印每类文本的tf-idf词语权重，第一个for遍历所有文本，第二个for便利某一类文本下的词语权重
-    print ("-------这里输出第",i,u"类文本的词语tf-idf权重------")
-    for j in range(len(word)):
-        print (word[j],weight[i][j])
+# corpus=["我 来到 北京 清华大学",#第一类文本切词后的结果，词之间以空格隔开
+# 		"他 来到 了 网易 杭研 大厦",#第二类文本的切词结果
+# 		"小明 硕士 毕业 与 中国 科学院",#第三类文本的切词结果
+# 		"我 爱 北京 天安门"]#第四类文本的切词结果
+# vectorizer=CountVectorizer()#该类会将文本中的词语转换为词频矩阵，矩阵元素a[i][j] 表示j词在i类文本下的词频
+# transformer=TfidfTransformer()#该类会统计每个词语的tf-idf权值
+# tfidf=transformer.fit_transform(vectorizer.fit_transform(corpus))#第一个fit_transform是计算tf-idf，第二个fit_transform是将文本转为词频矩阵
+# word=vectorizer.get_feature_names()#获取词袋模型中的所有词语
+# weight=tfidf.toarray()#将tf-idf矩阵抽取出来，元素a[i][j]表示j词在i类文本中的tf-idf权重
+# for i in range(len(weight)):#打印每类文本的tf-idf词语权重，第一个for遍历所有文本，第二个for便利某一类文本下的词语权重
+#     print ("-------这里输出第",i,u"类文本的词语tf-idf权重------")
+#     for j in range(len(word)):
+#         print (word[j],weight[i][j])
 
 #
 #
