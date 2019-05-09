@@ -59,17 +59,6 @@ def get_truth_result(truth_name, get_num=100):       #获得人工标注的关�
                     keywords.append(word.strip())
             truth_dict[num] = keywords
             print('第%d条人工标注专利关键字提取完成......' % num)
-        elif re.search('keywords: ',truth_line):
-            num += 1
-            if num > get_num:
-                break
-            keywords = list()
-            line_words = truth_line.split('keywords: ')[1]
-            for word in line_words.split('、'):
-                if word.strip() != '' and len(word) > 1:
-                    keywords.append(word.strip())
-            truth_dict[num] = keywords
-            print('第%d条人工标注专利关键字提取完成......' % num)
     truth_file.close()
     return truth_dict
 
@@ -129,7 +118,7 @@ def result_test(truth_name, test_name, test_model, truth_top_k=10, test_top_k=10
     tfidf_recall = tfidf_recall_true_num / truth_num * 100
     textRank_recall = textRank_recall_true_num / truth_num * 100
     our_recall = our_recall_true_num / truth_num * 100
-    if test_model == 'accuracy':
+    if test_model == 'acc':
         print('RAKE准确率为：%f%%' % rake_acc)
         print('TF-IDF准确率为：%f%%' % tfidf_acc)
         print('textRank准确率为：%f%%' % textRank_acc)
@@ -141,30 +130,31 @@ def result_test(truth_name, test_name, test_model, truth_top_k=10, test_top_k=10
         print('textRank召回率为：%f%%' % textRank_recall)
         print('our召回率为：%f%%' % our_recall)
         return rake_recall, tfidf_recall, textRank_recall, our_recall
-    else:
-        print('RAKE准确率为：%f%%' % rake_acc)
-        print('TF-IDF准确率为：%f%%' % tfidf_acc)
-        print('textRank准确率为：%f%%' % textRank_acc)
-        print('our准确率为：%f%%' % our_acc)
-        print('RAKE召回率为：%f%%' % rake_recall)
-        print('TF-IDF召回率为：%f%%' % tfidf_recall)
-        print('textRank召回率为：%f%%' % textRank_recall)
-        print('our召回率为：%f%%' % our_recall)
-        return rake_acc, tfidf_acc, textRank_acc, our_acc, rake_recall, tfidf_recall, textRank_recall, our_recall
+    elif test_model == 'F1':
+        rake_F1 = (2 * rake_acc * rake_recall) / (rake_acc + rake_recall)
+        tfidf_F1 = (2 * tfidf_acc * tfidf_recall) / (tfidf_acc + tfidf_recall)
+        textRank_F1 = (2 * textRank_acc * textRank_recall) / (textRank_acc + textRank_recall)
+        our_F1 = (2 * our_acc * our_recall) / (our_acc + our_recall)
+        print('RAKE的F1值为：%f%%' % rake_F1)
+        print('TF-IDF的F1值为：%f%%' % tfidf_F1)
+        print('textRank的F1值为：%f%%' % textRank_F1)
+        print('our的F1值为：%f%%' % our_F1)
+        return rake_F1, tfidf_F1, textRank_F1, our_F1
 
 def main():
-    truth_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\移动通信综合.txt'
-    test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\dianhua_RAKE_TFIDF_textRank_ours_techField_wordAVG_1.04_50.txt'
+    truth_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\清洁综合.txt'
+    test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\qingjie_RAKE_TFIDF_textRank_ours_techField_wordAVG_1.009_50.txt'
+    test_model = 'F1'
     test_top_k = 20
-    truth_top_k = 5
+    truth_top_k = 10
     name_index = 1
     if re.search('植文武', truth_name) or re.search('丁晗', truth_name) or re.search('唐雪涛', truth_name) or re.search('岳永政', truth_name):
         name_index = 2
     elif re.search('综合', truth_name):
         name_index = 3
     name = name_index - 1
-    rake_acc, tfidf_acc, textRank_acc, our_acc = result_test(truth_name, test_name, 'accuracy', truth_top_k=truth_top_k,test_top_k=test_top_k)
-    data = xlrd.open_workbook(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\truth_top5实验结果.xls')
+    rake_result, tfidf_result, textRank_result, our_result = result_test(truth_name, test_name, test_model, truth_top_k=truth_top_k,test_top_k=test_top_k)
+    data = xlrd.open_workbook(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\truth_top10_F1实验结果.xls')
     ws = xlutils.copy.copy(data)
     table = ws.get_sheet(0)
     title_line_num = 0
@@ -180,13 +170,13 @@ def main():
     if re.search('移动通信', truth_name):
         title_line_xishu = 5
     title_line_num += title_line_xishu * 8
-    write_col_num = int(test_top_k / 5 + name * 4)
-    table.write(title_line_num + 3, write_col_num, '%.2f' % rake_acc)
-    table.write(title_line_num + 4, write_col_num, '%.2f' % tfidf_acc)
-    table.write(title_line_num + 5, write_col_num, '%.2f' % textRank_acc)
-    table.write(title_line_num + 6, write_col_num, '%.2f' % our_acc)
+    write_col_num = int(test_top_k / 5)
+    table.write(title_line_num + 3, write_col_num, '%.2f' % rake_result)
+    table.write(title_line_num + 4, write_col_num, '%.2f' % tfidf_result)
+    table.write(title_line_num + 5, write_col_num, '%.2f' % textRank_result)
+    table.write(title_line_num + 6, write_col_num, '%.2f' % our_result)
 
-    ws.save(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\truth_top5实验结果.xls')
+    ws.save(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\truth_top10_F1实验结果.xls')
 
 
 
