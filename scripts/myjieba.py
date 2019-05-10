@@ -48,4 +48,4 @@ def jieba2():
             f2.close()
 
 if __name__ == '__main__':
-    jieba1()
+    jieba2()

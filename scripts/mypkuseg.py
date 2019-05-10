@@ -24,32 +24,26 @@ def pku1():
             f2.close()
 
 def pku2():
-    try:
-        stopfile = open('../data/patent_abstract/stopwords_new.txt', 'r', encoding='utf-8')
-        f1 = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\all\_all_techField_NEW.txt', 'r', encoding='utf-8')
-        f2 = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\all\all_fc_rm_techField_PKU.txt', 'w', encoding='utf-8')
-        mystr = f1.readlines()
-        stopwords = list()
-        for line in stopfile.readlines():
-            stopwords.append(line.strip())
-        iters = 1
-        seg = pkuseg.pkuseg()  # 以默认配置加载模型
-        for line_str in mystr:
-            seg_list = seg.cut(line_str)
-            words = [word for word in seg_list if word not in stopwords]
-            result = ' '.join(words)
-            result += '\n'
-            f2.write(result)
-            print('处理完成%d行' % iters)
-            iters += 1
-
-    finally:
-        if stopfile:
-            stopfile.close()
-        if f1:
-            f1.close()
-        if f2:
-            f2.close()
+    stopfile = open('../data/patent_abstract/stopwords_new.txt', 'r', encoding='utf-8')
+    f1 = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\bxd\_bxd_techField.txt', 'r', encoding='utf-8')
+    f2 = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\bxd\bxd_fc_rm_techField_PKU.txt', 'w', encoding='utf-8')
+    mystr = f1.readlines()
+    stopwords = list()
+    for line in stopfile.readlines():
+        stopwords.append(line.strip())
+    iters = 1
+    seg = pkuseg.pkuseg()  # 以默认配置加载模型
+    for line_str in mystr:
+        seg_list = seg.cut(line_str)
+        words = [word for word in seg_list if word not in stopwords]
+        result = ' '.join(words)
+        result += '\n'
+        f2.write(result)
+        print('处理完成%d行' % iters)
+        iters += 1
+    stopfile.close()
+    f1.close()
+    f2.close()
 
 if __name__ == '__main__':
     pku2()
