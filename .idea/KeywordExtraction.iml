@@ -6,7 +6,7 @@
       <sourceFolder url="file://$MODULE_DIR$/scripts/sentence2vec-master" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/scripts/RAKE" isTestSource="false" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.7 (1)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.7" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="TestRunnerService">
