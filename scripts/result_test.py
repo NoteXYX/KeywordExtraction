@@ -143,9 +143,9 @@ def result_test(truth_name, test_name, test_model, truth_top_k=10, test_top_k=10
 
 def main():
     truth_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\电视综合.txt'
-    test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\TV_RAKE_TFIDF_textRank_ours_techField_wordAVG_1.009_50.txt'
-    test_model = 'acc'
-    test_top_k = 5
+    test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\TV_RAKE_TFIDF_textRank_ours_techField_wordAVG_1.0115_50.txt'
+    test_model = 'recall'
+    test_top_k = 15
     truth_top_k = 10
     # name_index = 1
     # if re.search('植文武', truth_name) or re.search('丁晗', truth_name) or re.search('唐雪涛', truth_name) or re.search('岳永政', truth_name):

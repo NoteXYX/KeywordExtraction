@@ -217,23 +217,23 @@ def birch3(embedding_name, birch_train_name, cluster_result_name):       # 词�
                             line_wordvecs[0] = cur_wordvec
                         else:
                             line_wordvecs = np.row_stack((line_wordvecs, cur_wordvec))
-                cur_linevec = np.mean(line_wordvecs, axis=0).reshape(1, dim)
-                cur_patent.docvec = cur_linevec
-                patent_list.append(cur_patent)
-                test_vecs = np.row_stack((test_vecs, cur_linevec))
-                print('处理第%d条专利......' % (num+1))
-                # if line_wordvecs.all() == 0:
-                #     continue
-                # else:
-                #     cur_linevec = np.mean(line_wordvecs, axis=0).reshape(1, dim)
-                #     cur_patent.docvec = cur_linevec
-                #     patent_list.append(cur_patent)
-                #     test_vecs = np.row_stack((test_vecs, cur_linevec))
-                #     print('处理第%d条专利......' % (num+1))
+                # cur_linevec = np.mean(line_wordvecs, axis=0).reshape(1, dim)
+                # cur_patent.docvec = cur_linevec
+                # patent_list.append(cur_patent)
+                # test_vecs = np.row_stack((test_vecs, cur_linevec))
+                # print('处理第%d条专利......' % (num+1))
+                if line_wordvecs.all() == 0:
+                    continue
+                else:
+                    cur_linevec = np.mean(line_wordvecs, axis=0).reshape(1, dim)
+                    cur_patent.docvec = cur_linevec
+                    patent_list.append(cur_patent)
+                    test_vecs = np.row_stack((test_vecs, cur_linevec))
+                    print('处理第%d条专利......' % (num+1))
             num += 1
         test_vecs = np.delete(test_vecs, 0 , 0)
     print(test_vecs.shape)
-    model = Birch(threshold=1.04, branching_factor=50, n_clusters=None).fit(test_vecs)
+    model = Birch(threshold=1.0115, branching_factor=50, n_clusters=None).fit(test_vecs)
     cluster = model.labels_
     patent_list = get_label(patent_list, cluster)
     my_ipc = get_patent_ipc(patent_list)
@@ -258,7 +258,7 @@ def keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, cent
     keywordstop = get_stopwords('../data/patent_abstract/mystop.txt')
     words, wordvecs = read(wordvec_file, dtype=float)
     word2ind = {word: i for i, word in enumerate(words)}
-    tfidf_keywords = mytfidf(test_name, stopwords,keywordstop ,topn=topn)
+    tfidf_keywords = mytfidf(test_name, stopwords, keywordstop, topn=topn)
     with open(test_name, 'r', encoding='utf-8') as test_file:
         num = 0
         for test_line in test_file.readlines():
@@ -308,10 +308,10 @@ def keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, cent
 
 if __name__ == '__main__':
     embedding_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
-    birch_train_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\bxd\_bxd_label_techField.txt'
-    cluster_result_name = '../data/patent_abstract/Birch/bxd_techField_wordAVG_keywordTest_1.04_50.txt'
-    log_file_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注\dianhua_RAKE_TFIDF_textRank_ours_techField_wordAVG_1.04_50.txt'
-    test_name = '../data/patent_abstract/6种专利摘要各100未标注/_phone_abstract.txt'
+    birch_train_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\kTVq\_kTVq_label_techField.txt'
+    cluster_result_name = '../data/patent_abstract/Birch/kTVq_techField_wordAVG_keywordTest_1.0115_50.txt'
+    log_file_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注\TV_RAKE_TFIDF_textRank_ours_techField_wordAVG_1.0115_50.txt'
+    test_name = '../data/patent_abstract/6种专利摘要各100未标注/_TV_abstract.txt'
     wordvec_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
     birch_model, centers = birch3(embedding_name, birch_train_name, cluster_result_name)
     keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, centers)
