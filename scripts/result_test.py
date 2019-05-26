@@ -142,8 +142,8 @@ def result_test(truth_name, test_name, test_model, truth_top_k=10, test_top_k=10
         return rake_F1, tfidf_F1, textRank_F1, our_F1
 
 def main():
-    truth_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\电视综合.txt'
-    test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\TV_RAKE_TFIDF_textRank_ours_techField_wordAVG_1.0115_50.txt'
+    truth_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\冰箱综合.txt'
+    test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\bingxiang_RAKE_TFIDF_textRank_ours_techField_wordAVG_1.04_50_NEW.txt'
     test_model = 'F1'
     test_top_k = 10
     truth_top_k = 10
