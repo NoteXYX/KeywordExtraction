@@ -142,10 +142,10 @@ def result_test(truth_name, test_name, test_model, truth_top_k=10, test_top_k=10
         return rake_F1, tfidf_F1, textRank_F1, our_F1
 
 def main():
-    truth_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\冰箱综合.txt'
-    test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\bingxiang_RAKE_TFIDF_textRank_ours_techField_wordAVG_1.04_50_NEW.txt'
+    truth_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\洗衣机综合.txt'
+    test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\xiyiji_RAKE_TFIDF_textRank_ours_techField_wordAVG_1.04_50_NEW123.txt'
     test_model = 'F1'
-    test_top_k = 10
+    test_top_k = 5
     truth_top_k = 10
     # name_index = 1
     # if re.search('植文武', truth_name) or re.search('丁晗', truth_name) or re.search('唐雪涛', truth_name) or re.search('岳永政', truth_name):
