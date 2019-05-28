@@ -145,7 +145,7 @@ def main():
     truth_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\空调综合.txt'
     test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\kongtiao_RAKE_TFIDF_textRank_ours_techField_wordAVG_1.0115_50.txt'
     test_model = 'F1'
-    test_top_k = 5
+    test_top_k = 20
     truth_top_k = 10
     # name_index = 1
     # if re.search('植文武', truth_name) or re.search('丁晗', truth_name) or re.search('唐雪涛', truth_name) or re.search('岳永政', truth_name):
@@ -175,7 +175,7 @@ def main():
     # table.write(title_line_num + 4, write_col_num, '%.2f' % tfidf_result)
     # table.write(title_line_num + 5, write_col_num, '%.2f' % textRank_result)
     # table.write(title_line_num + 6, write_col_num, '%.2f' % our_result)
-
+    #
     # ws.save(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\truth_top10_F1实验结果.xls')
 
 
