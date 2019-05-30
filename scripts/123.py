@@ -14,6 +14,7 @@ import scipy.cluster.hierarchy as sch
 from sklearn.manifold import TSNE
 from sklearn.cluster import Birch
 from extractTrain import myfile
+from sklearn.datasets.samples_generator import make_blobs
 
 class file_EN:
     def __init__(self, name, doc_num):
@@ -96,9 +97,11 @@ def get_class_title(labels):
 #                random_state=9)
 # X = np.concatenate((X1, X2))
 # y_pred = [-1 for i in range(6000)]
-# plt.scatter(X[:, 0], X[:, 1], marker='o',c=y_pred)
-# plt.show()
-# y_pred = KMeans(n_clusters=3, random_state=9).fit_predict(X)
+# # plt.scatter(X[:, 0], X[:, 1], marker='o',c=y_pred)
+# # plt.show()
+# y_pred = KMeans(n_clusters=3, random_state=9)
+# y_pred.fit_predict(X)
+# print(y_pred.cluster_centers_)
 # y_pred = DBSCAN(eps=0.1, min_samples=10).fit_predict(X)
 # print(y_pred.shape)
 # n_clusters_ = len(set(y_pred)) - (1 if -1 in y_pred else 0)
@@ -110,6 +113,17 @@ def get_class_title(labels):
 
 
 if __name__ == '__main__':
+    X, y = make_blobs(n_samples=1000, n_features=2, centers=[[-1, -1], [0, 0], [1, 1], [2, 2]],
+                      cluster_std=[0.4, 0.2, 0.2, 0.2],
+                      random_state=9)
+    # X2, y2 = datasets.make_blobs(n_samples=1000, n_features=2, centers=[[1.2, 1.2]], cluster_std=[[.1]],
+    #                              random_state=9)
+    # X = np.concatenate((X1, X2))
+    y_pred = KMeans(n_clusters=4, random_state=9)
+    y_pred.fit(X)
+    plt.scatter(X[:, 0], X[:, 1], c=y_pred.labels_)
+    plt.show()
+    print(y_pred.cluster_centers_)
     # folder = r"../data/SemEval2010/mine"
     # filters = ['C', 'H', 'I', 'J']
     # truth = {'C': [], 'H': [], 'I': [], 'J': []}
@@ -162,44 +176,44 @@ if __name__ == '__main__':
     #         log_file.write('\n------------------------------------------------------------------\n')
     #     myeps = myeps + 0.1
 
-    patent_list = []
-    num = 0
-    with open('../data/patent_abstract/_bxk_abstract.txt', 'r', encoding='utf-8') as curf:
-        for line in curf.readlines():
-            line = line.strip()
-            cur_patent = patent_ZH(line, num)
-            patent_list.append(cur_patent)
-            num += 1
+    # patent_list = []
+    # num = 0
+    # with open('../data/patent_abstract/_bxk_abstract.txt', 'r', encoding='utf-8') as curf:
+    #     for line in curf.readlines():
+    #         line = line.strip()
+    #         cur_patent = patent_ZH(line, num)
+    #         patent_list.append(cur_patent)
+    #         num += 1
 
 
     # # 1. 层次聚类
     # # 生成点与点之间的距离矩阵,这里用的欧氏距离:
-    sentvecs = np.load('../data/model/sen2vec/patent/bxkdoc_100_dm_40_3.npy')
+    # sentvecs = np.load('../data/model/sen2vec/patent/bxkdoc_100_dm_40_3.npy')
     # myeps = 2
     # my_min_samples = 3
     # cluster = DBSCAN(eps=myeps, min_samples=my_min_samples, n_jobs=-1).fit_predict(sentvecs)
     # sentvecs = np.load(r'D:\PycharmProjects\KeywordExtraction\data\model\sen2vec\SE2010\new_SEdoc_50_dm_40.vector.npy')
-    disMat = sch.distance.pdist(sentvecs, 'cosine')
-    Z = sch.linkage(disMat, method='average')
+    # disMat = sch.distance.pdist(sentvecs, 'cosine')
+    # Z = sch.linkage(disMat, method='average')
     # 将层级聚类结果以树状图表示出来并保存为plot_dendrogram.png
-    plt.figure(num='层次聚类结果', figsize=(8, 8))
-    P=sch.dendrogram(Z)
-    plt.savefig('bxk100_40_3.png')
+    # plt.figure(num='层次聚类结果', figsize=(8, 8))
+    # P=sch.dendrogram(Z)
+    # plt.savefig('bxk100_40_3.png')
     # 根据linkage matrix Z得到聚类结果:
-    cluster = sch.fcluster(Z, 0.8, 'distance', depth=2)
+    # cluster = sch.fcluster(Z, 0.8, 'distance', depth=2)
     # ac = AgglomerativeClustering(n_clusters=2, affinity='euclidean', linkage='complete')
     # cluster = ac.fit_predict(sentvecs)
     # cluster = KMeans(n_clusters=4, random_state=9).fit_predict(sentvecs)
     # file_list = get_label(file_list, cluster)
-    patent_list = get_label(patent_list, cluster)
+    # patent_list = get_label(patent_list, cluster)
     # my_result = get_result(file_list)
-    my_result = get_patent_result(patent_list)
-    labels_unique = np.unique(cluster)
-    n_clusters_ = len(labels_unique)
-    print('聚类的类别数目：%d' % n_clusters_)
-    class_num = get_class_num(cluster)
-    print('聚类结果为：')
-    print(class_num)
+    # my_result = get_patent_result(patent_list)
+    # labels_unique = np.unique(cluster)
+    # n_clusters_ = len(labels_unique)
+    # print('聚类的类别数目：%d' % n_clusters_)
+    # class_num = get_class_num(cluster)
+    # print('聚类结果为：')
+    # print(class_num)
     # class_title = get_class_title(cluster)
     # with open('../data/patent_abstract/bxk_cluster_result.txt', 'w', encoding='utf-8') as result_f:
     #     for label in my_result:
@@ -223,7 +237,7 @@ if __name__ == '__main__':
     #                     correct += 1
     #             break
     # print('聚类正确率：%f%%' % (correct/244.0*100))
-    print('----------------------------------------------------------------')
+    # print('----------------------------------------------------------------')
 
 
     # #2.MeanShift
