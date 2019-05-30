@@ -158,7 +158,6 @@ def get_PKEA_cluster_center(test_name, wordvecs, word2ind, dim=100):       #返�
     center = km_model.cluster_centers_[0]
     return center
 
-def PKEA_test(test_name, ):
 
 # def get_most_label(line_vecs, birch_model):       #摘要中哪个类的单词数目最多，就归为哪一类
 #     label_num = dict()
@@ -319,18 +318,22 @@ def keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, cent
                 ind2vec = get_index2vectors(word2ind, wordvecs, line_words)
                 most_label = get_most_label(line_vecs, birch_model)
                 center = centers[most_label]
+                PKEA_center = get_PKEA_cluster_center(test_name, wordvecs, word2ind)
                 sorted_index_distance = distance_sort(ind2vec, center, 'cos')
+                PKEA_sorted_index_distance = distance_sort(ind2vec, PKEA_center, 'cos')
                 keyword_num = 0
                 tr4w = TextRank4Keyword(stop_words_file = '../data/patent_abstract/mystop.txt')
                 tr4w.analyze(text=content, lower=False, window=3, vertex_source = 'words_no_stop_words', pagerank_config={'alpha': 0.85})
                 print('RAKE----TF-IDF----textrank----PKEA----ours-----------------')
                 log_file.write('RAKE----TF-IDF----textrank----PKEA----ours-----------------\n')
-                for rake_word, tfidf_keyword, textrank_item, PKEA_item, our_item in zip(rake_keywords, tfidf_keywords[num], tr4w.get_keywords(20, word_min_len=2), list(sorted_index_distance_PKEA.items()), list(sorted_index_distance.items())):
+                for rake_word, tfidf_keyword, textrank_item, PKEA_item, our_item in zip(rake_keywords, tfidf_keywords[num], tr4w.get_keywords(20, word_min_len=2), list(PKEA_sorted_index_distance.items()), list(sorted_index_distance.items())):
                     textrank_word = textrank_item.word
+                    PKEA_word = words[PKEA_item[0]]
+                    PKEA_dis = PKEA_item[1]
                     our_word = words[our_item[0]]
                     our_dis = our_item[1]
-                    log_file.write('%s\t\t%s\t\t%s\t\t%s\n' % (rake_word, tfidf_keyword, textrank_word, our_word))
-                    print(rake_word + '\t\t'+tfidf_keyword + '\t\t'+'\t\t' + textrank_word + '%f' % textrank_item.weight + '\t\t' + our_word + '%f' % our_dis)
+                    log_file.write('%s\t\t%s\t\t%s\t\t%s\t\t%s\n' % (rake_word, tfidf_keyword, textrank_word, PKEA_word, our_word))
+                    print(rake_word + '\t\t'+tfidf_keyword + '\t\t'+'\t\t' + textrank_word + '%f' % textrank_item.weight + PKEA_word + '%f' % PKEA_dis + '\t\t'+ '\t\t' + our_word + '%f' % our_dis)
                     keyword_num += 1
                     if keyword_num >= topn:
                         break
@@ -345,7 +348,7 @@ if __name__ == '__main__':
     embedding_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
     birch_train_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\kTVq\_kTVq_label_techField.txt'
     cluster_result_name = '../data/patent_abstract/Birch/kTVq_techField_wordAVG_keywordTest_1.0115_50_NEW.txt'
-    log_file_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注\kongtiao_PKEA_RAKE_TFIDF_textRank_ours_techField_wordAVG_1.0115_50_NEW123.txt'
+    log_file_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注\kongtiao_RAKE_TFIDF_textRank_PKEA_ours_techField_wordAVG_1.0115_50_NEW123.txt'
     test_name = '../data/patent_abstract/6种专利摘要各100未标注/_kongtiao_abstract.txt'
     wordvec_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
     birch_model, centers = birch3(embedding_name, birch_train_name, cluster_result_name)
