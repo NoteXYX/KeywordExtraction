@@ -129,12 +129,12 @@ def write_cluster_result(fname, class_num, my_ipc):
 def get_PKEA_cluster_center(test_name, wordvecs, word2ind, dim=100):       #返回PKEA算法的某个类的预先定义单词的那一个聚类中心
     pre_train_vecs = np.zeros((1, dim))
     PKEA_cluster_center = {
-        'F24F': ['空调', '空调器', '制冷', '风机', '新风', '热交换器', '变频', '环境温度', '温度传感器', '压缩机'],
-        'H04N': ['电视', '成像', '视频', '画面', '显示', '拍摄', '图像', '解码', '摄像', '监控'],
+        'F24F': ['空调', '水泵', '过滤网', '冷凝器', '管路', '氟利昂', '变频', '蒸发器', '通风口', '空气'],
+        'H04N': ['数字电视', '视觉', '液晶屏幕', '机顶盒', '显像管', '监测器', '视频', '解码', '影像', '电信号'],
         'B08B': ['清洁', '清洗', '擦拭', '软管', '除尘', '清洗机', '超声波', '毛刷', '喷淋', '洗刷'],
-        'F25D': ['冰箱', '风冷', '风门', '搁板', '解冻', '储藏', '制冷', '保鲜', '蒸发器', '冷藏'],
-        'D06F': ['洗衣机', '滚筒', '烘干', '衣物', '晾衣', '内筒', '洗涤', '脱水', '漂洗', '洗涤剂'],
-        'H04M': ['电话', '终端', '联系人', '通信', '通话', '电话号码', '手机', '通讯', '拨号', '天线']
+        'F25D': ['冰箱', '蒸发器', '冷凝器', '压缩机', '通风孔', '温度传感器', '气流', '除霜', '隔板', '制冷系统'],
+        'D06F': ['洗衣机', '加热器', '烘干', '自动化', '臭氧', '离子', '磨损', '脱水', '排水管', '活性氧'],
+        'H04M': ['电话', '终端', '联系人', '数据传输', '续航', '电话号码', '智能手机', '通讯', '光纤', '天线']
     }
     if re.search('kongtiao', test_name):
         cluster_id = 'F24F'
@@ -146,14 +146,14 @@ def get_PKEA_cluster_center(test_name, wordvecs, word2ind, dim=100):       #返�
         cluster_id = 'F25D'
     elif re.search('xiyiji', test_name):
         cluster_id = 'D06F'
-    elif re.search('dianhua', test_name):
+    elif re.search('phone', test_name):
         cluster_id = 'H04M'
     for word in PKEA_cluster_center[cluster_id]:
         word_index = word2ind[word]
         cur_vec = wordvecs[word_index].reshape(1, dim)
         pre_train_vecs = np.row_stack((pre_train_vecs, cur_vec))
     pre_train_vecs = np.delete(pre_train_vecs, 0, 0)
-    km_model = KMeans(n_clusters=1, init='k-means++', max_iter=10000)
+    km_model = KMeans(n_clusters=1, init='k-means++', max_iter=1000)
     km_model.fit(pre_train_vecs)
     center = km_model.cluster_centers_[0]
     return center
@@ -267,7 +267,7 @@ def birch3(embedding_name, birch_train_name, cluster_result_name):       # 词�
             num += 1
         test_vecs = np.delete(test_vecs, 0 , 0)
     print(test_vecs.shape)
-    model = Birch(threshold=1.0115, branching_factor=50, n_clusters=None).fit(test_vecs)
+    model = Birch(threshold=1.04, branching_factor=50, n_clusters=None).fit(test_vecs)
     cluster = model.labels_
     patent_list = get_label(patent_list, cluster)
     my_ipc = get_patent_ipc(patent_list)
@@ -346,10 +346,10 @@ def keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, cent
 
 if __name__ == '__main__':
     embedding_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
-    birch_train_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\kTVq\_kTVq_label_techField.txt'
-    cluster_result_name = '../data/patent_abstract/Birch/kTVq_techField_wordAVG_keywordTest_1.0115_50_NEW.txt'
-    log_file_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注\kongtiao_RAKE_TFIDF_textRank_PKEA_ours_techField_wordAVG_1.0115_50_NEW123.txt'
-    test_name = '../data/patent_abstract/6种专利摘要各100未标注/_kongtiao_abstract.txt'
+    birch_train_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\bxd\_bxd_label_techField.txt'
+    cluster_result_name = '../data/patent_abstract/Birch/bxd_techField_wordAVG_keywordTest_1.04_50_NEW.txt'
+    log_file_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注\dianhua_RAKE_TFIDF_textRank_PKEA_ours_techField_wordAVG_1.04_50.txt'
+    test_name = '../data/patent_abstract/6种专利摘要各100未标注/_phone_abstract.txt'
     wordvec_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
     birch_model, centers = birch3(embedding_name, birch_train_name, cluster_result_name)
     keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, centers)
