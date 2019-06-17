@@ -151,26 +151,40 @@ def result_test(truth_name, test_name, test_model, truth_top_k=10, test_top_k=10
         textRank_F1 = (2 * textRank_acc * textRank_recall) / (textRank_acc + textRank_recall)
         PKEA_F1 = (2 * PKEA_acc * PKEA_recall) / (PKEA_acc + PKEA_recall)
         our_F1 = (2 * our_acc * our_recall) / (our_acc + our_recall)
-        print('RAKE的F1值为：%f%%' % rake_F1)
-        print('TF-IDF的F1值为：%f%%' % tfidf_F1)
-        print('textRank的F1值为：%f%%' % textRank_F1)
-        print('PKEA的F1值为：%f%%' %PKEA_F1)
-        print('our的F1值为：%f%%' % our_F1)
+        print('RAKE的F1值为：%.2f%%' % rake_F1)
+        print('TF-IDF的F1值为：%.2f%%' % tfidf_F1)
+        print('textRank的F1值为：%.2f%%' % textRank_F1)
+        print('PKEA的F1值为：%.2f%%' %PKEA_F1)
+        print('our的F1值为：%.2f%%' % our_F1)
         return rake_F1, tfidf_F1, textRank_F1, PKEA_F1, our_F1
 
 def main():
-    truth_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\清洁综合.txt'
-    test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\qingjie_RAKE_TFIDF_textRank_PKEA_ours_techField_wordAVG_1.0115_50.txt'
+    truth_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\移动通信综合.txt'
+    test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\dianhua_RAKE_TFIDF_textRank_PKEA_ours_techField_wordAVG_1.04_50.txt'
     test_model = 'F1'
-    test_top_k = 10
+    test_top_k = 5
     truth_top_k = 10
+    rake_list = list()
+    tfidf_list = list()
+    textRank_list = list()
+    PKEA_list = list()
+    our_list = list()
     # name_index = 1
     # if re.search('植文武', truth_name) or re.search('丁晗', truth_name) or re.search('唐雪涛', truth_name) or re.search('岳永政', truth_name):
     #     name_index = 2
     # elif re.search('综合', truth_name):
     #     name_index = 3
     # name = name_index - 1
-    rake_result, tfidf_result, textRank_result, PKEA_result, our_result = result_test(truth_name, test_name, test_model, truth_top_k=truth_top_k,test_top_k=test_top_k)
+    for i in range(test_top_k, 21):
+        rake_result, tfidf_result, textRank_result, PKEA_result, our_result = result_test(truth_name, test_name,test_model,truth_top_k=truth_top_k,test_top_k=i)
+        rake_list.append(rake_result)
+        tfidf_list.append(tfidf_result)
+        textRank_list.append(textRank_result)
+        PKEA_list.append(PKEA_result)
+        our_list.append(our_result)
+    return rake_list, tfidf_list, textRank_list, PKEA_list, our_list
+
+    # rake_result, tfidf_result, textRank_result, PKEA_result, our_result = result_test(truth_name, test_name, test_model, truth_top_k=truth_top_k,test_top_k=test_top_k)
     # data = xlrd.open_workbook(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\truth_top10_F1实验结果.xls')
     # ws = xlutils.copy.copy(data)
     # table = ws.get_sheet(0)
@@ -199,4 +213,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+    pass

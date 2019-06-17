@@ -1,27 +1,25 @@
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
+from  result_test import main
 x = [i for i in range(5,21)]
-
-# 冰箱
-RAKE_y = [43.95,54.80,57.4,56.84]
-TF_IDF_y = [40.06,50.98,52.45,50.77]
-textRank_y = [37.83,47.47,48.66,47.84]
-PKEA_y = [46.18,57.59,58.23,58.10]
-ours_y = [47.71,60.06,61.20,60.54]
+RAKE_y, TF_IDF_y, textRank_y, PKEA_y, ours_y = main()
 assert len(x) == len(RAKE_y)
 fig = plt.figure()
-plt.plot(x, RAKE_y, label='RAKE')
-plt.plot(x, TF_IDF_y, label='TF-IDF')
-plt.plot(x, textRank_y, label='textRank')
-plt.plot(x, PKEA_y, label='PKEA')
-plt.plot(x, ours_y, label='ours')
+plt.plot(x, RAKE_y, marker='D', label='RAKE')
+plt.plot(x, TF_IDF_y, marker='^', label='TF-IDF')
+plt.plot(x, textRank_y, marker='x', label='textRank')
+plt.plot(x, PKEA_y, marker='|', label='PKEA')
+plt.plot(x, ours_y, marker='o', label='ours')
 def to_percent(temp, position):
     return '%1.0f'%(temp) + '%'
 plt.gca().yaxis.set_major_formatter(FuncFormatter(to_percent))
 plt.xlabel('The number of keywords extracted by algorithms')
 plt.ylabel('F1 score')
 plt.legend()
+filename = r'D:\PycharmProjects\KeywordExtraction\data\电话F1.png'
+plt.savefig(filename)
 plt.show()
+
 
 
 # import re
