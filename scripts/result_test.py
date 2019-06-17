@@ -162,7 +162,7 @@ def main():
     truth_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\清洁综合.txt'
     test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\qingjie_RAKE_TFIDF_textRank_PKEA_ours_techField_wordAVG_1.0115_50.txt'
     test_model = 'F1'
-    test_top_k = 5
+    test_top_k = 10
     truth_top_k = 10
     # name_index = 1
     # if re.search('植文武', truth_name) or re.search('丁晗', truth_name) or re.search('唐雪涛', truth_name) or re.search('岳永政', truth_name):
@@ -171,30 +171,30 @@ def main():
     #     name_index = 3
     # name = name_index - 1
     rake_result, tfidf_result, textRank_result, PKEA_result, our_result = result_test(truth_name, test_name, test_model, truth_top_k=truth_top_k,test_top_k=test_top_k)
-    data = xlrd.open_workbook(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\truth_top10_F1实验结果.xls')
-    ws = xlutils.copy.copy(data)
-    table = ws.get_sheet(0)
-    title_line_num = 0
-    title_line_xishu = 0
-    if re.search('电视', truth_name):
-        title_line_xishu = 1
-    if re.search('清洁', truth_name):
-        title_line_xishu = 2
-    if re.search('冰箱', truth_name):
-        title_line_xishu = 3
-    if re.search('洗衣机', truth_name):
-        title_line_xishu = 4
-    if re.search('移动通信', truth_name):
-        title_line_xishu = 5
-    title_line_num += title_line_xishu * 9
-    write_col_num = int(test_top_k / 5)
-    table.write(title_line_num + 3, write_col_num, '%.2f' % rake_result)
-    table.write(title_line_num + 4, write_col_num, '%.2f' % tfidf_result)
-    table.write(title_line_num + 5, write_col_num, '%.2f' % textRank_result)
-    table.write(title_line_num + 6, write_col_num, '%.2f' % PKEA_result)
-    table.write(title_line_num + 7, write_col_num, '%.2f' % our_result)
-
-    ws.save(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\truth_top10_F1实验结果.xls')
+    # data = xlrd.open_workbook(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\truth_top10_F1实验结果.xls')
+    # ws = xlutils.copy.copy(data)
+    # table = ws.get_sheet(0)
+    # title_line_num = 0
+    # title_line_xishu = 0
+    # if re.search('电视', truth_name):
+    #     title_line_xishu = 1
+    # if re.search('清洁', truth_name):
+    #     title_line_xishu = 2
+    # if re.search('冰箱', truth_name):
+    #     title_line_xishu = 3
+    # if re.search('洗衣机', truth_name):
+    #     title_line_xishu = 4
+    # if re.search('移动通信', truth_name):
+    #     title_line_xishu = 5
+    # title_line_num += title_line_xishu * 9
+    # write_col_num = int(test_top_k / 5)
+    # table.write(title_line_num + 3, write_col_num, '%.2f' % rake_result)
+    # table.write(title_line_num + 4, write_col_num, '%.2f' % tfidf_result)
+    # table.write(title_line_num + 5, write_col_num, '%.2f' % textRank_result)
+    # table.write(title_line_num + 6, write_col_num, '%.2f' % PKEA_result)
+    # table.write(title_line_num + 7, write_col_num, '%.2f' % our_result)
+    #
+    # ws.save(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\truth_top10_F1实验结果.xls')
 
 
 
