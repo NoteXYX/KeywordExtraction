@@ -38,11 +38,12 @@ def plot_with_labels(low_dim_embs, color_labels, ipc_labels, filename):
     color_list = ['b', 'g', 'y']
     for i, label in enumerate(color_labels):
         x, y = low_dim_embs[i, :]
+        # if i in range(2687, 2690):
         if i in range(2336, 2339):
-            plt.scatter(x, y, s=100, c='r')
+            plt.scatter(x, y, s=250, c='r')
         else:
             plt.scatter(x, y, c=color_list[label])
-            plt.annotate(ipc_labels[i], xy=(x, y), xytext=(5, 2), textcoords='offset points',ha='right', va='bottom')
+            # plt.annotate(ipc_labels[i], xy=(x, y), xytext=(5, 2), textcoords='offset points',ha='right', va='bottom')
     plt.savefig(filename)
 
 def techField_wordAVG_display():
@@ -93,7 +94,8 @@ def techField_wordAVG_display():
     for i in range(3):
         cluster.append(-2)
     print(len(cluster))
-    plot_with_labels(low_dim_embs, cluster, ipc_list, '../data/bxd_TSNE_cluster_NEW.png')
+    plot_with_labels(low_dim_embs, cluster, ipc_list, '../data/bxd_TSNE_cluster_NEW123.png')
+    # plot_with_labels(low_dim_embs, cluster, '../data/bxd_TSNE_cluster_NEW123.png')
 
 if __name__ == '__main__':
     techField_wordAVG_display()

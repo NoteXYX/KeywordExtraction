@@ -7,7 +7,7 @@ assert len(x) == len(RAKE_y)
 fig = plt.figure()
 plt.plot(x, RAKE_y, marker='D', label='RAKE', lw=2)
 plt.plot(x, TF_IDF_y, marker='^', label='TF-IDF', lw=2)
-plt.plot(x, textRank_y, marker='x', label='textRank', lw=2)
+plt.plot(x, textRank_y, marker='x', label='TextRank', lw=2)
 plt.plot(x, PKEA_y, marker='|', label='PKEA', lw=2)
 plt.plot(x, ours_y, marker='o', label='ours', lw=2)
 def to_percent(temp, position):
@@ -15,11 +15,11 @@ def to_percent(temp, position):
 plt.gca().yaxis.set_major_formatter(FuncFormatter(to_percent))
 plt.xlabel('The number of keywords extracted by algorithms')
 plt.ylabel('F1 score')
-plt.title('F1 score obtained from the telephone communication dataset')
+plt.title('F1 score obtained from the cleaning dataset')
 plt.legend(loc='lower right')
 plt.ylim((30, 69))
 plt.grid(axis="y")
-filename = r'D:\PycharmProjects\KeywordExtraction\data\电话F1_line.png'
+filename = r'D:\PycharmProjects\KeywordExtraction\data\清洁F1_line.png'
 plt.savefig(filename)
 plt.show()
 
