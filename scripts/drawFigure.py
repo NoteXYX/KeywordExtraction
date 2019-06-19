@@ -15,11 +15,11 @@ def to_percent(temp, position):
 plt.gca().yaxis.set_major_formatter(FuncFormatter(to_percent))
 plt.xlabel('The number of keywords extracted by algorithms')
 plt.ylabel('F1 score')
-plt.title('F1 score obtained from the cleaning dataset')
+# plt.title('F1 score obtained from the cleaning dataset')
 plt.legend(loc='lower right')
 plt.ylim((30, 69))
 plt.grid(axis="y")
-filename = r'D:\PycharmProjects\KeywordExtraction\data\清洁F1_line.png'
+filename = r'D:\PycharmProjects\KeywordExtraction\data\bxdF1_line.png'
 plt.savefig(filename)
 plt.show()
 

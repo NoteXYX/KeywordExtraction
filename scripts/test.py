@@ -18,7 +18,7 @@ def get_test_truth(my_ipc):
     return truth
 
 if __name__ == '__main__':
-    cluster_result_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\Birch\kTVq_techField_wordAVG_keywordTest_1.0115_50.txt'
+    cluster_result_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\Birch\bxk_techField_wordAVG_keywordTest_1.04_50.txt'
     my_ipc = dict()
     ipc_num = 0
     with open(cluster_result_name, 'r', encoding='utf-8') as result_f:
