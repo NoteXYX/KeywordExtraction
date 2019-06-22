@@ -17,9 +17,9 @@ plt.xlabel('The number of keywords extracted by algorithms')
 plt.ylabel('F1 score')
 # plt.title('F1 score obtained from the cleaning dataset')
 plt.legend(loc='lower right')
-plt.ylim((30, 69))
+plt.ylim((35, 65))
 plt.grid(axis="y")
-filename = r'D:\PycharmProjects\KeywordExtraction\data\bxdF1_line.png'
+filename = r'D:\PycharmProjects\KeywordExtraction\data\bxkF1_line_1.006.png'
 plt.savefig(filename)
 plt.show()
 

@@ -267,7 +267,7 @@ def birch3(embedding_name, birch_train_name, cluster_result_name):       # 词�
             num += 1
         test_vecs = np.delete(test_vecs, 0 , 0)
     print(test_vecs.shape)
-    model = Birch(threshold=1.04, branching_factor=50, n_clusters=None).fit(test_vecs)
+    model = Birch(threshold=1.008, branching_factor=50, n_clusters=None).fit(test_vecs)
     cluster = model.labels_
     patent_list = get_label(patent_list, cluster)
     my_ipc = get_patent_ipc(patent_list)
@@ -278,7 +278,7 @@ def birch3(embedding_name, birch_train_name, cluster_result_name):       # 词�
     print('聚类结果为：')
     for label in class_num:
         print(str(label) + ':' + str(class_num[label]))
-    # write_cluster_result(cluster_result_name, class_num, my_ipc)
+    write_cluster_result(cluster_result_name, class_num, my_ipc)
     print("Calinski-Harabasz Score", metrics.calinski_harabaz_score(test_vecs, cluster))
     embedding_file.close()
     label_vecs = get_Birch_clusters(test_vecs, cluster)
@@ -318,6 +318,7 @@ def keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, cent
                 ind2vec = get_index2vectors(word2ind, wordvecs, line_words)
                 most_label = get_most_label(line_vecs, birch_model)
                 center = centers[most_label]
+                # center = centers[1]
                 PKEA_center = get_PKEA_cluster_center(test_name, wordvecs, word2ind)
                 sorted_index_distance = distance_sort(ind2vec, center, 'cos')
                 PKEA_sorted_index_distance = distance_sort(ind2vec, PKEA_center, 'cos')
@@ -346,13 +347,13 @@ def keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, cent
 
 if __name__ == '__main__':
     embedding_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
-    birch_train_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\bxk\_bxk_label_techField.txt'
-    cluster_result_name = '../data/patent_abstract/Birch/bxk_techField_wordAVG_keywordTest_1.04_50.txt'
-    log_file_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注bxk\xiyiji_RAKE_TFIDF_textRank_PKEA_ours_techField_wordAVG_1.04_50.txt'
-    test_name = '../data/patent_abstract/6种专利摘要各100未标注/_xiyiji_abstract.txt'
+    birch_train_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\bxk\_bxk_label_techField_NEW.txt'
+    cluster_result_name = '../data/patent_abstract/Birch/bxk_techField_wordAVG_keywordTest_1.008_50.txt'
+    log_file_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注bxk\bingxiang_RAKE_TFIDF_textRank_PKEA_ours_techField_wordAVG_1.006_50.txt'
+    test_name = '../data/patent_abstract/6种专利摘要各100未标注/_bingxiang_abstract.txt'
     wordvec_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
     birch_model, centers = birch3(embedding_name, birch_train_name, cluster_result_name)
-    keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, centers)
+    # keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, centers)
 # def birch1(model_name):       # Doc2vec
 #     dim = 100
 #     model = Doc2Vec.load(model_name)
