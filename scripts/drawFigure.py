@@ -19,7 +19,7 @@ plt.ylabel('F1 score')
 plt.legend(loc='lower right')
 plt.ylim((25, 60))
 plt.grid(axis="y")
-filename = r'D:\PycharmProjects\KeywordExtraction\data\kTVq_TITLE_F1_line_1.3.png'
+filename = r'D:\PycharmProjects\KeywordExtraction\data\bxk_TITLE_F1_line_1.4.png'
 plt.savefig(filename)
 plt.show()
 

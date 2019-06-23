@@ -170,10 +170,10 @@ def main():
 
     # truth_name_list = ['冰箱', '洗衣机', '移动通信']
     # test_name_list = ['bingxiang', 'xiyiji', 'dianhua']
-    truth_name_list = ['空调', '电视', '清洁']
-    test_name_list = ['kongtiao', 'TV', 'qingjie']
-    # truth_name_list = ['冰箱', '洗衣机', '空调']
-    # test_name_list = ['bingxiang', 'xiyiji', 'kongtiao']
+    # truth_name_list = ['空调', '电视', '清洁']
+    # test_name_list = ['kongtiao', 'TV', 'qingjie']
+    truth_name_list = ['冰箱', '洗衣机', '空调']
+    test_name_list = ['bingxiang', 'xiyiji', 'kongtiao']
     for i in range(test_top_k, 21):
         rake = 0
         tfidf = 0
@@ -182,7 +182,7 @@ def main():
         our = 0
         for truth, test in zip(truth_name_list, test_name_list):
             truth_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\%s综合.txt' % truth
-            test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\%s_RAKE_TFIDF_textRank_PKEA_ours_TITLE_wordAVG_1.3_50.txt' % test
+            test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注bxk\%s_RAKE_TFIDF_textRank_PKEA_ours_TITLE_wordAVG_1.4_50.txt' % test
             rake_result, tfidf_result, textRank_result, PKEA_result, our_result = result_test(truth_name, test_name, test_model, truth_top_k=truth_top_k, test_top_k=i)
             rake += rake_result
             tfidf += tfidf_result

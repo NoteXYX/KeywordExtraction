@@ -267,7 +267,7 @@ def birch3(embedding_name, birch_train_name, cluster_result_name):       # 词�
             num += 1
         test_vecs = np.delete(test_vecs, 0 , 0)
     print(test_vecs.shape)
-    model = Birch(threshold=1.3, branching_factor=50, n_clusters=None).fit(test_vecs)
+    model = Birch(threshold=1.4, branching_factor=50, n_clusters=None).fit(test_vecs)
     cluster = model.labels_
     patent_list = get_label(patent_list, cluster)
     my_ipc = get_patent_ipc(patent_list)
@@ -347,9 +347,9 @@ def keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, cent
 
 if __name__ == '__main__':
     embedding_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
-    birch_train_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\kTVq\_kTVq_label_title.txt'
-    cluster_result_name = '../data/patent_abstract/Birch/kTVq_title_wordAVG_keywordTest_1.3_50.txt'
-    log_file_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注\kongtiao_RAKE_TFIDF_textRank_PKEA_ours_TITLE_wordAVG_1.3_50.txt'
+    birch_train_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\bxk\_bxk_label_title.txt'
+    cluster_result_name = '../data/patent_abstract/Birch/bxk_title_wordAVG_keywordTest_1.4_50.txt'
+    log_file_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注bxk\kongtiao_RAKE_TFIDF_textRank_PKEA_ours_TITLE_wordAVG_1.4_50.txt'
     test_name = '../data/patent_abstract/6种专利摘要各100未标注/_kongtiao_abstract.txt'
     wordvec_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
     birch_model, centers = birch3(embedding_name, birch_train_name, cluster_result_name)
