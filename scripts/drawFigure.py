@@ -1,28 +1,51 @@
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
-from  result_test import main
-x = [i for i in range(5,21)]
-RAKE_y, TF_IDF_y, textRank_y, PKEA_y, ours_y = main()
-assert len(x) == len(RAKE_y)
-fig = plt.figure()
-plt.plot(x, RAKE_y, marker='D', label='RAKE', lw=2)
-plt.plot(x, TF_IDF_y, marker='^', label='TF-IDF', lw=2)
-plt.plot(x, textRank_y, marker='x', label='TextRank', lw=2)
-plt.plot(x, PKEA_y, marker='|', label='PKEA', lw=2)
-plt.plot(x, ours_y, marker='o', label='ours', lw=2)
+# from  result_test import main
+# x = [i for i in range(5,21)]
+# RAKE_y, TF_IDF_y, textRank_y, PKEA_y, ours_y = main()
+# assert len(x) == len(RAKE_y)
+# fig = plt.figure()
+# plt.plot(x, RAKE_y, marker='D', label='RAKE', lw=2)
+# plt.plot(x, TF_IDF_y, marker='^', label='TF-IDF', lw=2)
+# plt.plot(x, textRank_y, marker='x', label='TextRank', lw=2)
+# plt.plot(x, PKEA_y, marker='|', label='PKEA', lw=2)
+# plt.plot(x, ours_y, marker='o', label='ours', lw=2)
+# def to_percent(temp, position):
+#     return '%1.0f'%(temp) + '%'
+# plt.gca().yaxis.set_major_formatter(FuncFormatter(to_percent))
+# plt.xlabel('The number of keywords extracted by algorithms')
+# plt.ylabel('F1 score')
+# plt.legend(loc='lower right')
+# plt.ylim((25, 60))
+# plt.grid(axis="y")
+# filename = r'D:\PycharmProjects\KeywordExtraction\data\bxk_TITLE_F1_line_1.4.png'
+# plt.savefig(filename)
+# plt.show()
+
+name_list = ['Group 1', 'Group 2', 'Group 3']
+abstract = [48.82, 47.04, 45.84]
+title = [56.85, 58.22, 58.42]
+techfield = [60.86, 59.78, 56.84]
+x = list(range(len(abstract)))
+total_width, n = 0.6, 3
+width = total_width / n
 def to_percent(temp, position):
-    return '%1.0f'%(temp) + '%'
-plt.gca().yaxis.set_major_formatter(FuncFormatter(to_percent))
-plt.xlabel('The number of keywords extracted by algorithms')
+     return '%1.0f'%(temp) + '%'
+plt.xlabel('Patent clustering data')
 plt.ylabel('F1 score')
-# plt.title('F1 score obtained from the cleaning dataset')
-plt.legend(loc='lower right')
-plt.ylim((25, 60))
-plt.grid(axis="y")
-filename = r'D:\PycharmProjects\KeywordExtraction\data\bxk_TITLE_F1_line_1.4.png'
+plt.gca().yaxis.set_major_formatter(FuncFormatter(to_percent))
+plt.bar(x, abstract, width=width, label='abstract', fc = 'y')
+for i in range(len(x)):
+    x[i] = x[i] + width
+plt.bar(x, title, width=width, label='title', tick_label = name_list, fc = 'r')
+for i in range(len(x)):
+    x[i] = x[i] + width
+plt.bar(x, techfield, width=width, label='techfield', tick_label = name_list, fc = 'b')
+plt.ylim((30, 70))
+plt.legend()
+filename = r'D:\PycharmProjects\KeywordExtraction\data\柱状图.png'
 plt.savefig(filename)
 plt.show()
-
 
 
 # import re

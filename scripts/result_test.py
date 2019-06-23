@@ -160,7 +160,7 @@ def result_test(truth_name, test_name, test_model, truth_top_k=10, test_top_k=10
 
 def main():
     test_model = 'F1'
-    test_top_k = 5
+    test_top_k = 13
     truth_top_k = 10
     rake_list = list()
     tfidf_list = list()
@@ -174,30 +174,30 @@ def main():
     # test_name_list = ['kongtiao', 'TV', 'qingjie']
     truth_name_list = ['冰箱', '洗衣机', '空调']
     test_name_list = ['bingxiang', 'xiyiji', 'kongtiao']
-    for i in range(test_top_k, 21):
-        rake = 0
-        tfidf = 0
-        TextRank = 0
-        PKEA = 0
-        our = 0
-        for truth, test in zip(truth_name_list, test_name_list):
-            truth_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\%s综合.txt' % truth
-            test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注bxk\%s_RAKE_TFIDF_textRank_PKEA_ours_TITLE_wordAVG_1.4_50.txt' % test
-            rake_result, tfidf_result, textRank_result, PKEA_result, our_result = result_test(truth_name, test_name, test_model, truth_top_k=truth_top_k, test_top_k=i)
-            rake += rake_result
-            tfidf += tfidf_result
-            TextRank += textRank_result
-            PKEA += PKEA_result
-            our += our_result
-        rake_list.append(rake / 3.0)
-        tfidf_list.append(tfidf / 3.0)
-        textRank_list.append(TextRank / 3.0)
-        PKEA_list.append(PKEA / 3.0)
-        our_list.append(our / 3.0)
-    return rake_list, tfidf_list, textRank_list, PKEA_list, our_list
+    #for i in range(test_top_k, 21):
+    #    rake = 0
+    #    tfidf = 0
+    #    TextRank = 0
+    #    PKEA = 0
+    #    our = 0
+    #    for truth, test in zip(truth_name_list, test_name_list):
+    #        truth_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\%s综合.txt' % truth
+    #        test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注bxk\%s_RAKE_TFIDF_textRank_PKEA_ours_TITLE_wordAVG_1.4_50.txt' % test
+    #        rake_result, tfidf_result, textRank_result, PKEA_result, our_result = result_test(truth_name, test_name, test_model, truth_top_k=truth_top_k, test_top_k=i)
+    #        rake += rake_result
+    #        tfidf += tfidf_result
+    #        TextRank += textRank_result
+    #        PKEA += PKEA_result
+    #        our += our_result
+    #    rake_list.append(rake / 3.0)
+    #    tfidf_list.append(tfidf / 3.0)
+    #    textRank_list.append(TextRank / 3.0)
+    #    PKEA_list.append(PKEA / 3.0)
+    #    our_list.append(our / 3.0)
+    #return rake_list, tfidf_list, textRank_list, PKEA_list, our_list
 
-    # truth_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\空调综合.txt'
-    # test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注bxk\kongtiao_RAKE_TFIDF_textRank_PKEA_ours_techField_wordAVG_1.041_50test123.txt'
+    truth_name = r'..\data\patent_abstract\6种专利摘要各100条已标注\空调综合.txt'
+    test_name = r'..\data\patent_abstract\6种专利摘要各100条已标注bxk\kongtiao_RAKE_TFIDF_textRank_PKEA_ours_TITLE_wordAVG_1.4_50.txt'
     # for i in range(test_top_k, 21):
     #    rake_result, tfidf_result, textRank_result, PKEA_result, our_result = result_test(truth_name, test_name,test_model,truth_top_k=truth_top_k,test_top_k=i)
     #    rake_list.append(rake_result)
@@ -207,7 +207,7 @@ def main():
     #    our_list.append(our_result)
     # return rake_list, tfidf_list, textRank_list, PKEA_list, our_list
 
-    # rake_result, tfidf_result, textRank_result, PKEA_result, our_result = result_test(truth_name, test_name, test_model, truth_top_k=truth_top_k,test_top_k=test_top_k)
+    rake_result, tfidf_result, textRank_result, PKEA_result, our_result = result_test(truth_name, test_name, test_model, truth_top_k=truth_top_k,test_top_k=test_top_k)
 
     # data = xlrd.open_workbook(r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\truth_top10_F1实验结果.xls')
     # ws = xlutils.copy.copy(data)
@@ -237,5 +237,5 @@ def main():
 
 
 if __name__ == '__main__':
-    # main()
-    pass
+    main()
+    #pass
