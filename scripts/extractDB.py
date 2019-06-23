@@ -12,12 +12,12 @@ if __name__ == '__main__':
     # 使用 cursor() 方法创建一个游标对象 cursor
     cursor = db.cursor()
     # log_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\ydy\_0bx1dh_abstract.csv', 'w', newline='', encoding='utf-8-sig')
-    log_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\bxk\_bxk_label_techField_NEW.txt', 'w', encoding='utf-8')
+    log_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\bxk\_bxk_label_title.txt', 'w', encoding='utf-8')
     # f_csv = csv.writer(log_file)
     # headers = ['label', 'abstract']
     # headers = ['label', 'tech_field']
     # f_csv.writerow(headers)
-    sql = """ SELECT label, tech_field FROM tb_patentall_label where (label LIKE '%F25D%') OR (label LIKE '%D06F%') OR (label LIKE '%F24F%'); """
+    sql = """ SELECT label, title FROM tb_patentall_label where (label LIKE '%F25D%') OR (label LIKE '%D06F%') OR (label LIKE '%F24F%'); """
     # sql = """ SELECT label,abstract FROM tb_patentall_label where label LIKE '%D06F%'; """
     num0 = 0
     num1 = 0
