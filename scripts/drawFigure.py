@@ -18,34 +18,36 @@ from matplotlib.ticker import FuncFormatter
 # plt.legend(loc='lower right')
 # plt.ylim((25, 60))
 # plt.grid(axis="y")
-# filename = r'D:\PycharmProjects\KeywordExtraction\data\bxk_TITLE_F1_line_1.4.png'
-# plt.savefig(filename)
+# # filename = r'D:\PycharmProjects\KeywordExtraction\data\bxk_TITLE_F1_line_1.45.png'
+# # plt.savefig(filename)
 # plt.show()
 
 name_list = ['Group 1', 'Group 2', 'Group 3']
 abstract = [48.82, 47.04, 45.84]
-title = [56.85, 58.22, 58.42]
+title = [56.85, 58.22, 57.40]
 techfield = [60.86, 59.78, 56.84]
-x = list(range(len(abstract)))
-total_width, n = 0.6, 3
-width = total_width / n
+x1 = list(range(len(abstract)))
+x2 = [i + 0.2 for i in x1]
+x3 = [i + 0.2 for i in x2]
+width = 0.2
+# total_width, n = 0.6, 3
+# width = total_width / n
 def to_percent(temp, position):
      return '%1.0f'%(temp) + '%'
 plt.xlabel('Patent clustering data')
 plt.ylabel('F1 score')
+plt.grid(alpha=0.3,axis="y")
 plt.gca().yaxis.set_major_formatter(FuncFormatter(to_percent))
-plt.bar(x, abstract, width=width, label='abstract', fc = 'y')
-for i in range(len(x)):
-    x[i] = x[i] + width
-plt.bar(x, title, width=width, label='title', tick_label = name_list, fc = 'r')
-for i in range(len(x)):
-    x[i] = x[i] + width
-plt.bar(x, techfield, width=width, label='techfield', tick_label = name_list, fc = 'b')
-plt.ylim((30, 70))
+plt.bar(x1, abstract, width=width, label='abstract', fc = 'y')
+plt.bar(x2, title, width=width, label='title', fc = 'r')
+plt.bar(x3, techfield, width=width, label='techfield',fc = 'b')
+plt.xticks([i+0.2 for i in x1], name_list)
+plt.ylim((35, 70))
 plt.legend()
 filename = r'D:\PycharmProjects\KeywordExtraction\data\柱状图.png'
 plt.savefig(filename)
 plt.show()
+
 
 
 # import re
