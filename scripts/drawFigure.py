@@ -40,11 +40,11 @@ plt.grid(alpha=0.3,axis="y")
 plt.gca().yaxis.set_major_formatter(FuncFormatter(to_percent))
 plt.bar(x1, abstract, width=width, label='abstract', fc = 'y')
 plt.bar(x2, title, width=width, label='title', fc = 'r')
-plt.bar(x3, techfield, width=width, label='techfield',fc = 'b')
+plt.bar(x3, techfield, width=width, label='technical field',fc = 'b')
 plt.xticks([i+0.2 for i in x1], name_list)
 plt.ylim((35, 70))
 plt.legend()
-filename = r'D:\PycharmProjects\KeywordExtraction\data\柱状图.png'
+filename = r'D:\PycharmProjects\KeywordExtraction\data\柱状图New.png'
 plt.savefig(filename)
 plt.show()
 
