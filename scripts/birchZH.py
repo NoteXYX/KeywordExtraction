@@ -12,7 +12,7 @@ from sklearn import metrics
 from textrank4zh import TextRank4Keyword
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_extraction.text import CountVectorizer
-# from RAKE import rake
+from RAKE import rake
 import argparse
 
 
@@ -370,8 +370,8 @@ if __name__ == '__main__':
     test_name = args.test_name
     birchThreshold = args.birchThreshold
     TSNE_name = args.TSNE_name
-    birch_model, centers = birch3(embedding_name, birch_train_name, birchThreshold)
-    keyword_extraction(log_file_name, test_name, embedding_name, birch_model, centers)
+    # birch_model, centers = birch3(embedding_name, birch_train_name, birchThreshold)
+    # keyword_extraction(log_file_name, test_name, embedding_name, birch_model, centers)
 
 
 # def birch1(model_name):       # Doc2vec

@@ -90,8 +90,8 @@ def generate_candidate_keywords(sentence_list):
     #         if phrase != "":
     #             phrase_list.append(phrase)
     # return phrase_list
-    stopwords = get_stopwords('D:\PycharmProjects\KeywordExtraction\data\patent_abstract/stopwords_new.txt')
-    keywordstop = get_stopwords('D:\PycharmProjects\KeywordExtraction\data\patent_abstract/mystop.txt')
+    stopwords = get_stopwords('../data/patent_abstract/stopwords_new.txt')
+    keywordstop = get_stopwords('../data/patent_abstract/mystop.txt')
     word_list = list()
     for s in sentence_list:
         words = list(jieba.cut(s))
