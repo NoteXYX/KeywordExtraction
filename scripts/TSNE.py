@@ -46,11 +46,11 @@ def plot_with_labels(low_dim_embs, color_labels, ipc_labels, filename):
             # plt.annotate(ipc_labels[i], xy=(x, y), xytext=(5, 2), textcoords='offset points',ha='right', va='bottom')
     plt.savefig(filename)
 
-def techField_wordAVG_display():
+def techField_wordAVG_display(embedding_name, test_name, birchThreshlod, TSNE_name):
     mpl.rcParams['font.sans-serif'] = ['FangSong']  # 指定默认字体
     mpl.rcParams['axes.unicode_minus'] = False  # 解决保存图像是负号'-'显示为方块的问题
     tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000, method='exact')
-    embedding_file = open(r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec', 'r',encoding='utf-8', errors='surrogateescape')
+    embedding_file = open(embedding_name, 'r',encoding='utf-8', errors='surrogateescape')
     stop_file = open('../data/patent_abstract/stopwords_new.txt', 'r', encoding='utf-8')
     stopwords = list()
     dim = 100
@@ -60,7 +60,7 @@ def techField_wordAVG_display():
     word2ind = {word: i for i, word in enumerate(words)}
     tsne_vecs = np.zeros((1, dim))
     ipc_list = list()
-    with open(r'D:\PycharmProjects\Dataset\keywordEX\patent\bxd\_bxd_label_abstract.txt', 'r', encoding='utf-8') as test_file:
+    with open(test_name, 'r', encoding='utf-8') as test_file:
         num = 0
         for test_line in test_file.readlines():
             line_split = test_line.split(' ::  ')
@@ -91,7 +91,7 @@ def techField_wordAVG_display():
             num += 1
         tsne_vecs = np.delete(tsne_vecs, 0, 0)
     print(tsne_vecs.shape)
-    birch_model = Birch(threshold=0.8, branching_factor=50, n_clusters=None).fit(tsne_vecs)
+    birch_model = Birch(threshold=birchThreshlod, branching_factor=50, n_clusters=None).fit(tsne_vecs)
     cluster = list(birch_model.labels_)
     label_vecs = get_Birch_clusters(tsne_vecs, cluster)
     centers = get_centers(label_vecs)
@@ -101,10 +101,16 @@ def techField_wordAVG_display():
     for i in range(3):
         cluster.append(-2)
     print(len(cluster))
-    plot_with_labels(low_dim_embs, cluster, ipc_list, '../data/bxd_abstract_TSNE_cluster.png')
+    plot_with_labels(low_dim_embs, cluster, ipc_list, TSNE_name)
+    stop_file.close()
+    embedding_file.close()
     # plot_with_labels(low_dim_embs, cluster, '../data/bxd_TSNE_cluster_NEW123.png')
 
 if __name__ == '__main__':
-    techField_wordAVG_display()
+    embedding_name = r'../data/word2vec/all_rm_abstract_100_mincount1.vec'
+    test_name = r'../data/cluster/kTVq/_kTVq_label_techField.txt'
+    TSNE_name = '../data/figs/bxd_abstract_TSNE_cluster.png'
+    birchThreshlod = 1.0115
+    techField_wordAVG_display(embedding_name, test_name, birchThreshlod, TSNE_name)
 
 

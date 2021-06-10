@@ -12,7 +12,8 @@ from sklearn import metrics
 from textrank4zh import TextRank4Keyword
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_extraction.text import CountVectorizer
-from rake import Rake
+# from RAKE import rake
+import argparse
 
 
 class patent_ZH:
@@ -225,7 +226,7 @@ def mytfidf(test_name, stopwords, keywordstop, topn=20):     #TF-IDF算法，返
         tfidf_keywords[line_index] = line_keywords
     return tfidf_keywords
 
-def birch3(embedding_name, birch_train_name, cluster_result_name):       # 词向量加和平均
+def birch3(embedding_name, birch_train_name, birchThreshold=1.0115):       # 词向量加和平均
     embedding_file = open(embedding_name, 'r', encoding='utf-8', errors='surrogateescape')
     patent_list = list()
     dim = 100
@@ -267,7 +268,7 @@ def birch3(embedding_name, birch_train_name, cluster_result_name):       # 词�
             num += 1
         test_vecs = np.delete(test_vecs, 0 , 0)
     print(test_vecs.shape)
-    model = Birch(threshold=1.45, branching_factor=50, n_clusters=None).fit(test_vecs)
+    model = Birch(threshold=birchThreshold, branching_factor=50, n_clusters=None).fit(test_vecs)
     cluster = model.labels_
     patent_list = get_label(patent_list, cluster)
     my_ipc = get_patent_ipc(patent_list)
@@ -278,8 +279,6 @@ def birch3(embedding_name, birch_train_name, cluster_result_name):       # 词�
     print('聚类结果为：')
     for label in class_num:
         print(str(label) + ':' + str(class_num[label]))
-    # write_cluster_result(cluster_result_name, class_num, my_ipc)
-    # print("Calinski-Harabasz Score", metrics.calinski_harabaz_score(test_vecs, cluster))
     embedding_file.close()
     label_vecs = get_Birch_clusters(test_vecs, cluster)
     centers = get_centers(label_vecs)
@@ -346,14 +345,35 @@ def keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, cent
 
 
 if __name__ == '__main__':
-    embedding_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
-    birch_train_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\bxk\_bxk_label_title.txt'
-    cluster_result_name = '../data/patent_abstract/Birch/bxk_title_wordAVG_keywordTest_1.45_50.txt'
-    log_file_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注bxk\bingxiang_RAKE_TFIDF_textRank_PKEA_ours_TITLE_wordAVG_1.45_50.txt'
-    test_name = '../data/patent_abstract/6种专利摘要各100未标注/_bingxiang_abstract.txt'
-    wordvec_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
-    birch_model, centers = birch3(embedding_name, birch_train_name, cluster_result_name)
-    keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, centers)
+    # embedding_name = r'../data/word2vec/all_rm_abstract_100_mincount1.vec'
+    # birch_train_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\bxk\_bxk_label_title.txt'
+    # cluster_result_name = '../data/patent_abstract/Birch/bxk_title_wordAVG_keywordTest_1.45_50.txt'
+    # log_file_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注bxk\bingxiang_RAKE_TFIDF_textRank_PKEA_ours_TITLE_wordAVG_1.45_50.txt'
+    # test_name = '../data/patent_abstract/6种专利摘要各100未标注/_bingxiang_abstract.txt'
+    parser = argparse.ArgumentParser(description='UPKEM')
+    parser.add_argument('--embedding_file', '-e', help='词嵌入模型',
+                        default=r'../data/word2vec/all_rm_abstract_100_mincount1.vec')
+    parser.add_argument('--birch_train_name', '-b', help='聚类训练文件',
+                        default=r'../data/cluster/kTVq/_kTVq_label_techField.txt')
+    parser.add_argument('--log_file_name', '-l', help='日志文件名',
+                        default=r'../data/patent_abstract/log/kongtiao_RAKE_TFIDF_textRank_PKEA_ours_TechField_wordAVG_1.0115_50.txt')
+    parser.add_argument('--test_name', '-t', help='关键词提取测试文本',
+                        default=r'../data/patent_abstract/6种专利摘要各100未标注/_kongtiao_abstract.txt')
+    parser.add_argument('--birchThreshold', '-s', help='birch聚类阈值',
+                        default=1.0115)
+    parser.add_argument('--TSNE_name', '-n', help='聚类结果图位置',
+                        default=r'../data/figs/bxd_abstract_TSNE_cluster.png')
+    args = parser.parse_args()
+    embedding_name = args.embedding_file
+    birch_train_name = args.birch_train_name
+    log_file_name = args.log_file_name
+    test_name = args.test_name
+    birchThreshold = args.birchThreshold
+    TSNE_name = args.TSNE_name
+    birch_model, centers = birch3(embedding_name, birch_train_name, birchThreshold)
+    keyword_extraction(log_file_name, test_name, embedding_name, birch_model, centers)
+
+
 # def birch1(model_name):       # Doc2vec
 #     dim = 100
 #     model = Doc2Vec.load(model_name)
