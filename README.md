@@ -7,4 +7,4 @@
 
 3、运行dataPre.py，在data/cluster/下生成birch聚类训练文本jsonBirchTrain.txt；在data/test下生成关键词提取测试文本jsonTest.txt
 
-4、运行birchZH.py，在data/figs/下生成聚类结果图JSONcluster.png
+4、运行birchZH.py，在data/figs/下生成聚类结果图JSONcluster.png；在data/log下生成关键词提取结果文件jsonTestLog.txt
