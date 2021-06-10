@@ -14,7 +14,9 @@ from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_extraction.text import CountVectorizer
 from rake import Rake
 import argparse
-from TSNE import techField_wordAVG_display
+from pylab import mpl
+from sklearn.manifold import TSNE
+from TSNE import plot_with_labels
 
 
 class patent_ZH:
@@ -285,6 +287,75 @@ def birch3(embedding_name, birch_train_name, birchThreshold=1.0115):       # 词
     centers = get_centers(label_vecs)
     return model, centers
 
+def birch4(embedding_name, birch_train_name, TSNE_name, birchThreshold=1.0115):       # 词向量加和平均
+    mpl.rcParams['font.sans-serif'] = ['FangSong']  # 指定默认字体
+    mpl.rcParams['axes.unicode_minus'] = False  # 解决保存图像是负号'-'显示为方块的问题
+    tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000, method='exact')
+    embedding_file = open(embedding_name, 'r', encoding='utf-8', errors='surrogateescape')
+    patent_list = list()
+    dim = 100
+    stopwords = get_stopwords('../data/patent_abstract/stopwords_new.txt')
+    words, wordvecs = read(embedding_file, dtype=float)
+    word2ind = {word: i for i, word in enumerate(words)}
+    test_vecs = np.zeros((1, dim))
+    # tsne_vecs = np.zeros((1, dim))
+    ipc_list = list()
+    with open(birch_train_name, 'r', encoding='utf-8') as test_file:
+        num = 0
+        for test_line in test_file.readlines()[:200]:       ########
+            num += 1
+            line_split = test_line.split(' ::  ')
+            if len(line_split) == 2:
+                ipc_list.append(line_split[0][:6])
+                content = line_split[1].strip()
+                cur_patent = patent_ZH(content, num, line_split[0])
+                test_line_words = list(jieba.cut(content))
+                line_words = [word for word in test_line_words if word not in stopwords]
+                line_wordvecs = np.zeros((1, dim))
+                for i in range(len(line_words)):
+                    if line_words[i] in word2ind:
+                        cur_wordindex = word2ind[line_words[i]]
+                        cur_wordvec = wordvecs[cur_wordindex].reshape(1, dim)
+                        # if i == 0:
+                        #     line_wordvecs[0] = cur_wordvec
+                        # else:
+                        line_wordvecs = np.row_stack((line_wordvecs, cur_wordvec))
+                line_wordvecs = np.delete(line_wordvecs, 0, 0)
+                if line_wordvecs.all() == 0 or line_wordvecs.shape[0] == 0:
+                    continue
+                else:
+                    cur_linevec = np.mean(line_wordvecs, axis=0).reshape(1, dim)
+                    cur_patent.docvec = cur_linevec
+                    patent_list.append(cur_patent)
+                    test_vecs = np.row_stack((test_vecs, cur_linevec))
+                    # tsne_vecs = np.row_stack((tsne_vecs, cur_linevec))
+                    print('%d:处理%s人物词条......' % (num, line_split[0]))
+        test_vecs = np.delete(test_vecs, 0 , 0)
+    print(test_vecs.shape)
+    model = Birch(threshold=birchThreshold, branching_factor=50, n_clusters=None).fit(test_vecs)
+    cluster = model.labels_        ######
+    patent_list = get_label(patent_list, cluster)
+    my_ipc = get_patent_ipc(patent_list)
+    labels_unique = np.unique(cluster)
+    n_clusters_ = len(labels_unique)
+    print('聚类的类别数目：%d' % n_clusters_)
+    class_num = get_class_num(cluster)
+    print('聚类结果为：')
+    for label in class_num:
+        print(str(label) + ':' + str(class_num[label]))
+    embedding_file.close()
+    label_vecs = get_Birch_clusters(test_vecs, cluster)
+    centers = get_centers(label_vecs)
+    # 不画中心点
+    # test_vecs = np.row_stack((test_vecs, centers))
+    # print(test_vecs.shape)
+    low_dim_embs = tsne.fit_transform(test_vecs)
+    # for i in range(3):
+    #     cluster.append(-2)
+    # print(len(cluster))
+    plot_with_labels(low_dim_embs, cluster, ipc_list, TSNE_name)
+    return model, centers
+
 def keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, centers, dim=100, topn=20):
     log_file = open(log_file_name, 'w', encoding='utf-8')
     wordvec_file = open(wordvec_name, 'r', encoding='utf-8', errors='surrogateescape')
@@ -353,7 +424,7 @@ def keyword_extraction_JSON(log_file_name, test_name, wordvec_name, birch_model,
     word2ind = {word: i for i, word in enumerate(words)}
     with open(test_name, 'r', encoding='utf-8') as test_file:
         num = 0
-        for test_line in test_file.readlines():
+        for test_line in test_file.readlines()[:100]:           ######################
             line_split = test_line.split(' ::  ')
             if len(line_split) == 2:
                 content = line_split[1].strip()
@@ -370,6 +441,8 @@ def keyword_extraction_JSON(log_file_name, test_name, wordvec_name, birch_model,
                         cur_wordvec = wordvecs[word2ind[word]].reshape(1, dim)
                         line_vecs.append(cur_wordvec)
                 assert len(line_words) == len(line_vecs)
+                if len(line_vecs) < 1:
+                    continue
                 ind2vec = get_index2vectors(word2ind, wordvecs, line_words)
                 most_label = get_most_label(line_vecs, birch_model)
                 center = centers[most_label]
@@ -402,7 +475,7 @@ if __name__ == '__main__':
     parser.add_argument('--birch_train_name', '-b', help='聚类训练文件',
                         default=r'../data/cluster/jsonBirchTrain.txt')
     parser.add_argument('--log_file_name', '-l', help='日志文件名',
-                        default=r'../data/test/jsonTestLog.txt')
+                        default=r'../data/log/jsonTestLog.txt')
     parser.add_argument('--test_name', '-t', help='关键词提取测试文本',
                         default=r'../data/test/jsonTest.txt')
     parser.add_argument('--birchThreshold', '-s', help='birch聚类阈值',
@@ -416,8 +489,8 @@ if __name__ == '__main__':
     test_name = args.test_name
     birchThreshold = args.birchThreshold
     TSNE_name = args.TSNE_name
-    birch_model, centers = birch3(embedding_name, birch_train_name, birchThreshold)
-    techField_wordAVG_display(embedding_name, test_name, birchThreshold, TSNE_name)
+    birch_model, centers = birch4(embedding_name, birch_train_name, TSNE_name, birchThreshold)
+    # techField_wordAVG_display(embedding_name, test_name, birchThreshold, TSNE_name)
     keyword_extraction_JSON(log_file_name, test_name, embedding_name, birch_model, centers)
 
 

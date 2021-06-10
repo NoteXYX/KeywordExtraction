@@ -39,11 +39,14 @@ def plot_with_labels(low_dim_embs, color_labels, ipc_labels, filename):
     for i, label in enumerate(color_labels):
         x, y = low_dim_embs[i, :]
         # if i in range(2687, 2690):
-        if i in range(2225, 2228):
-            plt.scatter(x, y, s=250, c='r')
-        else:
-            plt.scatter(x, y, c=color_list[label])
-            # plt.annotate(ipc_labels[i], xy=(x, y), xytext=(5, 2), textcoords='offset points',ha='right', va='bottom')
+        # if i in range(2225, 2228):                        # 3种专利时
+        #     plt.scatter(x, y, s=250, c='r')               # 3种专利时
+        # else:                                             # 3种专利时
+        #     plt.scatter(x, y, c=color_list[label])        # 3种专利时
+        plt.scatter(x, y)
+        # plt.annotate(ipc_labels[i], xy=(x, y), xytext=(5, 2), textcoords='offset points',ha='right', va='bottom')
+    plt.xticks([])
+    plt.yticks([])
     plt.savefig(filename)
 
 def techField_wordAVG_display(embedding_name, test_name, birchThreshlod, TSNE_name):
@@ -62,7 +65,7 @@ def techField_wordAVG_display(embedding_name, test_name, birchThreshlod, TSNE_na
     ipc_list = list()
     with open(test_name, 'r', encoding='utf-8') as test_file:
         num = 0
-        for test_line in test_file.readlines():
+        for test_line in test_file.readlines()[:100]:           ###########
             line_split = test_line.split(' ::  ')
             if len(line_split) == 2:
                 ipc_list.append(line_split[0][:4])
