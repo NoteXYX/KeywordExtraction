@@ -12,8 +12,9 @@ from sklearn import metrics
 from textrank4zh import TextRank4Keyword
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_extraction.text import CountVectorizer
-from RAKE import rake
+from rake import Rake
 import argparse
+from TSNE import techField_wordAVG_display
 
 
 class patent_ZH:
@@ -343,6 +344,51 @@ def keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, cent
     wordvec_file.close()
     log_file.close()
 
+def keyword_extraction_JSON(log_file_name, test_name, wordvec_name, birch_model, centers, dim=100, topn=20):
+    log_file = open(log_file_name, 'w', encoding='utf-8')
+    wordvec_file = open(wordvec_name, 'r', encoding='utf-8', errors='surrogateescape')
+    stopwords = get_stopwords('../data/patent_abstract/stopwords_new.txt')
+    keywordstop = get_stopwords('../data/patent_abstract/mystop.txt')
+    words, wordvecs = read(wordvec_file, dtype=float)
+    word2ind = {word: i for i, word in enumerate(words)}
+    with open(test_name, 'r', encoding='utf-8') as test_file:
+        num = 0
+        for test_line in test_file.readlines():
+            line_split = test_line.split(' ::  ')
+            if len(line_split) == 2:
+                content = line_split[1].strip()
+                print('%s人物介绍：' % line_split[0].strip())
+                print(content)
+                log_file.write('%s人物介绍：\n' % line_split[0].strip())
+                log_file.write('%s\n' % content)
+                test_line_words = list(jieba.cut(content))
+                line_words = list()
+                line_vecs = list()
+                for word in test_line_words:
+                    if word not in stopwords and word not in keywordstop and word in word2ind and len(word)>1 and not word.isdigit():
+                        line_words.append(word)
+                        cur_wordvec = wordvecs[word2ind[word]].reshape(1, dim)
+                        line_vecs.append(cur_wordvec)
+                assert len(line_words) == len(line_vecs)
+                ind2vec = get_index2vectors(word2ind, wordvecs, line_words)
+                most_label = get_most_label(line_vecs, birch_model)
+                center = centers[most_label]
+                sorted_index_distance = distance_sort(ind2vec, center, 'cos')
+                keyword_num = 0
+                for our_item in list(sorted_index_distance.items()):
+                    our_word = words[our_item[0]]
+                    our_dis = our_item[1]
+                    log_file.write('%s\n' % our_word)
+                    print(our_word + '%f' % our_dis)
+                    keyword_num += 1
+                    if keyword_num >= topn:
+                        break
+                print('------------------------------------------------------------------')
+                log_file.write('------------------------------------------------------------------\n')
+                num += 1
+    wordvec_file.close()
+    log_file.close()
+
 
 if __name__ == '__main__':
     # embedding_name = r'../data/word2vec/all_rm_abstract_100_mincount1.vec'
@@ -354,15 +400,15 @@ if __name__ == '__main__':
     parser.add_argument('--embedding_file', '-e', help='词嵌入模型',
                         default=r'../data/word2vec/all_rm_abstract_100_mincount1.vec')
     parser.add_argument('--birch_train_name', '-b', help='聚类训练文件',
-                        default=r'../data/cluster/kTVq/_kTVq_label_techField.txt')
+                        default=r'../data/cluster/jsonBirchTrain.txt')
     parser.add_argument('--log_file_name', '-l', help='日志文件名',
-                        default=r'../data/patent_abstract/log/kongtiao_RAKE_TFIDF_textRank_PKEA_ours_TechField_wordAVG_1.0115_50.txt')
+                        default=r'../data/test/jsonTestLog.txt')
     parser.add_argument('--test_name', '-t', help='关键词提取测试文本',
-                        default=r'../data/patent_abstract/6种专利摘要各100未标注/_kongtiao_abstract.txt')
+                        default=r'../data/test/jsonTest.txt')
     parser.add_argument('--birchThreshold', '-s', help='birch聚类阈值',
                         default=1.0115)
     parser.add_argument('--TSNE_name', '-n', help='聚类结果图位置',
-                        default=r'../data/figs/bxd_abstract_TSNE_cluster.png')
+                        default=r'../data/figs/JSONcluster.png')
     args = parser.parse_args()
     embedding_name = args.embedding_file
     birch_train_name = args.birch_train_name
@@ -370,8 +416,9 @@ if __name__ == '__main__':
     test_name = args.test_name
     birchThreshold = args.birchThreshold
     TSNE_name = args.TSNE_name
-    # birch_model, centers = birch3(embedding_name, birch_train_name, birchThreshold)
-    # keyword_extraction(log_file_name, test_name, embedding_name, birch_model, centers)
+    birch_model, centers = birch3(embedding_name, birch_train_name, birchThreshold)
+    techField_wordAVG_display(embedding_name, test_name, birchThreshold, TSNE_name)
+    keyword_extraction_JSON(log_file_name, test_name, embedding_name, birch_model, centers)
 
 
 # def birch1(model_name):       # Doc2vec
