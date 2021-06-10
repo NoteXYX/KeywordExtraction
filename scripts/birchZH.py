@@ -302,7 +302,7 @@ def birch4(embedding_name, birch_train_name, TSNE_name, birchThreshold=1.0115): 
     ipc_list = list()
     with open(birch_train_name, 'r', encoding='utf-8') as test_file:
         num = 0
-        for test_line in test_file.readlines()[:200]:       ########
+        for test_line in test_file.readlines():
             num += 1
             line_split = test_line.split(' ::  ')
             if len(line_split) == 2:
@@ -333,7 +333,7 @@ def birch4(embedding_name, birch_train_name, TSNE_name, birchThreshold=1.0115): 
         test_vecs = np.delete(test_vecs, 0 , 0)
     print(test_vecs.shape)
     model = Birch(threshold=birchThreshold, branching_factor=50, n_clusters=None).fit(test_vecs)
-    cluster = model.labels_        ######
+    cluster = model.labels_
     patent_list = get_label(patent_list, cluster)
     my_ipc = get_patent_ipc(patent_list)
     labels_unique = np.unique(cluster)
@@ -424,7 +424,7 @@ def keyword_extraction_JSON(log_file_name, test_name, wordvec_name, birch_model,
     word2ind = {word: i for i, word in enumerate(words)}
     with open(test_name, 'r', encoding='utf-8') as test_file:
         num = 0
-        for test_line in test_file.readlines()[:100]:           ######################
+        for test_line in test_file.readlines():
             line_split = test_line.split(' ::  ')
             if len(line_split) == 2:
                 content = line_split[1].strip()
