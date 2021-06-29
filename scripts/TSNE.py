@@ -31,7 +31,7 @@ def get_centers(clusters, dim=100):  # 获得各个类的中心点(噪音类除�
             centers[label] = cur_center
     return centers
 
-def plot_with_labels(low_dim_embs, color_labels, ipc_labels, filename):
+def plot_with_labels_0(low_dim_embs, color_labels, ipc_labels, filename):
     assert low_dim_embs.shape[0] >= len(color_labels), 'More labels than embeddings'
     # assert len(color_labels) == len(ipc_labels)
     plt.figure(figsize=(19, 19))  # in inches
@@ -47,6 +47,22 @@ def plot_with_labels(low_dim_embs, color_labels, ipc_labels, filename):
         # plt.annotate(ipc_labels[i], xy=(x, y), xytext=(5, 2), textcoords='offset points',ha='right', va='bottom')
     plt.xticks([])
     plt.yticks([])
+    plt.savefig(filename)
+
+def plot_with_labels(low_dim_embs, color_labels, ipc_labels, filename, n_clusters):
+    assert low_dim_embs.shape[0] >= len(color_labels), 'More labels than embeddings'
+    # assert len(color_labels) == len(ipc_labels)
+    plt.figure(figsize=(19, 19))  # in inches
+    color_list = ['b', 'y', 'g', 'k', 'm', 'c']
+    # color_list = np.random.rand(n_clusters)
+    for i, label in enumerate(color_labels):
+        x, y = low_dim_embs[i, :]
+        # if i in range(2687, 2690):
+        if i in range(len(color_labels)-n_clusters, len(color_labels)):
+            plt.scatter(x, y, s=250, c='r')
+        else:
+            plt.scatter(x, y, c=color_list[label])
+            # plt.annotate(ipc_labels[i], xy=(x, y), xytext=(5, 2), textcoords='offset points',ha='right', va='bottom')
     plt.savefig(filename)
 
 def techField_wordAVG_display(embedding_name, test_name, birchThreshlod, TSNE_name):

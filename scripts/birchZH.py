@@ -17,6 +17,8 @@ import argparse
 from pylab import mpl
 from sklearn.manifold import TSNE
 from TSNE import plot_with_labels
+from TSNE import plot_with_labels_0
+import time
 
 
 class patent_ZH:
@@ -229,9 +231,13 @@ def mytfidf(test_name, stopwords, keywordstop, topn=20):     #TF-IDF算法，返
         tfidf_keywords[line_index] = line_keywords
     return tfidf_keywords
 
-def birch3(embedding_name, birch_train_name, birchThreshold=1.0115):       # 词向量加和平均
+def birch3(embedding_name, birch_train_name, TSNE_name):       # 词向量加和平均
+    mpl.rcParams['font.sans-serif'] = ['FangSong']  # 指定默认字体
+    mpl.rcParams['axes.unicode_minus'] = False  # 解决保存图像是负号'-'显示为方块的问题
+    tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000, method='exact')
     embedding_file = open(embedding_name, 'r', encoding='utf-8', errors='surrogateescape')
     patent_list = list()
+    ipc_list = list()
     dim = 100
     stopwords = get_stopwords('../data/patent_abstract/stopwords_new.txt')
     words, wordvecs = read(embedding_file, dtype=float)
@@ -242,6 +248,7 @@ def birch3(embedding_name, birch_train_name, birchThreshold=1.0115):       # 词
         for test_line in test_file.readlines():
             line_split = test_line.split(' ::  ')
             if len(line_split) == 2:
+                ipc_list.append(line_split[0][:6])
                 content = line_split[1].strip()
                 cur_patent = patent_ZH(content, num, line_split[0])
                 test_line_words = list(jieba.cut(content))
@@ -271,7 +278,7 @@ def birch3(embedding_name, birch_train_name, birchThreshold=1.0115):       # 词
             num += 1
         test_vecs = np.delete(test_vecs, 0 , 0)
     print(test_vecs.shape)
-    model = Birch(threshold=birchThreshold, branching_factor=50, n_clusters=None).fit(test_vecs)
+    model = Birch(threshold=1.006, branching_factor=50, n_clusters=None).fit(test_vecs)
     cluster = model.labels_
     patent_list = get_label(patent_list, cluster)
     my_ipc = get_patent_ipc(patent_list)
@@ -285,9 +292,17 @@ def birch3(embedding_name, birch_train_name, birchThreshold=1.0115):       # 词
     embedding_file.close()
     label_vecs = get_Birch_clusters(test_vecs, cluster)
     centers = get_centers(label_vecs)
+    test_vecs = np.row_stack((test_vecs, centers))
+    print(test_vecs.shape)
+    low_dim_embs = tsne.fit_transform(test_vecs)
+    cluster = cluster.tolist()
+    for i in range(n_clusters_):
+        cluster.append(-2)
+    print(len(cluster))
+    plot_with_labels(low_dim_embs, cluster, ipc_list, TSNE_name, n_clusters_)
     return model, centers
 
-def birch4(embedding_name, birch_train_name, TSNE_name, birchThreshold=1.0115):       # 词向量加和平均
+def birch4(embedding_name, birch_train_name, TSNE_name, birchThreshold=1.0006):       # 词向量加和平均
     mpl.rcParams['font.sans-serif'] = ['FangSong']  # 指定默认字体
     mpl.rcParams['axes.unicode_minus'] = False  # 解决保存图像是负号'-'显示为方块的问题
     tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000, method='exact')
@@ -353,7 +368,7 @@ def birch4(embedding_name, birch_train_name, TSNE_name, birchThreshold=1.0115): 
     # for i in range(3):
     #     cluster.append(-2)
     # print(len(cluster))
-    plot_with_labels(low_dim_embs, cluster, ipc_list, TSNE_name)
+    plot_with_labels_0(low_dim_embs, cluster, ipc_list, TSNE_name)
     return model, centers
 
 def keyword_extraction(log_file_name, test_name, wordvec_name, birch_model, centers, dim=100, topn=20):
@@ -424,7 +439,7 @@ def keyword_extraction_JSON(log_file_name, test_name, wordvec_name, birch_model,
     word2ind = {word: i for i, word in enumerate(words)}
     with open(test_name, 'r', encoding='utf-8') as test_file:
         num = 0
-        for test_line in test_file.readlines():
+        for test_line in test_file.readlines()[:200]:
             line_split = test_line.split(' ::  ')
             if len(line_split) == 2:
                 content = line_split[1].strip()
@@ -464,34 +479,41 @@ def keyword_extraction_JSON(log_file_name, test_name, wordvec_name, birch_model,
 
 
 if __name__ == '__main__':
-    # embedding_name = r'../data/word2vec/all_rm_abstract_100_mincount1.vec'
-    # birch_train_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\bxk\_bxk_label_title.txt'
-    # cluster_result_name = '../data/patent_abstract/Birch/bxk_title_wordAVG_keywordTest_1.45_50.txt'
-    # log_file_name = r'D:\PycharmProjects\KeywordExtraction\data\patent_abstract\6种专利摘要各100条已标注bxk\bingxiang_RAKE_TFIDF_textRank_PKEA_ours_TITLE_wordAVG_1.45_50.txt'
-    # test_name = '../data/patent_abstract/6种专利摘要各100未标注/_bingxiang_abstract.txt'
-    parser = argparse.ArgumentParser(description='UPKEM')
-    parser.add_argument('--embedding_file', '-e', help='词嵌入模型',
-                        default=r'../data/word2vec/all_rm_abstract_100_mincount1.vec')
-    parser.add_argument('--birch_train_name', '-b', help='聚类训练文件',
-                        default=r'../data/cluster/jsonBirchTrain.txt')
-    parser.add_argument('--log_file_name', '-l', help='日志文件名',
-                        default=r'../data/log/jsonTestLog.txt')
-    parser.add_argument('--test_name', '-t', help='关键词提取测试文本',
-                        default=r'../data/test/jsonTest.txt')
-    parser.add_argument('--birchThreshold', '-s', help='birch聚类阈值',
-                        default=1.0115)
-    parser.add_argument('--TSNE_name', '-n', help='聚类结果图位置',
-                        default=r'../data/figs/JSONcluster.png')
-    args = parser.parse_args()
-    embedding_name = args.embedding_file
-    birch_train_name = args.birch_train_name
-    log_file_name = args.log_file_name
-    test_name = args.test_name
-    birchThreshold = args.birchThreshold
-    TSNE_name = args.TSNE_name
-    birch_model, centers = birch4(embedding_name, birch_train_name, TSNE_name, birchThreshold)
+    start1 = time.process_time()
+    embedding_name = r'../data/word2vec/all_rm_abstract_100_mincount1.vec'
+    birch_train_name = r'../data/birchTrain/_bxk_label_techField.txt'
+    cluster_result_name = '../data/patent_abstract/Birch/bxk_techField_wordAVG_keywordTest_1.006_50.txt'
+    log_file_name = r'../data/log/bingxiang_RAKE_TFIDF_textRank_PKEA_ours_techField_wordAVG_1.006_50.txt'
+    test_name = '../data/patent_abstract/6种专利摘要各100未标注/_bingxiang_abstract.txt'
+    # wordvec_name = r'D:\PycharmProjects\Dataset\keywordEX\patent\word2vec\all_rm_abstract_100_mincount1.vec'
+    TSNE_name = '../data/figs/bxk_cluster.png'
+    birch_model, centers = birch3(embedding_name, birch_train_name, TSNE_name)
+    keyword_extraction(log_file_name, test_name, embedding_name, birch_model, centers)
+    start2 = time.process_time()
+    print(start2 - start1)
+    # parser = argparse.ArgumentParser(description='UPKEM')
+    # parser.add_argument('--embedding_file', '-e', help='词嵌入模型',
+    #                     default=r'../data/word2vec/all_rm_abstract_100_mincount1.vec')
+    # parser.add_argument('--birch_train_name', '-b', help='聚类训练文件',
+    #                     default=r'../data/cluster/jsonBirchTrain.txt')
+    # parser.add_argument('--log_file_name', '-l', help='日志文件名',
+    #                     default=r'../data/log/jsonTestLog.txt')
+    # parser.add_argument('--test_name', '-t', help='关键词提取测试文本',
+    #                     default=r'../data/test/jsonTest.txt')
+    # parser.add_argument('--birchThreshold', '-s', help='birch聚类阈值',
+    #                     default=1.0115)
+    # parser.add_argument('--TSNE_name', '-n', help='聚类结果图位置',
+    #                     default=r'../data/figs/JSONcluster.png')
+    # args = parser.parse_args()
+    # embedding_name = args.embedding_file
+    # birch_train_name = args.birch_train_name
+    # log_file_name = args.log_file_name
+    # test_name = args.test_name
+    # birchThreshold = args.birchThreshold
+    # TSNE_name = args.TSNE_name
+    # birch_model, centers = birch4(embedding_name, birch_train_name, TSNE_name, birchThreshold)
     # techField_wordAVG_display(embedding_name, test_name, birchThreshold, TSNE_name)
-    keyword_extraction_JSON(log_file_name, test_name, embedding_name, birch_model, centers)
+    # keyword_extraction_JSON(log_file_name, test_name, embedding_name, birch_model, centers)
 
 
 # def birch1(model_name):       # Doc2vec
